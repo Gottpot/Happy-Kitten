@@ -1,39 +1,28 @@
 # 🐾 Happy-Kitten v1.0
 
-日本語 · English · [Deutsch](#deutsch)
+**English** · [日本語](README.ja.md) · [Deutsch](README.de.md)
 
-**ハッピーキトゥン** — Mac用の、ローカルで動く高速な動画編集ソフトです。Rustで作られ、GPU（wgpu/Metal）で映像を処理します。かわいいパステルピンクの画面、猫の肉球トランジション、字幕・歌詞（SRT/LRC）のエフェクト、縦型ショート動画（9:16）の書き出しに対応。クラウドもアカウントも広告もサブスクもありません。画面は日本語・英語・韓国語・スペイン語・ドイツ語に対応し、右上の🌐ボタンで切り替えられます。
+**By Gottpot** · open source under MIT or Apache-2.0 · 📺 [YouTube @Gottpot](https://www.youtube.com/@Gottpot)
 
-**Happy-Kitten** is a fast, local video editor for the Mac, written in Rust. Frames are processed on the GPU (wgpu/Metal) in a pastel-pink interface. It comes with cat-paw transitions, text and subtitle effects (SRT/LRC) and 9:16 export for Shorts and Reels. No cloud, no account, no ads, no subscription. The interface speaks Japanese, English, Korean, Spanish and German; the 🌐 button at the top right switches the language.
-
-By **Gottpot** · open source under MIT or Apache-2.0 / MITまたはApache-2.0のオープンソース
-📺 YouTube: [https://www.youtube.com/@Gottpot](https://www.youtube.com/@Gottpot) — 日本語のコンテンツ / Japanese content
+A local, lightning-fast video editor for the Mac, written in Rust. Image processing runs on the GPU through **wgpu/Metal**, and the interface is sugar-sweet pastel pink instead of Adobe grey.
+Everything happens **offline**: no cloud, no account, no telemetry, no subscription.
 
 ![Logo](assets/logo.png)
 
 ## Screenshots
 
-![Editor with a paw transition](docs/screenshots/main.png)
+![The editor in the middle of a paw transition](docs/screenshots/main.png)
 
 | | |
 |---|---|
 | ![Text and effects](docs/screenshots/text.png) | ![Transitions](docs/screenshots/transitions.png) |
-| ![Export](docs/screenshots/export.png) | ![Japanese interface / 日本語の画面](docs/screenshots/japanese.png) |
+| ![Export](docs/screenshots/export.png) | ![Japanese interface](docs/screenshots/japanese.png) |
 
-## ダウンロードと初回起動 / Download and first launch
+## Download and first launch
 
-**日本語:** [Releases](../../releases) から `Happy-Kitten-….zip` をダウンロードし、解凍して「アプリケーション」フォルダへ移動します（Apple Silicon の Mac、macOS 13以降）。作者は Apple の認定デベロッパーではないため、このアプリは **公証（notarization）されていません**。macOS が「壊れているため開けません」や「開発元を確認できません」と表示して起動を止めることがあります。その場合は次のどちらかを行ってください。
+Download `Happy-Kitten-….zip` from [Releases](../../releases) (Apple Silicon Mac, macOS 13 or newer), unzip it and drag the app into *Applications*.
 
-1. アプリを右クリック（またはControlを押しながらクリック）→「開く」。macOS 15以降は、一度開こうとしてから「システム設定 → プライバシーとセキュリティ」の「このまま開く」を押します。
-2. ターミナルで、ダウンロード時に付く隔離フラグを外します。
-
-```bash
-xattr -dr com.apple.quarantine /Applications/Happy-Kitten.app
-```
-
-ソースコードから自分でビルドすれば（下の「Starten」）、この警告は出ません。
-
-**English:** Download `Happy-Kitten-….zip` from [Releases](../../releases), unzip it and drag the app into *Applications* (Apple Silicon Mac, macOS 13 or newer). I am not an Apple-certified developer, so the app is **not notarized**. macOS may refuse to open it with “is damaged” or “cannot verify the developer”. Do one of these:
+I am **not an Apple-certified developer**, so the app is not notarized. macOS may refuse to open it with “is damaged” or “cannot verify the developer”. Do one of these:
 
 1. Right-click the app (or Control-click) → *Open*. On macOS 15 and newer, try to open it once, then click *Open Anyway* in *System Settings → Privacy & Security*.
 2. Remove the quarantine flag that the download adds, in Terminal:
@@ -42,159 +31,136 @@ xattr -dr com.apple.quarantine /Applications/Happy-Kitten.app
 xattr -dr com.apple.quarantine /Applications/Happy-Kitten.app
 ```
 
-Building from source yourself (see “Starten” below) never shows this warning. The code is open, so you can read what the app does; it contains no network code.
+Building the app yourself (see below) never shows this warning. The source code is open and contains no network code.
 
----
-
-## Deutsch
-
-**Von Gottpot** · quelloffen unter MIT oder Apache-2.0
-
-Ein lokaler, blitzschneller Video-Schnitt für den Mac, geschrieben in Rust. Die Bildverarbeitung läuft über **wgpu/Metal** auf der GPU, die Oberfläche in zuckersüßem Pastellrosa statt Adobe-Grau.
-Alles passiert **offline**: keine Cloud, kein Konto, keine Telemetrie, kein Abo.
-
-## Download und erster Start
-
-Die fertige App liegt unter [Releases](../../releases) als `Happy-Kitten-….zip` (Apple-Silicon-Mac, macOS 13 oder neuer): entpacken und in den Ordner *Programme* ziehen. Ich bin **kein von Apple zertifizierter Entwickler**, die App ist deshalb nicht notarisiert. macOS kann den Start mit „ist beschädigt“ oder „Entwickler kann nicht überprüft werden“ ablehnen. Dann hilft eines von beiden:
-
-1. Rechtsklick auf die App → *Öffnen*. Ab macOS 15 einmal versuchen zu öffnen und danach unter *Systemeinstellungen → Datenschutz & Sicherheit* auf *Trotzdem öffnen* klicken.
-2. Im Terminal das Quarantäne-Kennzeichen entfernen, das beim Herunterladen angehängt wird:
+## Run from source
 
 ```bash
-xattr -dr com.apple.quarantine /Applications/Happy-Kitten.app
-```
-
-Wer die App selbst baut (siehe unten), bekommt die Warnung nie. Der Quelltext ist offen und enthält keinen Netzwerkcode.
-
-📺 YouTube: [@Gottpot](https://www.youtube.com/@Gottpot)
-
-## Starten
-
-```bash
-# einmalig: Rust installieren (https://rustup.rs), dann
+# once: install Rust (https://rustup.rs), then
 cargo run --release -p happy-kitten
-# oder als Programm-Paket:
-./scripts/bundle.sh      # erzeugt dist/Happy-Kitten.app
+# or build an app bundle plus a ZIP for GitHub Releases:
+./scripts/bundle.sh      # creates dist/Happy-Kitten.app
 ```
 
-Beim ersten Start liegt ein kleines Demo-Projekt auf der Timeline (drei Szenen, zwei Pfoten-Blenden). Die vier Beispielszenen sind im Media Pool immer vorhanden, es braucht also keine eigenen Dateien zum Ausprobieren.
+On first launch a small demo project is on the timeline (three scenes, two paw transitions). The four sample scenes are always in the media pool, so you need no files of your own to try it out.
 
-## Bedienung
+## Languages
 
-| Aktion | So geht's |
+The language button in the top right corner (globe with a country code) switches the interface between **DE · EN · JP · KR · ES**. On first launch Happy-Kitten uses the language of macOS (English if it is not one of these); your choice is remembered in `settings.json` in the app's folder. For development, `HK_LANG=ja` forces a language.
+
+Translations use the German source text as the key: `tr("Speichern")`, with placeholders `trf!("{n} Clips ausgewählt", n = 3)`. All translations live in `apps/happy-kitten/src/i18n_data.rs` (columns: English, 日本語, 한국어, Español); a test checks that nothing is empty and that placeholders match. New text: wrap the key in `tr(…)` in the code and add one row to the table. Another language needs an entry in `Lang` and a column in the table. A missing translation falls back to German.
+
+The translations are machine-assisted and have not been proofread by native speakers. Corrections are very welcome as pull requests.
+
+## How to use it
+
+| Task | How |
 |---|---|
-| Medien importieren | „Import“ (⌘I) oder „Dateien“ im Pool: **mehrere Dateien auf einmal** wählen; „Ordner“ holt alle Videos, Bilder, Audios und Untertitel eines Ordners; oder einfach ins Fenster ziehen |
-| Zwei Arten von Import | Oben im Pool: **Dieses Projekt** (Dateien gehören nur zu diesem Projekt) oder **Global** (Bibliothek für alle Projekte, gespeichert in `~/Library/Application Support/Happy-Kitten/library.json`; die Dateien bleiben, wo sie sind). Globale Clips lassen sich wie normale auf die Timeline ziehen, Rechtsklick: ins Projekt übernehmen / entfernen |
-| Text einfügen | Tab **Text**: Vorlage auf eine Spur ziehen oder ＋ anklicken. Den Text-Clip wählen, dann links Text, Schrift, Größe, Farbe, Kontur, Hintergrund, Schatten, Ausrichtung, Position und Ein-/Ausblenden ändern |
-| Untertitel und Lyrics | Tab **Text** → „SRT · LRC · TXT“ (oder Datei ins Fenster ziehen): jede Zeile wird ein Text-Clip auf einer neuen Spur. „Stil für alle Texte der Spur“ und „Zeilen bunt färben“ ändern alle auf einmal |
-| Grafiken über dem Video | Tab **Grafik** → „Grafik (PNG)“, oder ein PNG mit Transparenz einfach auf eine Videospur ziehen (Bilder mit durchsichtigen Teilen werden automatisch zur Grafik; Rechtsklick „Als Grafik über das Video legen“ geht bei jedem Bild). Den Clip wählen, dann **Größe, Position, Drehung, Deckkraft** und Ein-/Ausblenden (Überblenden, Verpixeln, Verwirbeln, Zoom, …) einstellen. Mehrere Grafiken gemeinsam ändern geht wie bei Text |
-| Stil-Vorlage auf mehrere Texte | Texte markieren, dann im Tab **Text** oben eine Vorlage wählen und „Auf N Texte anwenden“, oder den **goldenen Haken** auf einer Vorlagenkarte, oder **Rechtsklick** auf die Karte bzw. auf einen Text-Clip in der Timeline („Vorlage anwenden“). Wortlaut und (ohne Haken „Position mitnehmen“) Position bleiben |
-| Mehr Spuren | „Videospur“ / „Audiospur“ in der Timeline (bis 8 je Art). Obere Videospuren liegen über unteren, Text liegt über dem Bild. Rechtsklick auf den Spurkopf löscht leere Spuren |
-| Auf die Timeline legen | Karte auf eine Spur ziehen, doppelklicken oder auf das ＋ klicken |
-| Verschieben | Clip ziehen (rastet an Kanten und am Zeiger ein, kann nie überlappen) |
-| Mehrere Clips markieren | **Auf freier Fläche der Spuren ziehen** (Auswahlrahmen), oder ⇧/⌘-Klick, oder ⌘A. Ziehen verschiebt alle gemeinsam, Entf löscht alle, ⇧Entf schließt die Lücken |
-| Mehrere Texte einheitlich ändern | Texte markieren, im Tab **Text** ändern: jede Änderung gilt für alle gewählten Texte (nur der Wortlaut bleibt je Text) |
-| Blende an vielen Schnittpunkten | Clips markieren, im Tab **Blenden** eine Blende anklicken: sie landet an jedem Schnittpunkt zwischen zwei gewählten Clips |
-| Dauer einer Blende | Im Tab Blenden „Eigene Dauer“ für neue Blenden, an der Blende in der Timeline die Ränder des rosa Bandes ziehen, oder die Blende anklicken und im Feld über der Timeline einstellen |
-| Bildformat | Über der Vorschau: **16:9**, **9:16** (Shorts, Reels, TikTok), 1:1, 4:5. „Einpassen“, „Füllen“ (zuschneiden) oder „Unscharf füllen“ legt fest, was mit Bildern anderer Form passiert |
-| Kürzen / Trimmen | Ränder des Clips ziehen |
-| Teilen | Zeiger setzen, **S** (oder ⌘B) – teilt den gewählten Clip, sonst alle unter dem Zeiger |
-| Löschen | **Entf**; mit **⇧** schließt sich die Lücke (oder Rechtsklick) |
-| Blende einfügen | Im Tab „Katzen-Effekte“ eine Blende zwischen zwei Clips ziehen; Dauer und Art im Feld über der Timeline ändern |
-| Abspielen | **Leertaste**; ←/→ springen ein Bild, Pos1/Ende zum Anfang/Ende |
-| Rückgängig / Wiederholen | ⌘Z / ⇧⌘Z |
-| Speichern / Öffnen | ⌘S / ⌘O (`.kitten`-Dateien, reines JSON) |
-| Film exportieren | „Exportieren“ → MP4 (H.264 oder HEVC) mit Ton. Format wie das Projekt oder 16:9, **9:16 Short**, 1:1, 4:5; Auflösung = kurze Seite (720 / 1080 / 2160 Pixel); **Bildrate** (23,976 · 24 · 25 · 29,97 · 30 · 50 · 59,94 · 60, zum Beispiel 24 für Midjourney-Material); **Bitrate** automatisch oder selbst festgelegt (1 bis 150 Mbit/s); **Audio** 32 / 44,1 / 48 kHz (AAC) und 128 bis 320 kbit/s |
-| Standbild | „Standbild“ speichert das aktuelle Vorschaubild als PNG |
-| Absturzschutz | ungespeicherte Arbeit wird alle 30 s zur Seite kopiert (`~/Library/Application Support/Happy-Kitten`) und nach einem Absturz beim Start zurückgeholt; vor „Neu“, „Öffnen“ und dem Schließen wird gefragt |
+| Import media | “Import” (⌘I) or “Files” in the pool: choose **several files at once**; “Folder” takes every video, image, audio file and subtitle in a folder; or just drag them into the window |
+| Two kinds of import | At the top of the pool: **This project** (files belong to this project only) or **Global** (a library for all projects, stored in `~/Library/Application Support/Happy-Kitten/library.json`; the files stay where they are). Global clips can be dragged onto the timeline like any other; right-click: add to project / remove |
+| Add text | **Text** tab: drag a preset onto a track or click ＋. Select the text clip, then change text, font, size, colour, outline, background, shadow, alignment, position and fade in/out on the left |
+| Subtitles and lyrics | **Text** tab → “SRT · LRC · TXT” (or drop the file into the window): every line becomes a text clip on a new track. “Style for all texts on the track” and “Colour lines in pastel” change them all at once |
+| Graphics over the video | **Graphic** tab → “Graphic (PNG)”, or simply drag a PNG with transparency onto a video track (images with see-through parts automatically become graphics; right-click “Place over the video as a graphic” works for any image). Select the clip, then set **size, position, rotation, opacity** and fade in/out (crossfade, pixelate, swirl, zoom, …). Several graphics can be changed together, just like text |
+| Apply a style to several texts | Select the texts, then in the **Text** tab choose a preset at the top and click “Apply to N texts”, or use the **golden tick** on a preset card, or **right-click** the card or a text clip in the timeline (“Apply preset”). The wording stays, and so does the position unless “Take the preset's position along” is ticked |
+| More tracks | “Video track” / “Audio track” in the timeline (up to 8 of each). Upper video tracks lie over lower ones, text lies over the picture. Right-click a track header to delete empty tracks |
+| Put on the timeline | Drag a card onto a track, double-click it or click ＋ |
+| Move | Drag the clip (it snaps to edges and the playhead and can never overlap) |
+| Select several clips | **Drag on an empty area of the tracks** (marquee), or ⇧/⌘-click, or ⌘A. Dragging moves them all, Delete removes them all, ⇧Delete closes the gaps |
+| Change several texts uniformly | Select the texts and change them in the **Text** tab: every change applies to all selected texts (only the wording stays per text) |
+| Transition at many cuts | Select clips, then click a transition in the **Transitions** tab: it lands on every cut between two selected clips |
+| Transition duration | “Custom duration” in the Transitions tab for new transitions; drag the edges of the pink band on the timeline; or click the transition and set it in the field above the timeline |
+| Aspect ratio | Above the preview: **16:9**, **9:16** (Shorts, Reels, TikTok), 1:1, 4:5. “Fit”, “Fill” (crop) or “Blurred fill” decides what happens to pictures of another shape |
+| Trim | Drag the edges of the clip |
+| Split | Set the playhead, press **S** (or ⌘B): splits the selected clip, otherwise every clip under the playhead |
+| Delete | **Delete**; with **⇧** the gap closes (or right-click) |
+| Insert a transition | In the “Transitions” tab drag one between two clips; change duration and kind in the field above the timeline |
+| Play | **Space**; ←/→ step one frame, Home/End jump to the start/end |
+| Undo / redo | ⌘Z / ⇧⌘Z |
+| Save / open | ⌘S / ⌘O (`.kitten` files, plain JSON) |
+| Export a movie | “Export” → MP4 (H.264 or HEVC) with sound. Format like the project or 16:9, **9:16 Short**, 1:1, 4:5; resolution = short side (720 / 1080 / 2160 pixels); **frame rate** (23.976 · 24 · 25 · 29.97 · 30 · 50 · 59.94 · 60, for example 24 for Midjourney material); **bitrate** automatic or your own (1 to 150 Mbit/s); **audio** 32 / 44.1 / 48 kHz (AAC) and 128 to 320 kbit/s |
+| Still frame | “Still frame” saves the current preview picture as a PNG |
+| Crash protection | Unsaved work is copied aside every 30 s (`~/Library/Application Support/Happy-Kitten`) and restored on the next start after a crash; “New”, “Open” and closing ask first |
 
-## Dateiliste
+## File list
 
-Im Tab **Dateien** (und Audio) gibt es Suche, Filter (Art, verwendet / noch frei) und Sortierung. Drei Ansichten: **Kacheln**, **Liste** (ganzer Dateiname) und **Tabelle** (Name, Art, Dauer, Größe, Ordner; Klick auf die Spaltenköpfe sortiert). Alles, was schon auf der Timeline liegt, trägt in jeder Ansicht einen **goldenen Haken** mit goldener Umrandung. Ein Tooltip zeigt den vollen Pfad.
+The **Files** (and Audio) tab has search, filters (type, used / not used yet) and sorting. Three views: **tiles**, **list** (full file name) and **table** (name, type, duration, size, folder; click the column headers to sort). Everything that is already on the timeline carries a **golden tick** with a golden outline in every view. A tooltip shows the full path.
 
-## Schrift, Japanisch und andere Sprachen
+## Fonts, Japanese and other scripts
 
-Die Schriftliste zeigt jede Schrift in ihrer eigenen Gestalt. Fehlt einer Schrift ein Zeichen (Japanisch, Chinesisch, Koreanisch), springt automatisch eine passende Mac-Schrift ein (Hiragino, Apple SD Gothic); japanische Texte ohne Leerzeichen werden zwischen den Zeichen umbrochen. Im Hochformat richtet sich die Textgröße nach der Bildbreite.
+The font list shows every font in its own shape. If a font lacks a character (Japanese, Chinese, Korean), a suitable Mac font steps in automatically (Hiragino, Apple SD Gothic); Japanese text without spaces is wrapped between characters. In portrait format the text size follows the picture width.
 
-## Sprachen
+## Text with effects
 
-Oben rechts sitzt der Sprachknopf (Weltkugel mit Länderkürzel): **DE · EN · JP · KR · ES**. Beim ersten Start nimmt Happy-Kitten die Sprache von macOS (sonst Englisch), die Wahl wird in `settings.json` im Programmordner gemerkt. Beim Entwickeln erzwingt `HK_LANG=ja` eine Sprache.
+Text is drawn with the fonts of the Mac (wrapping, outline, shadow, box) and animated by the GPU. Fade in and out: crossfade, **pixelate**, **swirl**, blur, slide up, zoom in, waves, glitch.
+`cargo run -p hk-gpu --example text_sheet -- text.png` shows all effects in five steps.
+Your own styles can be saved as a **global preset** and used in every project.
 
-Übersetzt wird mit dem deutschen Text als Schlüssel: `tr("Speichern")`, mit Platzhaltern `trf!("{n} Clips ausgewählt", n = 3)`. Alle Übersetzungen stehen in `apps/happy-kitten/src/i18n_data.rs` (Spalten: English, 日本語, 한국어, Español); ein Test prüft, dass nichts leer ist und die Platzhalter übereinstimmen. Neuer Text: Schlüssel im Code mit `tr(…)` umgeben, eine Zeile in die Tabelle, fertig. Eine weitere Sprache braucht einen Eintrag in `Lang` und eine Spalte in der Tabelle. Fehlt eine Übersetzung, erscheint der deutsche Text.
+## The paw transitions
 
-## Text mit Effekten
+All transitions are WGSL shaders (`crates/hk-gpu/src/transitions.wgsl`) that compute the paws and claws **mathematically from distance fields**. There are no pre-rendered images.
 
-Text wird mit den Schriften des Macs gezeichnet (Umbruch, Kontur, Schatten, Box) und von der GPU animiert. Ein- und Ausblenden: Überblenden, **Verpixeln**, **Verwirbeln**, Weichzeichnen, Hochgleiten, Heranzoomen, Wellen, Glitch.
-`cargo run -p hk-gpu --example text_sheet -- text.png` zeigt alle Effekte in fünf Stufen.
-Eigene Stile lassen sich als **globale Vorlage** speichern und in jedem Projekt benutzen.
-
-## Die Pfoten-Blenden
-
-Alle Blenden sind WGSL-Shader (`crates/hk-gpu/src/transitions.wgsl`), die Pfoten und Krallen **mathematisch aus Distanzfeldern** berechnen. Es gibt keine vorgerenderten Bilder.
-
-| Blende | Was passiert |
+| Transition | What happens |
 |---|---|
-| **Claw Wipe** | sechs geschwungene Kratzer reißen das Bild auf, die Mitte zuerst |
-| **Furry Blur** | haarartig verschmierter Fell-Nebel, das Bild wechselt entlang der Fellsträhnen |
-| **Paw Spin** | eine Riesenpfote wirbelt aus der Mitte, das neue Bild liegt in ihr |
-| **Gentle Paw Fade** | Pfotenabdrücke tapsen diagonal übers Bild und öffnen Fenster zum nächsten Clip |
-| **Kitty Dash** | ein galoppierendes Kätzchen rennt durchs Bild, mit Tempolinien und Pfotenspur |
-| **Meow Glitch** | zerrissene Zeilen, RGB-Versatz, Blockwechsel und Neon-Katzenköpfe |
+| **Claw Wipe** | six curved scratches tear the picture open, the middle first |
+| **Furry Blur** | hair-like smeared fur mist, the picture changes along the strands of fur |
+| **Paw Spin** | a giant paw whirls out of the centre, the new picture lies inside it |
+| **Gentle Paw Fade** | paw prints tiptoe diagonally across the picture and open windows to the next clip |
+| **Kitty Dash** | a galloping kitten runs through the picture with speed lines and a trail of paws |
+| **Meow Glitch** | torn lines, RGB offset, block swaps and neon cat heads |
 
-Dazu **13 klassische Blenden**: Überblenden, Schwarzblende, Weißblende, Wischen →, Wischen ↓, Schieben, Zoom, Kreis öffnen, Uhrzeiger, Flügeltür, Verpixeln, Verwirbeln, Weichzeichner.
+Plus **13 classic transitions**: crossfade, dip to black, dip to white, wipe →, wipe ↓, push, zoom, iris open, clock wipe, barn doors, pixelate, swirl, blur.
 
-`cargo run -p hk-gpu --example contact_sheet -- blenden.png` rendert alle Blenden in fünf Stufen in ein Bild, `--example single` ein einzelnes Bild in beliebiger Größe.
+`cargo run -p hk-gpu --example contact_sheet -- transitions.png` renders all transitions in five steps into one image, `--example single` renders a single frame in any size.
 
-## Aufbau
+## Structure
 
 ```
 crates/
-  hk-core    Zeit (exakte Ticks), Projektmodell, Schnittoperationen, Undo/Redo, Speichern. Keine GPU, keine UI.
-  hk-gpu     wgpu-Compositor und die Blenden-Shader. Rendert in eine Rgba8-Textur (Vorschau, Export, Tests).
-  hk-media   Bilder (inkl. Grafiken mit Transparenz), Demo-Szenen, Video über AVFoundation (sequenzielles Hardware-Decoding, MP4-Export per AVAssetWriter).
-  hk-text    Text-Rasterizer: Schriften, Zeilenumbruch, Kontur, Schatten, Hintergrundbox.
-  hk-audio   Ton-Decoding (symphonia), Waveform, Mixer und Wiedergabe (cpal). Die Audio-Uhr führt das Bild.
+  hk-core    Time (exact ticks), project model, editing operations, undo/redo, saving. No GPU, no UI.
+  hk-gpu     wgpu compositor and the transition shaders. Renders into an Rgba8 texture (preview, export, tests).
+  hk-media   Images (including graphics with transparency), demo scenes, video through AVFoundation (sequential hardware decoding, MP4 export with AVAssetWriter).
+  hk-text    Text rasteriser: fonts, line wrapping, outline, shadow, background box.
+  hk-audio   Audio decoding (symphonia), waveform, mixer and playback (cpal). The audio clock leads the picture.
 apps/
-  happy-kitten  egui-Oberfläche (eigenes Pastell-Theme, handgezeichnete Icons), Vorschau-Engine, Export.
+  happy-kitten  egui interface (own pastel theme, hand-drawn icons), preview engine, export.
 ```
 
-Entwurfsregeln:
+Design rules:
 
-- **Exakte Zeit.** Alles läuft in ganzzahligen Ticks (705 600 000 pro Sekunde, teilbar durch alle üblichen Bild- und Abtastraten), nie in `f64`-Sekunden.
-- **Eine Pipeline für Vorschau und Export.** Beide benutzen denselben Compositor, was du siehst, ist was exportiert wird.
-- **Der Kern ist testbar ohne Fenster.** `cargo test --workspace`.
-- **Nur eine Stelle mit `unsafe`:** die Apple-Framework-Anbindung in `hk-media` (Video lesen/schreiben).
+- **Exact time.** Everything runs in whole ticks (705,600,000 per second, divisible by all common frame and sample rates), never in `f64` seconds.
+- **One pipeline for preview and export.** Both use the same compositor, so what you see is what gets exported.
+- **The core is testable without a window.** `cargo test --workspace`.
+- **Only one place with `unsafe`:** the Apple framework binding in `hk-media` (reading/writing video).
 
-## Entwickler-Hilfen
+## Developer helpers
 
-Umgebungsvariablen für automatische Prüfungen ohne Mausklick:
+Environment variables for automatic checks without a mouse click:
 
 ```bash
-HK_LANG=en                   # Sprache erzwingen (de, en, ja, ko, es)
-HK_SCREENSHOT=out.png        # speichert das Fenster nach kurzer Zeit und beendet sich
-HK_PLAYHEAD=5.0 HK_TAB=effects HK_IMPORT=clip.mp4:song.wav  # Zeiger, Tab, Import vorbelegen
-HK_PLAY=1                    # Wiedergabe starten und die Audio-Uhr ausgeben
-HK_EXPORT=film.mp4 HK_HEVC=1 # Export in 720p ohne Dialog, dann beenden
-HK_GLOBAL=1 HK_IMPORT=ordner # Import in die globale Bibliothek (in Entwicklerläufen wird nichts gespeichert)
-HK_SCRIPT=build|text         # spielt Mausbedienung ab (Ziehen, Trimmen, Blende, Text, Bibliothek); mit HK_DUMP=1 wird die Timeline ausgegeben
+HK_LANG=en                   # force a language (de, en, ja, ko, es)
+HK_SCREENSHOT=out.png        # saves the window after a short while and quits
+HK_PLAYHEAD=5.0 HK_TAB=effects HK_IMPORT=clip.mp4:song.wav  # preset playhead, tab, import
+HK_PLAY=1                    # start playback and print the audio clock
+HK_EXPORT=film.mp4 HK_HEVC=1 # export in 720p without a dialog, then quit
+HK_GLOBAL=1 HK_IMPORT=folder # import into the global library (nothing is saved in developer runs)
+HK_SCRIPT=build|text         # replays mouse actions (drag, trim, transition, text, library); with HK_DUMP=1 the timeline is printed
 ```
 
-## Verhältnis zu filmcraft
+## Relationship to filmcraft
 
-Happy-Kitten wurde mit [storytold/filmcraft](https://github.com/storytold/filmcraft) (MIT OR Apache-2.0) als Referenz gebaut: wgpu-Compositor in linearer Pipeline, exakte Ganzzahl-Zeit, Befehle statt Spezialfälle, egui als UI. Es ist ein **eigener, schlanker Kern**; es wurde kein Code übernommen. Die Entscheidung dagegen, filmcraft als Abhängigkeit einzubinden: es zielt auf Premiere-Parität (50+ Crates, eigene Codecs), Happy-Kitten bewusst auf wenig Ballast. Die reinen Rust-Codecs von filmcraft (`h264`, `hevc`, `aac`, `isobmff` …) bleiben die naheliegende Option für eine spätere Windows/Linux-Portierung.
+Happy-Kitten was built with [storytold/filmcraft](https://github.com/storytold/filmcraft) (MIT OR Apache-2.0) as a reference: a wgpu compositor in a linear pipeline, exact integer time, commands instead of special cases, egui for the UI. It is its **own, lean core**; no code was taken over. The reason not to use filmcraft as a dependency: it aims at Premiere parity (50+ crates, its own codecs), while Happy-Kitten deliberately carries little ballast. filmcraft's pure-Rust codecs (`h264`, `hevc`, `aac`, `isobmff` …) remain the obvious option for a later Windows/Linux port.
 
-## Autor und Lizenz
+## Author and licence
 
-Erstellt von **Gottpot**. Der Quelltext steht wahlweise unter der [MIT-Lizenz](LICENSE-MIT) oder der [Apache-Lizenz 2.0](LICENSE-APACHE), © 2026 Gottpot. Du darfst ihn nutzen, ändern und weitergeben, auch kommerziell, wenn du den Lizenzhinweis behältst.
+Created by **Gottpot**. The source code is available under either the [MIT licence](LICENSE-MIT) or the [Apache licence 2.0](LICENSE-APACHE), © 2026 Gottpot. You may use, change and share it, commercially too, as long as you keep the licence notice.
 
-- **Logo:** `assets/logo.png` ist © Gottpot und **nicht** Teil der freien Lizenz, siehe [assets/LICENSE.md](assets/LICENSE.md). Wer einen Fork veröffentlicht, ersetzt es durch ein eigenes.
-- **Bibliotheken:** Alle Drittbibliotheken sind freie Lizenzen (MIT, Apache-2.0, Zlib, BSD, MPL-2.0, …), aufgelistet in [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md) (erzeugt mit `python3 scripts/third_party_licenses.py`). Schriften der Textclips werden nicht mitgeliefert, sondern zur Laufzeit aus macOS gelesen.
-- Beiträge sind willkommen, siehe [CONTRIBUTING.md](CONTRIBUTING.md). Das ist ein Hobbyprojekt und keine Rechtsberatung.
+- **Logo:** `assets/logo.png` is © Gottpot and is **not** part of the free licence, see [assets/LICENSE.md](assets/LICENSE.md). Whoever publishes a fork replaces it with their own.
+- **Libraries:** All third-party libraries use free licences (MIT, Apache-2.0, Zlib, BSD, MPL-2.0, …), listed in [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md) (generated with `python3 scripts/third_party_licenses.py`). The fonts for text clips are not shipped; they are read from macOS at run time.
+- Contributions are welcome, see [CONTRIBUTING.md](CONTRIBUTING.md). This is a hobby project and not legal advice.
 
-## Als Nächstes
+## What's next
 
-- Text frei auf dem Bild verschieben (bisher per Positionsfeld)
-- Bild-in-Bild: Größe und Position von Video-Clips
-- Geschwindigkeit, Lautstärke und Ein-/Ausblenden pro Clip
-- Audio-Überblendungen an Schnitten
-- Autosave und Wiederherstellung
+- Move text freely on the picture (for now via the position field)
+- Picture-in-picture: size and position of video clips
+- Speed, volume and fade in/out per clip
+- Audio crossfades at cuts

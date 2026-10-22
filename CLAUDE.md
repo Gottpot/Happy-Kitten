@@ -6,7 +6,7 @@ Lokaler macOS-Videoschnitt in Rust (wgpu/Metal, egui, AVFoundation). Komplett of
 - Starten: `cargo run --release -p happy-kitten` · Paket: `./scripts/bundle.sh`
 - Prüfen: `cargo test --workspace` und `cargo clippy --workspace --all-targets`
 - Blenden ansehen ohne App: `cargo run -p hk-gpu --example contact_sheet -- out.png`
-- Oberfläche prüfen: `HK_SCREENSHOT=out.png target/debug/happy-kitten` (siehe README „Entwickler-Hilfen“)
+- Oberfläche prüfen: `HK_SCREENSHOT=out.png target/debug/happy-kitten` (siehe README.de.md „Entwickler-Hilfen“)
 
 ## Regeln
 - Schichten: `hk-core` kennt weder GPU noch UI noch Dateien außer Projekt-JSON. UI-Code liegt nur in `apps/happy-kitten`.
@@ -22,3 +22,4 @@ Lokaler macOS-Videoschnitt in Rust (wgpu/Metal, egui, AVFoundation). Komplett of
 - Neue Blende: `TransitionKind` in `hk-core/src/transition.rs`, Funktion + `case` in `hk-gpu/src/transitions.wgsl`, danach `contact_sheet` ansehen.
 - UI-Stil: Farben nur aus `theme.rs`, Icons handgezeichnet in `kit.rs`; Texte deutsch.
 - Sprachen: deutscher Text ist der Schlüssel. UI-Texte immer `tr("…")`, mit Platzhaltern `trf!("{n} …", n = x)` (nie `format!` mit Übersetzung mischen), Laufzeitmeldungen gehen durch `say()` → `tr_dyn` (Schlüssel mit `:` am Ende übersetzt den Kopf einer Fehlermeldung). Einträge in `i18n_data.rs` (en, ja, ko, es); `cargo test` prüft Vollständigkeit und Platzhalter. In Konstanten steht der deutsche Schlüssel, `tr` wird erst beim Zeichnen aufgerufen. Ansehen: `HK_LANG=ja HK_SCREENSHOT=out.png …`.
+- READMEs: `README.md` (Englisch, Startseite auf GitHub), `README.ja.md`, `README.de.md`. Änderungen an Bedienung, Befehlen oder Download-Hinweisen in allen drei nachziehen.
