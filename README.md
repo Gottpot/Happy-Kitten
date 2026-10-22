@@ -7,8 +7,42 @@
 **Happy-Kitten** is a fast, local video editor for the Mac, written in Rust. Frames are processed on the GPU (wgpu/Metal) in a pastel-pink interface. It comes with cat-paw transitions, text and subtitle effects (SRT/LRC) and 9:16 export for Shorts and Reels. No cloud, no account, no ads, no subscription. The interface speaks Japanese, English, Korean, Spanish and German; the 🌐 button at the top right switches the language.
 
 By **Gottpot** · open source under MIT or Apache-2.0 / MITまたはApache-2.0のオープンソース
+📺 YouTube: [https://www.youtube.com/@Gottpot](https://www.youtube.com/@Gottpot) — 日本語のコンテンツ / Japanese content
 
 ![Logo](assets/logo.png)
+
+## Screenshots
+
+![Editor with a paw transition](docs/screenshots/main.png)
+
+| | |
+|---|---|
+| ![Text and effects](docs/screenshots/text.png) | ![Transitions](docs/screenshots/transitions.png) |
+| ![Export](docs/screenshots/export.png) | ![Japanese interface / 日本語の画面](docs/screenshots/japanese.png) |
+
+## ダウンロードと初回起動 / Download and first launch
+
+**日本語:** [Releases](../../releases) から `Happy-Kitten-….zip` をダウンロードし、解凍して「アプリケーション」フォルダへ移動します（Apple Silicon の Mac、macOS 13以降）。作者は Apple の認定デベロッパーではないため、このアプリは **公証（notarization）されていません**。macOS が「壊れているため開けません」や「開発元を確認できません」と表示して起動を止めることがあります。その場合は次のどちらかを行ってください。
+
+1. アプリを右クリック（またはControlを押しながらクリック）→「開く」。macOS 15以降は、一度開こうとしてから「システム設定 → プライバシーとセキュリティ」の「このまま開く」を押します。
+2. ターミナルで、ダウンロード時に付く隔離フラグを外します。
+
+```bash
+xattr -dr com.apple.quarantine /Applications/Happy-Kitten.app
+```
+
+ソースコードから自分でビルドすれば（下の「Starten」）、この警告は出ません。
+
+**English:** Download `Happy-Kitten-….zip` from [Releases](../../releases), unzip it and drag the app into *Applications* (Apple Silicon Mac, macOS 13 or newer). I am not an Apple-certified developer, so the app is **not notarized**. macOS may refuse to open it with “is damaged” or “cannot verify the developer”. Do one of these:
+
+1. Right-click the app (or Control-click) → *Open*. On macOS 15 and newer, try to open it once, then click *Open Anyway* in *System Settings → Privacy & Security*.
+2. Remove the quarantine flag that the download adds, in Terminal:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/Happy-Kitten.app
+```
+
+Building from source yourself (see “Starten” below) never shows this warning. The code is open, so you can read what the app does; it contains no network code.
 
 ---
 
@@ -18,6 +52,21 @@ By **Gottpot** · open source under MIT or Apache-2.0 / MITまたはApache-2.0�
 
 Ein lokaler, blitzschneller Video-Schnitt für den Mac, geschrieben in Rust. Die Bildverarbeitung läuft über **wgpu/Metal** auf der GPU, die Oberfläche in zuckersüßem Pastellrosa statt Adobe-Grau.
 Alles passiert **offline**: keine Cloud, kein Konto, keine Telemetrie, kein Abo.
+
+## Download und erster Start
+
+Die fertige App liegt unter [Releases](../../releases) als `Happy-Kitten-….zip` (Apple-Silicon-Mac, macOS 13 oder neuer): entpacken und in den Ordner *Programme* ziehen. Ich bin **kein von Apple zertifizierter Entwickler**, die App ist deshalb nicht notarisiert. macOS kann den Start mit „ist beschädigt“ oder „Entwickler kann nicht überprüft werden“ ablehnen. Dann hilft eines von beiden:
+
+1. Rechtsklick auf die App → *Öffnen*. Ab macOS 15 einmal versuchen zu öffnen und danach unter *Systemeinstellungen → Datenschutz & Sicherheit* auf *Trotzdem öffnen* klicken.
+2. Im Terminal das Quarantäne-Kennzeichen entfernen, das beim Herunterladen angehängt wird:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/Happy-Kitten.app
+```
+
+Wer die App selbst baut (siehe unten), bekommt die Warnung nie. Der Quelltext ist offen und enthält keinen Netzwerkcode.
+
+📺 YouTube: [@Gottpot](https://www.youtube.com/@Gottpot)
 
 ## Starten
 

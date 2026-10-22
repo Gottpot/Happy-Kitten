@@ -1,5 +1,5 @@
 #!/bin/sh
-# Builds dist/Happy-Kitten.app (release build, icon from assets/logo.png, ad-hoc signed).
+# Builds dist/Happy-Kitten.app (release build, icon from assets/logo.png, ad-hoc signed) and a ZIP for GitHub Releases.
 set -eu
 cd "$(dirname "$0")/.."
 cargo build --release -p happy-kitten
@@ -50,4 +50,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 PLIST
 
 codesign --force --deep --sign - "$APP" >/dev/null 2>&1 || echo "Hinweis: Signieren übersprungen"
-echo "Fertig: $APP"
+ZIP="dist/Happy-Kitten-${VERSION}-macOS-$(uname -m).zip"
+rm -f "$ZIP"
+ditto -c -k --keepParent --norsrc --noextattr "$APP" "$ZIP"
+echo "Fertig: $APP und $ZIP (das ZIP gehört unter GitHub Releases)"
