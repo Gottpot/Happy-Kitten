@@ -1,11 +1,23 @@
 # 🐾 Happy-Kitten v1.0
 
+日本語 · English · [Deutsch](#deutsch)
+
+**ハッピーキトゥン** — Mac用の、ローカルで動く高速な動画編集ソフトです。Rustで作られ、GPU（wgpu/Metal）で映像を処理します。かわいいパステルピンクの画面、猫の肉球トランジション、字幕・歌詞（SRT/LRC）のエフェクト、縦型ショート動画（9:16）の書き出しに対応。クラウドもアカウントも広告もサブスクもありません。画面は日本語・英語・韓国語・スペイン語・ドイツ語に対応し、右上の🌐ボタンで切り替えられます。
+
+**Happy-Kitten** is a fast, local video editor for the Mac, written in Rust. Frames are processed on the GPU (wgpu/Metal) in a pastel-pink interface. It comes with cat-paw transitions, text and subtitle effects (SRT/LRC) and 9:16 export for Shorts and Reels. No cloud, no account, no ads, no subscription. The interface speaks Japanese, English, Korean, Spanish and German; the 🌐 button at the top right switches the language.
+
+By **Gottpot** · open source under MIT or Apache-2.0 / MITまたはApache-2.0のオープンソース
+
+![Logo](assets/logo.png)
+
+---
+
+## Deutsch
+
 **Von Gottpot** · quelloffen unter MIT oder Apache-2.0
 
 Ein lokaler, blitzschneller Video-Schnitt für den Mac, geschrieben in Rust. Die Bildverarbeitung läuft über **wgpu/Metal** auf der GPU, die Oberfläche in zuckersüßem Pastellrosa statt Adobe-Grau.
 Alles passiert **offline**: keine Cloud, kein Konto, keine Telemetrie, kein Abo.
-
-![Logo](assets/logo.png)
 
 ## Starten
 
