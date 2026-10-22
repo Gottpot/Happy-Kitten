@@ -1,5 +1,6 @@
 //! Built-in text looks and the colour swatches of the text editor.
 
+use crate::i18n::tr;
 use hk_core::{Align, TextFx, TextSpec, Tick};
 
 /// Pastel swatches plus white and chocolate brown.
@@ -32,20 +33,20 @@ fn secs(v: f64) -> Tick {
 pub fn builtin() -> Vec<(&'static str, TextSpec)> {
     vec![
         (
-            "Titel",
+            tr("Titel"),
             spec(|s| {
-                s.text = "Titel".into();
+                s.text = tr("Titel").into();
                 s.size = 0.15;
                 s.pos = [0.5, 0.42];
                 s.fx_in = TextFx::Zoom;
                 s.fx_in_dur = secs(0.8);
             }),
         ),
-        ("Untertitel", TextSpec::subtitle()),
+        (tr("Untertitel"), TextSpec::subtitle()),
         (
-            "Lyrics",
+            tr("Lyrics"),
             spec(|s| {
-                s.text = "Lyrics".into();
+                s.text = tr("Lyrics").into();
                 s.size = 0.075;
                 s.pos = [0.5, 0.82];
                 s.color = [255, 249, 240, 255];
@@ -57,7 +58,7 @@ pub fn builtin() -> Vec<(&'static str, TextSpec)> {
             }),
         ),
         (
-            "Neon-Pink",
+            tr("Neon-Pink"),
             spec(|s| {
                 s.text = "Neon".into();
                 s.size = 0.13;
@@ -71,7 +72,7 @@ pub fn builtin() -> Vec<(&'static str, TextSpec)> {
             }),
         ),
         (
-            "Comic",
+            tr("Comic"),
             spec(|s| {
                 s.text = "Miau!".into();
                 s.font = "comic".into();
@@ -82,9 +83,9 @@ pub fn builtin() -> Vec<(&'static str, TextSpec)> {
             }),
         ),
         (
-            "Schreibmaschine",
+            tr("Schreibmaschine"),
             spec(|s| {
-                s.text = "Es war einmal …".into();
+                s.text = tr("Es war einmal …").into();
                 s.font = "typewriter".into();
                 s.size = 0.07;
                 s.pos = [0.5, 0.8];
@@ -95,9 +96,9 @@ pub fn builtin() -> Vec<(&'static str, TextSpec)> {
             }),
         ),
         (
-            "Wölkchen",
+            tr("Wölkchen"),
             spec(|s| {
-                s.text = "Wölkchen".into();
+                s.text = tr("Wölkchen").into();
                 s.size = 0.1;
                 s.color = [92, 56, 44, 255];
                 s.outline_width = 0.0;
@@ -108,9 +109,9 @@ pub fn builtin() -> Vec<(&'static str, TextSpec)> {
             }),
         ),
         (
-            "Strudel",
+            tr("Strudel"),
             spec(|s| {
-                s.text = "Strudel".into();
+                s.text = tr("Strudel").into();
                 s.font = "marker".into();
                 s.size = 0.15;
                 s.color = [216, 198, 246, 255];
@@ -121,9 +122,9 @@ pub fn builtin() -> Vec<(&'static str, TextSpec)> {
             }),
         ),
         (
-            "Wellen",
+            tr("Wellen"),
             spec(|s| {
-                s.text = "Wellen".into();
+                s.text = tr("Wellen").into();
                 s.font = "futura".into();
                 s.size = 0.13;
                 s.color = [120, 220, 255, 255];

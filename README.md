@@ -55,6 +55,12 @@ Im Tab **Dateien** (und Audio) gibt es Suche, Filter (Art, verwendet / noch frei
 
 Die Schriftliste zeigt jede Schrift in ihrer eigenen Gestalt. Fehlt einer Schrift ein Zeichen (Japanisch, Chinesisch, Koreanisch), springt automatisch eine passende Mac-Schrift ein (Hiragino, Apple SD Gothic); japanische Texte ohne Leerzeichen werden zwischen den Zeichen umbrochen. Im Hochformat richtet sich die Textgröße nach der Bildbreite.
 
+## Sprachen
+
+Oben rechts sitzt der Sprachknopf (Weltkugel mit Länderkürzel): **DE · EN · JP · KR · ES**. Beim ersten Start nimmt Happy-Kitten die Sprache von macOS (sonst Englisch), die Wahl wird in `settings.json` im Programmordner gemerkt. Beim Entwickeln erzwingt `HK_LANG=ja` eine Sprache.
+
+Übersetzt wird mit dem deutschen Text als Schlüssel: `tr("Speichern")`, mit Platzhaltern `trf!("{n} Clips ausgewählt", n = 3)`. Alle Übersetzungen stehen in `apps/happy-kitten/src/i18n_data.rs` (Spalten: English, 日本語, 한국어, Español); ein Test prüft, dass nichts leer ist und die Platzhalter übereinstimmen. Neuer Text: Schlüssel im Code mit `tr(…)` umgeben, eine Zeile in die Tabelle, fertig. Eine weitere Sprache braucht einen Eintrag in `Lang` und eine Spalte in der Tabelle. Fehlt eine Übersetzung, erscheint der deutsche Text.
+
 ## Text mit Effekten
 
 Text wird mit den Schriften des Macs gezeichnet (Umbruch, Kontur, Schatten, Box) und von der GPU animiert. Ein- und Ausblenden: Überblenden, **Verpixeln**, **Verwirbeln**, Weichzeichnen, Hochgleiten, Heranzoomen, Wellen, Glitch.
@@ -103,6 +109,7 @@ Entwurfsregeln:
 Umgebungsvariablen für automatische Prüfungen ohne Mausklick:
 
 ```bash
+HK_LANG=en                   # Sprache erzwingen (de, en, ja, ko, es)
 HK_SCREENSHOT=out.png        # speichert das Fenster nach kurzer Zeit und beendet sich
 HK_PLAYHEAD=5.0 HK_TAB=effects HK_IMPORT=clip.mp4:song.wav  # Zeiger, Tab, Import vorbelegen
 HK_PLAY=1                    # Wiedergabe starten und die Audio-Uhr ausgeben

@@ -2,9 +2,11 @@
 //! opacity and the same fade effects as text.
 
 use crate::app::{HappyKitten, Payload, PoolTab, Selection};
+use crate::i18n::tr;
 use crate::kit::{self, Icon};
 use crate::pool::{ellipsize, fx_combo};
 use crate::theme::*;
+use crate::trf;
 use egui::{Align2, Color32, Rect, Sense, StrokeKind, Ui, pos2, vec2};
 use hk_core::{Id, MediaKind, MediaSource, OverlaySpec, Tick};
 
@@ -48,9 +50,11 @@ impl HappyKitten {
     /// Pick pictures, add them to the project and lay each one over the video at the playhead.
     pub fn add_graphics_dialog(&mut self) {
         let Some(paths) = rfd::FileDialog::new()
-            .set_title("Grafiken wählen (PNG mit Transparenz funktioniert am besten)")
+            .set_title(tr(
+                "Grafiken wählen (PNG mit Transparenz funktioniert am besten)",
+            ))
             .add_filter(
-                "Bilder",
+                tr("Bilder"),
                 &["png", "jpg", "jpeg", "webp", "gif", "bmp", "tif", "tiff"],
             )
             .pick_files()
@@ -99,19 +103,19 @@ impl HappyKitten {
             if let Some(id) = selected {
                 self.graphic_editor(ui, id);
                 ui.add_space(10.0);
-                ui.label(egui::RichText::new("Weitere Grafiken").size(18.0));
+                ui.label(egui::RichText::new(tr("Weitere Grafiken")).size(18.0));
             }
             ui.horizontal(|ui| {
                 ui.spacing_mut().item_spacing.x = 6.0;
-                if kit::pill(ui, Some(Icon::Plus), "Grafik (PNG)", true, true)
-                    .on_hover_text("Bild wählen und über das Video legen – Transparenz bleibt erhalten")
+                if kit::pill(ui, Some(Icon::Plus), tr("Grafik (PNG)"), true, true)
+                    .on_hover_text(tr("Bild wählen und über das Video legen – Transparenz bleibt erhalten"))
                     .clicked()
                 {
                     self.add_graphics_dialog();
                 }
             });
             ui.label(
-                egui::RichText::new("Karte auf eine Videospur ziehen oder ＋ anklicken. Bilder mit Transparenz werden automatisch zu Grafiken.")
+                egui::RichText::new(tr("Karte auf eine Videospur ziehen oder ＋ anklicken. Bilder mit Transparenz werden automatisch zu Grafiken."))
                     .size(12.5)
                     .color(BROWN_SOFT),
             );
@@ -121,7 +125,7 @@ impl HappyKitten {
             items.sort_by_key(|(_, _, alpha)| !alpha);
             if items.is_empty() && selected.is_none() {
                 ui.add_space(14.0);
-                ui.label(egui::RichText::new("Noch keine Bilder im Projekt. Importiere ein PNG oder wähle „Grafik (PNG)“.").color(BROWN_SOFT));
+                ui.label(egui::RichText::new(tr("Noch keine Bilder im Projekt. Importiere ein PNG oder wähle „Grafik (PNG)“.")).color(BROWN_SOFT));
             }
             ui.horizontal_wrapped(|ui| {
                 ui.spacing_mut().item_spacing = vec2(10.0, 10.0);
@@ -216,7 +220,9 @@ impl HappyKitten {
         {
             self.add_overlay_at_playhead(id);
         }
-        resp.on_hover_text("Auf eine Videospur ziehen: liegt als Grafik über dem Bild");
+        resp.on_hover_text(tr(
+            "Auf eine Videospur ziehen: liegt als Grafik über dem Bild",
+        ));
     }
 
     fn graphic_editor(&mut self, ui: &mut Ui, id: Id) {
@@ -250,15 +256,19 @@ impl HappyKitten {
         let mut s = orig.clone();
         if others.is_empty() {
             ui.label(
-                egui::RichText::new(format!("Grafik bearbeiten: {}", ellipsize(&name, 22)))
-                    .size(18.0),
+                egui::RichText::new(trf!(
+                    "Grafik bearbeiten: {name}",
+                    name = ellipsize(&name, 22)
+                ))
+                .size(18.0),
             );
         } else {
             ui.label(
-                egui::RichText::new(format!("{} Grafiken bearbeiten", others.len() + 1)).size(18.0),
+                egui::RichText::new(trf!("{n} Grafiken bearbeiten", n = others.len() + 1))
+                    .size(18.0),
             );
             ui.label(
-                egui::RichText::new("Änderungen gelten für alle gewählten Grafiken.")
+                egui::RichText::new(tr("Änderungen gelten für alle gewählten Grafiken."))
                     .size(12.0)
                     .color(BROWN_SOFT),
             );
@@ -268,7 +278,7 @@ impl HappyKitten {
             .num_columns(2)
             .spacing([10.0, 8.0])
             .show(ui, |ui| {
-                ui.label("Größe");
+                ui.label(tr("Größe"));
                 let mut pct = s.scale * 100.0;
                 if ui
                     .add(
@@ -282,7 +292,7 @@ impl HappyKitten {
                     s.scale = pct / 100.0;
                 }
                 ui.end_row();
-                ui.label("Position");
+                ui.label(tr("Position"));
                 ui.horizontal(|ui| {
                     kit::position_picker(ui, &mut s.pos);
                     ui.vertical(|ui| {
@@ -299,7 +309,7 @@ impl HappyKitten {
                     });
                 });
                 ui.end_row();
-                ui.label("Drehung");
+                ui.label(tr("Drehung"));
                 ui.horizontal(|ui| {
                     ui.add(
                         egui::Slider::new(&mut s.rotation, -180.0..=180.0)
@@ -311,7 +321,7 @@ impl HappyKitten {
                     }
                 });
                 ui.end_row();
-                ui.label("Deckkraft");
+                ui.label(tr("Deckkraft"));
                 let mut o = s.opacity * 100.0;
                 if ui
                     .add(
@@ -326,12 +336,12 @@ impl HappyKitten {
                 ui.end_row();
             });
         ui.add_space(6.0);
-        ui.label(egui::RichText::new("Ein- und Ausblenden").size(16.0));
+        ui.label(egui::RichText::new(tr("Ein- und Ausblenden")).size(16.0));
         egui::Grid::new("overlay-fx")
             .num_columns(2)
             .spacing([10.0, 8.0])
             .show(ui, |ui| {
-                ui.label("Einblenden");
+                ui.label(tr("Einblenden"));
                 ui.horizontal(|ui| {
                     fx_combo(ui, "ov-fx-in", &mut s.fx_in);
                     let mut d = s.fx_in_dur.secs() as f32;
@@ -347,7 +357,7 @@ impl HappyKitten {
                     }
                 });
                 ui.end_row();
-                ui.label("Ausblenden");
+                ui.label(tr("Ausblenden"));
                 ui.horizontal(|ui| {
                     fx_combo(ui, "ov-fx-out", &mut s.fx_out);
                     let mut d = s.fx_out_dur.secs() as f32;
@@ -382,8 +392,8 @@ impl HappyKitten {
         ui.add_space(6.0);
         ui.horizontal_wrapped(|ui| {
             ui.spacing_mut().item_spacing = vec2(6.0, 6.0);
-            if kit::pill(ui, None, "Zurücksetzen", false, true)
-                .on_hover_text("Größe, Position, Drehung und Deckkraft auf Standard")
+            if kit::pill(ui, None, tr("Zurücksetzen"), false, true)
+                .on_hover_text(tr("Größe, Position, Drehung und Deckkraft auf Standard"))
                 .clicked()
             {
                 let ids: Vec<Id> = std::iter::once(id).chain(others.iter().copied()).collect();
@@ -402,8 +412,10 @@ impl HappyKitten {
                     }
                 });
             }
-            if kit::pill(ui, None, "Als Vollbild-Bild", false, true)
-                .on_hover_text("Nicht mehr über das Video legen, sondern als Bild füllen")
+            if kit::pill(ui, None, tr("Als Vollbild-Bild"), false, true)
+                .on_hover_text(tr(
+                    "Nicht mehr über das Video legen, sondern als Bild füllen",
+                ))
                 .clicked()
             {
                 let ids: Vec<Id> = std::iter::once(id).chain(others.iter().copied()).collect();

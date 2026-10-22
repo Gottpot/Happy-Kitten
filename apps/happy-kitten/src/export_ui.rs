@@ -2,8 +2,10 @@
 
 use crate::app::HappyKitten;
 use crate::export::{self, ExportJob, ExportSettings};
+use crate::i18n::tr;
 use crate::kit::{self, Icon};
 use crate::theme::*;
+use crate::trf;
 use hk_media::Codec;
 
 pub const RESOLUTIONS: [(&str, u32); 3] = [
@@ -169,7 +171,7 @@ impl HappyKitten {
             return;
         }
         let Some(mut path) = rfd::FileDialog::new()
-            .add_filter("MP4-Video", &["mp4"])
+            .add_filter(tr("MP4-Video"), &["mp4"])
             .set_file_name(format!("{}.mp4", self.doc.project.name))
             .save_file()
         else {
@@ -201,7 +203,7 @@ impl HappyKitten {
             let film_fps = opts.film_fps(self.doc.project.fps);
             let video_bits = opts.bitrate(size, film_fps);
             let est_mb = (video_bits + opts.audio_bits()) as f64 / 8.0 * secs / 1_000_000.0;
-            egui::Window::new("Film exportieren")
+            egui::Window::new(tr("Film exportieren"))
                 .title_bar(false)
                 .collapsible(false)
                 .resizable(false)
@@ -213,71 +215,74 @@ impl HappyKitten {
                         let (r, _) =
                             ui.allocate_exact_size(egui::vec2(34.0, 34.0), egui::Sense::hover());
                         kit::paw(ui.painter(), r.center(), 14.0, PINK_DEEP);
-                        ui.label(egui::RichText::new("Film exportieren").size(24.0));
+                        ui.label(egui::RichText::new(tr("Film exportieren")).size(24.0));
                     });
                     ui.add_space(8.0);
                     egui::Grid::new("export-grid")
                         .num_columns(2)
                         .spacing([16.0, 12.0])
                         .show(ui, |ui| {
-                            ui.label("Format");
+                            ui.label(tr("Format"));
                             egui::ComboBox::from_id_salt("exp-shape")
-                                .selected_text(FORMATS[opts.format].0)
+                                .selected_text(tr(FORMATS[opts.format].0))
                                 .width(220.0)
                                 .show_ui(ui, |ui| {
                                     for (i, (name, _, _)) in FORMATS.iter().enumerate() {
-                                        ui.selectable_value(&mut opts.format, i, *name);
+                                        ui.selectable_value(&mut opts.format, i, tr(name));
                                     }
                                 });
                             ui.end_row();
-                            ui.label("Bild anpassen");
+                            ui.label(tr("Bild anpassen"));
                             egui::ComboBox::from_id_salt("exp-fit")
-                                .selected_text(fit.name())
+                                .selected_text(tr(fit.name()))
                                 .width(220.0)
                                 .show_ui(ui, |ui| {
                                     for f in hk_core::FitMode::ALL {
-                                        ui.selectable_value(&mut fit, f, f.name());
+                                        ui.selectable_value(&mut fit, f, tr(f.name()));
                                     }
                                 });
                             ui.end_row();
-                            ui.label("Auflösung");
+                            ui.label(tr("Auflösung"));
                             egui::ComboBox::from_id_salt("exp-res")
-                                .selected_text(RESOLUTIONS[opts.res].0)
+                                .selected_text(tr(RESOLUTIONS[opts.res].0))
                                 .width(220.0)
                                 .show_ui(ui, |ui| {
                                     for (i, (name, _)) in RESOLUTIONS.iter().enumerate() {
-                                        ui.selectable_value(&mut opts.res, i, *name);
+                                        ui.selectable_value(&mut opts.res, i, tr(name));
                                     }
                                 });
                             ui.end_row();
-                            ui.label("Bildrate");
+                            ui.label(tr("Bildrate"));
                             egui::ComboBox::from_id_salt("exp-fps")
                                 .selected_text(if opts.fps == 0 {
-                                    format!("Wie das Projekt ({})", fps_label(self.doc.project.fps))
+                                    trf!(
+                                        "Wie das Projekt ({fps})",
+                                        fps = fps_label(self.doc.project.fps)
+                                    )
                                 } else {
-                                    FPS_CHOICES[opts.fps].0.to_string()
+                                    tr(FPS_CHOICES[opts.fps].0).to_string()
                                 })
                                 .width(220.0)
                                 .show_ui(ui, |ui| {
                                     for (i, (name, _, _)) in FPS_CHOICES.iter().enumerate() {
-                                        ui.selectable_value(&mut opts.fps, i, *name);
+                                        ui.selectable_value(&mut opts.fps, i, tr(name));
                                     }
                                 });
                             ui.end_row();
-                            ui.label("Qualität");
+                            ui.label(tr("Qualität"));
                             egui::ComboBox::from_id_salt("exp-q")
-                                .selected_text(QUALITIES[opts.quality].0)
+                                .selected_text(tr(QUALITIES[opts.quality].0))
                                 .width(220.0)
                                 .show_ui(ui, |ui| {
                                     for (i, (name, _)) in QUALITIES.iter().enumerate() {
-                                        ui.selectable_value(&mut opts.quality, i, *name);
+                                        ui.selectable_value(&mut opts.quality, i, tr(name));
                                     }
                                 });
                             ui.end_row();
-                            ui.label("Bitrate");
+                            ui.label(tr("Bitrate"));
                             ui.horizontal(|ui| {
                                 let mut custom = opts.mbit.is_some();
-                                if ui.checkbox(&mut custom, "selbst festlegen").changed() {
+                                if ui.checkbox(&mut custom, tr("selbst festlegen")).changed() {
                                     opts.mbit = custom.then(|| {
                                         (video_bits as f32 / 1_000_000.0).round().max(1.0)
                                     });
@@ -294,9 +299,9 @@ impl HappyKitten {
                                     }
                                     None => {
                                         ui.label(
-                                            egui::RichText::new(format!(
-                                                "automatisch ≈ {:.0} Mbit/s",
-                                                video_bits as f64 / 1e6
+                                            egui::RichText::new(trf!(
+                                                "automatisch ≈ {mbit} Mbit/s",
+                                                mbit = format!("{:.0}", video_bits as f64 / 1e6)
                                             ))
                                             .color(BROWN_SOFT),
                                         );
@@ -304,17 +309,17 @@ impl HappyKitten {
                                 }
                             });
                             ui.end_row();
-                            ui.label("Audio");
+                            ui.label(tr("Audio"));
                             egui::ComboBox::from_id_salt("exp-arate")
-                                .selected_text(AUDIO_RATES[opts.audio_rate].0)
+                                .selected_text(tr(AUDIO_RATES[opts.audio_rate].0))
                                 .width(220.0)
                                 .show_ui(ui, |ui| {
                                     for (i, (name, _)) in AUDIO_RATES.iter().enumerate() {
-                                        ui.selectable_value(&mut opts.audio_rate, i, *name);
+                                        ui.selectable_value(&mut opts.audio_rate, i, tr(name));
                                     }
                                 });
                             ui.end_row();
-                            ui.label("Audio-Bitrate");
+                            ui.label(tr("Audio-Bitrate"));
                             egui::ComboBox::from_id_salt("exp-akbps")
                                 .selected_text(format!("{} kbit/s", AUDIO_KBPS[opts.audio_kbps]))
                                 .width(220.0)
@@ -328,37 +333,37 @@ impl HappyKitten {
                                     }
                                 });
                             ui.end_row();
-                            ui.label("Datei");
+                            ui.label(tr("Datei"));
                             egui::ComboBox::from_id_salt("exp-fmt")
                                 .selected_text(if opts.hevc {
-                                    "MP4 · HEVC (kleiner)"
+                                    tr("MP4 · HEVC (kleiner)")
                                 } else {
-                                    "MP4 · H.264 (läuft überall)"
+                                    tr("MP4 · H.264 (läuft überall)")
                                 })
                                 .width(220.0)
                                 .show_ui(ui, |ui| {
                                     ui.selectable_value(
                                         &mut opts.hevc,
                                         false,
-                                        "MP4 · H.264 (läuft überall)",
+                                        tr("MP4 · H.264 (läuft überall)"),
                                     );
                                     ui.selectable_value(
                                         &mut opts.hevc,
                                         true,
-                                        "MP4 · HEVC (kleiner)",
+                                        tr("MP4 · HEVC (kleiner)"),
                                     );
                                 });
                             ui.end_row();
                         });
                     ui.add_space(8.0);
                     ui.label(
-                        egui::RichText::new(format!(
-                            "{}×{} · {} Bilder/s · {:.0} s · ca. {:.0} MB",
-                            size.0,
-                            size.1,
-                            fps_label(film_fps),
-                            secs,
-                            est_mb
+                        egui::RichText::new(trf!(
+                            "{w}×{h} · {fps} Bilder/s · {secs} s · ca. {mb} MB",
+                            w = size.0,
+                            h = size.1,
+                            fps = fps_label(film_fps),
+                            secs = format!("{secs:.0}"),
+                            mb = format!("{est_mb:.0}")
                         ))
                         .color(BROWN_SOFT)
                         .size(14.0),
@@ -368,7 +373,7 @@ impl HappyKitten {
                         if kit::pill(
                             ui,
                             Some(Icon::Export),
-                            "Speicherort wählen & los",
+                            tr("Speicherort wählen & los"),
                             true,
                             true,
                         )
@@ -376,7 +381,7 @@ impl HappyKitten {
                         {
                             go = true;
                         }
-                        if kit::pill(ui, None, "Abbrechen", false, true).clicked() {
+                        if kit::pill(ui, None, tr("Abbrechen"), false, true).clicked() {
                             keep_open = false;
                         }
                     });
@@ -410,7 +415,7 @@ impl HappyKitten {
             } else {
                 0.0
             };
-            egui::Window::new("Export läuft")
+            egui::Window::new(tr("Export läuft"))
                 .title_bar(false)
                 .collapsible(false)
                 .resizable(false)
@@ -418,7 +423,7 @@ impl HappyKitten {
                 .frame(kit::card_frame(CREAM).inner_margin(egui::Margin::same(20)))
                 .show(ctx, |ui| {
                     ui.set_width(380.0);
-                    ui.label(egui::RichText::new("Das Kätzchen rendert …").size(22.0));
+                    ui.label(egui::RichText::new(tr("Das Kätzchen rendert …")).size(22.0));
                     ui.add_space(8.0);
                     ui.add(
                         egui::ProgressBar::new(frac)
@@ -429,10 +434,10 @@ impl HappyKitten {
                     ui.add_space(4.0);
                     ui.label(
                         egui::RichText::new(format!(
-                            "{:.0} s vergangen{}",
-                            elapsed,
+                            "{}{}",
+                            trf!("{secs} s vergangen", secs = format!("{elapsed:.0}")),
                             if eta > 0.0 {
-                                format!(" · noch ca. {:.0} s", eta)
+                                trf!(" · noch ca. {secs} s", secs = format!("{eta:.0}"))
                             } else {
                                 String::new()
                             }
@@ -440,7 +445,7 @@ impl HappyKitten {
                         .color(BROWN_SOFT),
                     );
                     ui.add_space(8.0);
-                    if kit::pill(ui, None, "Abbrechen", false, true).clicked() {
+                    if kit::pill(ui, None, tr("Abbrechen"), false, true).clicked() {
                         cancel = true;
                     }
                 });
@@ -453,9 +458,10 @@ impl HappyKitten {
             let path = self.export_job.take().map(|j: ExportJob| j.settings.path);
             match (result, path) {
                 (Ok(()), Some(p)) => {
-                    self.say(format!(
-                        "Export fertig ✓ {}",
-                        p.file_name()
+                    self.say(trf!(
+                        "Export fertig ✓ {name}",
+                        name = p
+                            .file_name()
                             .map(|n| n.to_string_lossy().into_owned())
                             .unwrap_or_default()
                     ));

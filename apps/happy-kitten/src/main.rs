@@ -7,6 +7,8 @@ mod engine;
 mod export;
 mod export_ui;
 mod graphics;
+mod i18n;
+mod i18n_data;
 mod import;
 mod kit;
 mod layers;

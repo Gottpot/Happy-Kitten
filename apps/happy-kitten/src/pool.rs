@@ -1,9 +1,11 @@
 //! Media pool (left): files (project or global), text, blends and audio.
 
 use crate::app::{HappyKitten, Payload, PoolTab, Selection, TextPick};
+use crate::i18n::tr;
 use crate::kit::{self, Icon};
 use crate::presets;
 use crate::theme::*;
+use crate::trf;
 use egui::{Align2, Color32, Rect, Sense, Stroke, StrokeKind, Ui, pos2, vec2};
 use hk_core::{Align, FONTS, Id, TextFx, TextSpec, Tick, TransitionKind};
 use std::time::Instant;
@@ -54,11 +56,11 @@ impl HappyKitten {
             ui.spacing_mut().item_spacing.x = 6.0;
             let w = (ui.available_width() - 24.0) / 5.0;
             for (tab, icon, label) in [
-                (PoolTab::Files, Icon::Film, "Dateien"),
-                (PoolTab::Text, Icon::Text, "Text"),
-                (PoolTab::Graphics, Icon::Image, "Grafik"),
-                (PoolTab::Effects, Icon::Sparkle, "Blenden"),
-                (PoolTab::Audio, Icon::Note, "Audio"),
+                (PoolTab::Files, Icon::Film, tr("Dateien")),
+                (PoolTab::Text, Icon::Text, tr("Text")),
+                (PoolTab::Graphics, Icon::Image, tr("Grafik")),
+                (PoolTab::Effects, Icon::Sparkle, tr("Blenden")),
+                (PoolTab::Audio, Icon::Note, tr("Audio")),
             ] {
                 let (rect, resp) = ui.allocate_exact_size(vec2(w, 58.0), Sense::click());
                 let selected = self.tab == tab;
@@ -86,11 +88,22 @@ impl HappyKitten {
                     ),
                     BROWN,
                 );
+                // longer words in other languages shrink to fit the card
+                let mut size = 12.5;
+                let width = |size: f32| {
+                    p.layout_no_wrap(label.to_string(), egui::FontId::proportional(size), BROWN)
+                        .size()
+                        .x
+                };
+                let natural = width(size);
+                if natural > rect.width() - 8.0 {
+                    size = (size * (rect.width() - 8.0) / natural).max(9.0);
+                }
                 p.text(
                     pos2(rect.center().x, rect.bottom() - 11.0),
                     Align2::CENTER_CENTER,
                     label,
-                    egui::FontId::proportional(12.5),
+                    egui::FontId::proportional(size),
                     BROWN,
                 );
                 if resp.clicked() {
@@ -104,14 +117,14 @@ impl HappyKitten {
 
     fn pool_effects(&mut self, ui: &mut Ui) {
         ui.label(
-            egui::RichText::new("Blende zwischen zwei Clips ziehen.")
+            egui::RichText::new(tr("Blende zwischen zwei Clips ziehen."))
                 .size(12.5)
                 .color(BROWN_SOFT),
         );
         ui.horizontal_wrapped(|ui| {
             ui.spacing_mut().item_spacing = vec2(6.0, 4.0);
             let mut custom = self.blend_duration.is_some();
-            if ui.checkbox(&mut custom, "Eigene Dauer").changed() {
+            if ui.checkbox(&mut custom, tr("Eigene Dauer")).changed() {
                 self.blend_duration = custom.then_some(1.0);
             }
             if let Some(d) = &mut self.blend_duration {
@@ -123,7 +136,7 @@ impl HappyKitten {
                 );
             } else {
                 ui.label(
-                    egui::RichText::new("jede Blende mit ihrer eigenen Länge")
+                    egui::RichText::new(tr("jede Blende mit ihrer eigenen Länge"))
                         .size(12.0)
                         .color(BROWN_SOFT),
                 );
@@ -131,10 +144,10 @@ impl HappyKitten {
         });
         let selected = self.selected_clips();
         if selected.is_empty() {
-            ui.label(egui::RichText::new("Tipp: Clips mit dem Rahmen markieren, Blende anklicken = an allen Schnittpunkten.").size(12.0).color(BROWN_SOFT));
+            ui.label(egui::RichText::new(tr("Tipp: Clips mit dem Rahmen markieren, Blende anklicken = an allen Schnittpunkten.")).size(12.0).color(BROWN_SOFT));
         } else {
             ui.label(
-                egui::RichText::new(format!("{} Clip(s) gewählt: Klick auf eine Blende setzt sie an allen Schnittpunkten der Auswahl.", selected.len()))
+                egui::RichText::new(trf!("{n} Clip(s) gewählt: Klick auf eine Blende setzt sie an allen Schnittpunkten der Auswahl.", n = selected.len()))
                     .size(12.5)
                     .color(BROWN),
             );
@@ -144,10 +157,10 @@ impl HappyKitten {
         egui::ScrollArea::vertical()
             .auto_shrink([false, false])
             .show(ui, |ui| {
-                ui.label(egui::RichText::new("Katzen-Blenden").size(16.0));
+                ui.label(egui::RichText::new(tr("Katzen-Blenden")).size(16.0));
                 self.effect_grid(ui, &TransitionKind::CAT, &mut now_hover);
                 ui.add_space(8.0);
-                ui.label(egui::RichText::new("Klassische Blenden").size(16.0));
+                ui.label(egui::RichText::new(tr("Klassische Blenden")).size(16.0));
                 self.effect_grid(ui, &TransitionKind::CLASSIC, &mut now_hover);
             });
         // Hover plays the blend on its card; leaving restores the still preview.
@@ -213,14 +226,14 @@ impl HappyKitten {
                 p.text(
                     pos2(rect.left() + 30.0, rect.bottom() - 31.0),
                     Align2::LEFT_CENTER,
-                    kind.name(),
+                    tr(kind.name()),
                     egui::FontId::proportional(13.5),
                     BROWN,
                 );
                 p.text(
                     pos2(rect.left() + 10.0, rect.bottom() - 13.0),
                     Align2::LEFT_CENTER,
-                    ellipsize(kind.blurb(), 25),
+                    ellipsize(tr(kind.blurb()), 25),
                     egui::FontId::proportional(10.5),
                     BROWN_SOFT,
                 );
@@ -228,7 +241,7 @@ impl HappyKitten {
                 if resp.clicked() {
                     self.apply_effect_to_selection(kind);
                 }
-                resp.on_hover_text("Ziehen und zwischen zwei Clips fallen lassen – oder anklicken, um sie an allen Schnittpunkten der Auswahl einzufügen");
+                resp.on_hover_text(tr("Ziehen und zwischen zwei Clips fallen lassen – oder anklicken, um sie an allen Schnittpunkten der Auswahl einzufügen"));
             }
         });
     }
@@ -258,21 +271,21 @@ impl HappyKitten {
             if let Some(id) = selected_text {
                 self.text_editor(ui, id);
                 ui.add_space(10.0);
-                ui.label(egui::RichText::new("Vorlagen").size(18.0));
+                ui.label(egui::RichText::new(tr("Vorlagen")).size(18.0));
             }
             ui.horizontal(|ui| {
                 ui.spacing_mut().item_spacing.x = 6.0;
-                if kit::pill(ui, Some(Icon::Plus), "Text", true, true).on_hover_text("Neuen Text am Zeiger einfügen").clicked() {
+                if kit::pill(ui, Some(Icon::Plus), tr("Text"), true, true).on_hover_text(tr("Neuen Text am Zeiger einfügen")).clicked() {
                     self.add_text_at_playhead(TextSpec::default());
                 }
                 if kit::pill(ui, Some(Icon::Folder), "SRT · LRC · TXT", false, true)
-                    .on_hover_text("Untertitel oder Lyrics importieren: jede Zeile wird ein Text-Clip")
+                    .on_hover_text(tr("Untertitel oder Lyrics importieren: jede Zeile wird ein Text-Clip"))
                     .clicked()
                 {
                     self.import_subtitles_dialog();
                 }
             });
-            ui.label(egui::RichText::new("Vorlage auf eine Spur ziehen oder ＋ anklicken.").size(12.5).color(BROWN_SOFT));
+            ui.label(egui::RichText::new(tr("Vorlage auf eine Spur ziehen oder ＋ anklicken.")).size(12.5).color(BROWN_SOFT));
             ui.add_space(2.0);
             ui.horizontal_wrapped(|ui| {
                 ui.spacing_mut().item_spacing = vec2(10.0, 10.0);
@@ -282,7 +295,7 @@ impl HappyKitten {
             });
             if !self.lib.presets.is_empty() {
                 ui.add_space(6.0);
-                ui.label(egui::RichText::new("Meine Vorlagen (global)").size(16.0));
+                ui.label(egui::RichText::new(tr("Meine Vorlagen (global)")).size(16.0));
                 let mine: Vec<(String, TextSpec)> = self.lib.presets.iter().map(|p| (p.name.clone(), p.spec.clone())).collect();
                 ui.horizontal_wrapped(|ui| {
                     ui.spacing_mut().item_spacing = vec2(10.0, 10.0);
@@ -293,7 +306,7 @@ impl HappyKitten {
             }
             if selected_text.is_none() {
                 ui.add_space(8.0);
-                ui.label(egui::RichText::new("Wähle einen Text-Clip in der Timeline, um Schrift, Farben und Effekte zu ändern.").color(BROWN_SOFT));
+                ui.label(egui::RichText::new(tr("Wähle einen Text-Clip in der Timeline, um Schrift, Farben und Effekte zu ändern.")).color(BROWN_SOFT));
             }
         });
     }
@@ -435,7 +448,7 @@ impl HappyKitten {
                     egui::PopupAnchor::Pointer,
                 )
                 .show(|ui| {
-                    ui.label(format!("Auf {n} gewählte Texte anwenden"));
+                    ui.label(trf!("Auf {n} gewählte Texte anwenden", n = n));
                 });
             }
             if resp.clicked()
@@ -448,16 +461,16 @@ impl HappyKitten {
         }
         resp.context_menu(|ui| {
             let label = if n == 1 {
-                "Auf den gewählten Text anwenden".to_string()
+                tr("Auf den gewählten Text anwenden").to_string()
             } else {
-                format!("Auf {n} gewählte Texte anwenden")
+                trf!("Auf {n} gewählte Texte anwenden", n = n)
             };
             if ui.add_enabled(n > 0, egui::Button::new(label)).clicked() {
                 self.apply_text_preset(pick, &targets);
                 ui.close();
             }
             if ui
-                .button("Neuen Text mit dieser Vorlage einfügen")
+                .button(tr("Neuen Text mit dieser Vorlage einfügen"))
                 .clicked()
             {
                 if let Some(spec) = self.text_preset(pick) {
@@ -467,7 +480,7 @@ impl HappyKitten {
             }
             if pick.global {
                 ui.separator();
-                ui.label("Name der Vorlage");
+                ui.label(tr("Name der Vorlage"));
                 let mut changed = false;
                 if let Some(p) = self.lib.presets.get_mut(pick.index) {
                     changed = ui.text_edit_singleline(&mut p.name).changed();
@@ -475,7 +488,7 @@ impl HappyKitten {
                 if changed {
                     self.save_library();
                 }
-                if ui.button("Vorlage löschen").clicked() {
+                if ui.button(tr("Vorlage löschen")).clicked() {
                     self.lib.remove_preset(pick.index);
                     self.save_library();
                     ui.close();
@@ -512,7 +525,7 @@ impl HappyKitten {
         let current = self
             .preset_pick
             .and_then(|pk| names.iter().find(|(k, _)| *k == pk).map(|(_, n)| n.clone()))
-            .unwrap_or_else(|| "Vorlage wählen …".to_string());
+            .unwrap_or_else(|| tr("Vorlage wählen …").to_string());
         ui.horizontal(|ui| {
             ui.spacing_mut().item_spacing.x = 6.0;
             egui::ComboBox::from_id_salt("preset-pick").selected_text(current).width(190.0).show_ui(ui, |ui| {
@@ -521,16 +534,19 @@ impl HappyKitten {
                 }
             });
             let n = targets.len();
-            let label = if n > 1 { format!("Auf {n} Texte anwenden") } else { "Anwenden".to_string() };
+            let label = if n > 1 { trf!("Auf {n} Texte anwenden", n = n) } else { tr("Anwenden").to_string() };
             if kit::pill(ui, Some(Icon::Check), &label, true, self.preset_pick.is_some())
-                .on_hover_text("Überträgt die Vorlage auf alle gewählten Texte (Wortlaut und, ohne Haken unten, Position bleiben)")
+                .on_hover_text(tr("Überträgt die Vorlage auf alle gewählten Texte (Wortlaut und, ohne Haken unten, Position bleiben)"))
                 .clicked()
                 && let Some(pk) = self.preset_pick
             {
                 self.apply_text_preset(pk, &targets);
             }
         });
-        ui.checkbox(&mut self.preset_with_pos, "Position der Vorlage mitnehmen");
+        ui.checkbox(
+            &mut self.preset_with_pos,
+            tr("Position der Vorlage mitnehmen"),
+        );
         ui.add_space(6.0);
     }
 
@@ -554,7 +570,7 @@ impl HappyKitten {
         if n == 0 {
             self.say("Wähle zuerst Text-Clips aus");
         } else {
-            self.say(format!("Vorlage auf {n} Text(e) angewendet"));
+            self.say(trf!("Vorlage auf {n} Text(e) angewendet", n = n));
         }
     }
 
@@ -570,13 +586,13 @@ impl HappyKitten {
             .filter(|o| *o != id && self.doc.project.clip(*o).is_some_and(|(_, c)| c.is_text()))
             .collect();
         if others.is_empty() {
-            ui.label(egui::RichText::new("Text bearbeiten").size(18.0));
+            ui.label(egui::RichText::new(tr("Text bearbeiten")).size(18.0));
         } else {
             ui.label(
-                egui::RichText::new(format!("{} Texte bearbeiten", others.len() + 1)).size(18.0),
+                egui::RichText::new(trf!("{n} Texte bearbeiten", n = others.len() + 1)).size(18.0),
             );
             ui.label(
-                egui::RichText::new("Schrift, Farben, Position und Effekte gelten für alle gewählten Texte, der Wortlaut nur für den ersten.")
+                egui::RichText::new(tr("Schrift, Farben, Position und Effekte gelten für alle gewählten Texte, der Wortlaut nur für den ersten."))
                     .size(12.0)
                     .color(BROWN_SOFT),
             );
@@ -587,17 +603,17 @@ impl HappyKitten {
                 .font(egui::FontId::new(17.0, text_family(&s.font)))
                 .desired_rows(3)
                 .desired_width(f32::INFINITY)
-                .hint_text("Dein Text – jede Zeile bleibt eine Zeile"),
+                .hint_text(tr("Dein Text – jede Zeile bleibt eine Zeile")),
         );
         egui::Grid::new("text-grid")
             .num_columns(2)
             .spacing([10.0, 8.0])
             .show(ui, |ui| {
-                ui.label("Schrift");
+                ui.label(tr("Schrift"));
                 let current = FONTS.iter().find(|f| f.0 == s.font).map_or("?", |f| f.1);
                 egui::ComboBox::from_id_salt("font")
                     .selected_text(
-                        egui::RichText::new(current)
+                        egui::RichText::new(tr(current))
                             .family(text_family(&s.font))
                             .size(17.0),
                     )
@@ -608,9 +624,9 @@ impl HappyKitten {
                             ui.add_enabled_ui(ok, |ui| {
                                 // every entry is written in its own font, so the list is a preview
                                 let text = if ok {
-                                    label.to_string()
+                                    tr(label).to_string()
                                 } else {
-                                    format!("{label} (nicht installiert)")
+                                    trf!("{label} (nicht installiert)", label = tr(label))
                                 };
                                 ui.selectable_value(
                                     &mut s.font,
@@ -623,10 +639,10 @@ impl HappyKitten {
                         }
                     });
                 ui.end_row();
-                ui.label("Größe");
+                ui.label(tr("Größe"));
                 ui.add(egui::Slider::new(&mut s.size, 0.03..=0.35).show_value(false));
                 ui.end_row();
-                ui.label("Farbe");
+                ui.label(tr("Farbe"));
                 ui.horizontal_wrapped(|ui| {
                     let mut c = to_color(s.color);
                     if egui::color_picker::color_edit_button_srgba(
@@ -652,7 +668,7 @@ impl HappyKitten {
                     }
                 });
                 ui.end_row();
-                ui.label("Kontur");
+                ui.label(tr("Kontur"));
                 ui.horizontal(|ui| {
                     let mut c = to_color(s.outline);
                     if egui::color_picker::color_edit_button_srgba(
@@ -667,7 +683,7 @@ impl HappyKitten {
                     ui.add(egui::Slider::new(&mut s.outline_width, 0.0..=0.3).show_value(false));
                 });
                 ui.end_row();
-                ui.label("Hintergrund");
+                ui.label(tr("Hintergrund"));
                 ui.horizontal(|ui| {
                     let mut c = to_color(s.background);
                     if egui::color_picker::color_edit_button_srgba(
@@ -679,19 +695,19 @@ impl HappyKitten {
                     {
                         s.background = from_color(c);
                     }
-                    if kit::pill(ui, None, "ohne", s.background[3] == 0, true).clicked() {
+                    if kit::pill(ui, None, tr("ohne"), s.background[3] == 0, true).clicked() {
                         s.background[3] = 0;
                     }
-                    ui.checkbox(&mut s.shadow, "Schatten");
+                    ui.checkbox(&mut s.shadow, tr("Schatten"));
                 });
                 ui.end_row();
-                ui.label("Ausrichtung");
+                ui.label(tr("Ausrichtung"));
                 ui.horizontal(|ui| {
                     ui.spacing_mut().item_spacing.x = 4.0;
                     for (a, label) in [
-                        (Align::Left, "Links"),
-                        (Align::Center, "Mitte"),
-                        (Align::Right, "Rechts"),
+                        (Align::Left, tr("Links")),
+                        (Align::Center, tr("Mitte")),
+                        (Align::Right, tr("Rechts")),
                     ] {
                         if kit::pill(ui, None, label, s.align == a, true).clicked() {
                             s.align = a;
@@ -699,10 +715,10 @@ impl HappyKitten {
                     }
                 });
                 ui.end_row();
-                ui.label("Zeilenabstand");
+                ui.label(tr("Zeilenabstand"));
                 ui.add(egui::Slider::new(&mut s.line_spacing, 0.9..=2.0).show_value(false));
                 ui.end_row();
-                ui.label("Position");
+                ui.label(tr("Position"));
                 ui.horizontal(|ui| {
                     // click or drag in the little frame to place the text
                     let (r, resp) =
@@ -747,12 +763,12 @@ impl HappyKitten {
             });
 
         ui.add_space(6.0);
-        ui.label(egui::RichText::new("Ein- und Ausblenden").size(16.0));
+        ui.label(egui::RichText::new(tr("Ein- und Ausblenden")).size(16.0));
         egui::Grid::new("fx-grid")
             .num_columns(2)
             .spacing([10.0, 8.0])
             .show(ui, |ui| {
-                ui.label("Einblenden");
+                ui.label(tr("Einblenden"));
                 ui.horizontal(|ui| {
                     fx_combo(ui, "fx-in", &mut s.fx_in);
                     let mut d = s.fx_in_dur.secs() as f32;
@@ -768,7 +784,7 @@ impl HappyKitten {
                     }
                 });
                 ui.end_row();
-                ui.label("Ausblenden");
+                ui.label(tr("Ausblenden"));
                 ui.horizontal(|ui| {
                     fx_combo(ui, "fx-out", &mut s.fx_out);
                     let mut d = s.fx_out_dur.secs() as f32;
@@ -805,18 +821,18 @@ impl HappyKitten {
         ui.add_space(8.0);
         ui.horizontal_wrapped(|ui| {
             ui.spacing_mut().item_spacing = vec2(6.0, 6.0);
-            if kit::pill(ui, Some(Icon::Globe), "Als Vorlage speichern", false, true).on_hover_text("Merkt sich den Stil in der globalen Bibliothek, für alle Projekte").clicked() {
-                let name = format!("Mein Stil {}", self.lib.presets.len() + 1);
+            if kit::pill(ui, Some(Icon::Globe), tr("Als Vorlage speichern"), false, true).on_hover_text(tr("Merkt sich den Stil in der globalen Bibliothek, für alle Projekte")).clicked() {
+                let name = trf!("Mein Stil {n}", n = self.lib.presets.len() + 1);
                 self.lib.add_preset(name, s.clone());
                 self.save_library();
                 self.say("Vorlage gespeichert – sie liegt oben unter „Meine Vorlagen“");
             }
             if let Some(track) = track {
-                if kit::pill(ui, None, "Stil für alle Texte der Spur", false, true).on_hover_text("Überträgt Schrift, Farben, Position und Effekte auf jeden Text dieser Spur").clicked() {
+                if kit::pill(ui, None, tr("Stil für alle Texte der Spur"), false, true).on_hover_text(tr("Überträgt Schrift, Farben, Position und Effekte auf jeden Text dieser Spur")).clicked() {
                     let style = s.clone();
                     self.doc.edit(|p| p.restyle_track_texts(track, &style));
                 }
-                if kit::pill(ui, None, "Zeilen bunt färben", false, true).on_hover_text("Jeder Text der Spur bekommt der Reihe nach eine Pastellfarbe").clicked() {
+                if kit::pill(ui, None, tr("Zeilen bunt färben"), false, true).on_hover_text(tr("Jeder Text der Spur bekommt der Reihe nach eine Pastellfarbe")).clicked() {
                     self.doc.edit(|p| {
                         if let Some(t) = p.tracks.iter_mut().find(|t| t.id == track) {
                             for (i, c) in t.clips.iter_mut().filter(|c| c.is_text()).enumerate() {
@@ -835,11 +851,11 @@ impl HappyKitten {
 
 pub(crate) fn fx_combo(ui: &mut Ui, salt: &str, fx: &mut TextFx) {
     egui::ComboBox::from_id_salt(salt)
-        .selected_text(fx.name())
+        .selected_text(tr(fx.name()))
         .width(130.0)
         .show_ui(ui, |ui| {
             for f in TextFx::ALL {
-                ui.selectable_value(fx, f, f.name());
+                ui.selectable_value(fx, f, tr(f.name()));
             }
         });
 }

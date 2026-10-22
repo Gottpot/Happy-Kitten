@@ -1,6 +1,7 @@
 //! "Über Happy-Kitten": who made it and under which licence.
 
 use crate::app::HappyKitten;
+use crate::i18n::tr;
 use crate::kit;
 use crate::theme::*;
 
@@ -10,7 +11,7 @@ impl HappyKitten {
             return;
         }
         let mut open = true;
-        egui::Window::new("Über Happy-Kitten")
+        egui::Window::new(tr("Über Happy-Kitten"))
             .title_bar(false)
             .collapsible(false)
             .resizable(false)
@@ -26,21 +27,21 @@ impl HappyKitten {
                     );
                     ui.add_space(6.0);
                     ui.label(egui::RichText::new(format!("Happy-Kitten v{}", short_version())).size(28.0));
-                    ui.label(egui::RichText::new("Erstellt von Gottpot").size(20.0).color(PINK_DEEP));
+                    ui.label(egui::RichText::new(tr("Erstellt von Gottpot")).size(20.0).color(PINK_DEEP));
                     ui.add_space(8.0);
                     ui.label(
-                        egui::RichText::new("Ein lokaler, werbefreier Videoschnitt für den Mac: ohne Cloud, ohne Konto, ohne Abo.")
+                        egui::RichText::new(tr("Ein lokaler, werbefreier Videoschnitt für den Mac: ohne Cloud, ohne Konto, ohne Abo."))
                             .color(BROWN_SOFT),
                     );
                     ui.add_space(8.0);
-                    ui.label("Quelloffen unter MIT oder Apache-2.0.");
+                    ui.label(tr("Quelloffen unter MIT oder Apache-2.0."));
                     ui.label(
-                        egui::RichText::new("Mit Dank an egui, wgpu, symphonia, cpal, fontdue, image und viele weitere Open-Source-Bibliotheken (siehe THIRD-PARTY-LICENSES.md).")
+                        egui::RichText::new(tr("Mit Dank an egui, wgpu, symphonia, cpal, fontdue, image und viele weitere Open-Source-Bibliotheken (siehe THIRD-PARTY-LICENSES.md)."))
                             .size(12.5)
                             .color(BROWN_SOFT),
                     );
                     ui.add_space(12.0);
-                    if kit::pill(ui, Some(kit::Icon::Check), "Schön!", true, true).clicked() {
+                    if kit::pill(ui, Some(kit::Icon::Check), tr("Schön!"), true, true).clicked() {
                         open = false;
                     }
                 });

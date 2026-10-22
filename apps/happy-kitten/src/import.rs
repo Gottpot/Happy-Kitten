@@ -2,6 +2,8 @@
 //! global library, plus subtitle / lyric files that become text clips.
 
 use crate::app::{HappyKitten, PoolTab, Selection};
+use crate::i18n::tr;
+use crate::trf;
 use hk_core::{MediaKind, MediaSource, TextSpec, Tick, TrackKind};
 use std::path::{Path, PathBuf};
 
@@ -61,22 +63,22 @@ fn expand(paths: Vec<PathBuf>) -> Vec<PathBuf> {
 impl HappyKitten {
     pub fn import_dialog(&mut self) {
         let dialog = rfd::FileDialog::new()
-            .set_title("Dateien importieren (mehrere möglich)")
+            .set_title(tr("Dateien importieren (mehrere möglich)"))
             .add_filter(
-                "Alle unterstützten Dateien",
+                tr("Alle unterstützten Dateien"),
                 &[
                     "mp4", "mov", "m4v", "png", "jpg", "jpeg", "gif", "webp", "bmp", "tif", "tiff",
                     "mp3", "wav", "m4a", "aac", "aif", "aiff", "flac", "srt", "lrc", "txt",
                 ],
             )
             .add_filter(
-                "Video und Bilder",
+                tr("Video und Bilder"),
                 &[
                     "mp4", "mov", "m4v", "png", "jpg", "jpeg", "gif", "webp", "bmp", "tif", "tiff",
                 ],
             )
             .add_filter(
-                "Audio",
+                tr("Audio"),
                 &["mp3", "wav", "m4a", "aac", "aif", "aiff", "flac"],
             );
         if let Some(paths) = dialog.pick_files() {
@@ -86,7 +88,7 @@ impl HappyKitten {
 
     pub fn import_folder_dialog(&mut self) {
         if let Some(dir) = rfd::FileDialog::new()
-            .set_title("Ordner importieren")
+            .set_title(tr("Ordner importieren"))
             .pick_folder()
         {
             self.import_paths(vec![dir]);
@@ -95,8 +97,8 @@ impl HappyKitten {
 
     pub fn import_subtitles_dialog(&mut self) {
         let dialog = rfd::FileDialog::new()
-            .set_title("Untertitel oder Lyrics importieren")
-            .add_filter("Untertitel und Lyrics", SUBTITLE_EXT);
+            .set_title(tr("Untertitel oder Lyrics importieren"))
+            .add_filter(tr("Untertitel und Lyrics"), SUBTITLE_EXT);
         if let Some(paths) = dialog.pick_files() {
             self.import_paths(paths);
         }
@@ -127,23 +129,22 @@ impl HappyKitten {
             }
         }
         if added + texts > 0 {
-            let place = if self.scope == Scope::Global {
-                "in die Bibliothek"
-            } else {
-                "ins Projekt"
-            };
             let mut msg = String::new();
             if added > 0 {
-                msg.push_str(&format!("{added} Datei(en) {place} importiert"));
+                msg.push_str(&if self.scope == Scope::Global {
+                    trf!("{n} Datei(en) in die Bibliothek importiert", n = added)
+                } else {
+                    trf!("{n} Datei(en) ins Projekt importiert", n = added)
+                });
             }
             if texts > 0 {
                 if !msg.is_empty() {
                     msg.push_str(" · ");
                 }
-                msg.push_str(&format!("{texts} Textzeilen"));
+                msg.push_str(&trf!("{n} Textzeilen", n = texts));
             }
             if failed > 0 {
-                msg.push_str(&format!(" · {failed} nicht lesbar"));
+                msg.push_str(&trf!(" · {n} nicht lesbar", n = failed));
             }
             self.say(msg);
         }
@@ -215,9 +216,10 @@ impl HappyKitten {
             .to_ascii_lowercase();
         let cues = hk_core::parse_by_extension(&ext, &text, self.playhead);
         if cues.is_empty() {
-            return Err(format!(
-                "In {} wurde kein Text gefunden",
-                path.file_name()
+            return Err(trf!(
+                "In {name} wurde kein Text gefunden",
+                name = path
+                    .file_name()
                     .map(|n| n.to_string_lossy().into_owned())
                     .unwrap_or_default()
             ));
@@ -237,8 +239,8 @@ impl HappyKitten {
             .unwrap_or_default();
         let prefix = match ext.as_str() {
             "srt" => "SRT",
-            "lrc" => "Lyrics",
-            _ => "Text",
+            "lrc" => tr("Lyrics"),
+            _ => tr("Text"),
         };
         let title = format!("{prefix} {stem}");
         let result = self.doc.edit(|p| {
@@ -259,9 +261,9 @@ impl HappyKitten {
     pub fn use_lib_item(&mut self, lib_id: hk_core::Id) -> Option<hk_core::Id> {
         let item = self.lib.item(lib_id)?.clone();
         if !item.path.exists() {
-            self.say(format!(
-                "{} fehlt – die Datei wurde verschoben oder gelöscht",
-                item.name
+            self.say(trf!(
+                "{name} fehlt – die Datei wurde verschoben oder gelöscht",
+                name = item.name
             ));
             return None;
         }

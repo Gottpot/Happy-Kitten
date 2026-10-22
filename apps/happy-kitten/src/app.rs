@@ -2,9 +2,11 @@ use crate::audio::AudioEngine;
 use crate::engine::Engine;
 use crate::export::ExportJob;
 use crate::export_ui::ExportOptions;
+use crate::i18n::tr;
 use crate::import::Scope;
 use crate::kit::{self, Icon};
 use crate::theme::*;
+use crate::trf;
 use eframe::egui_wgpu::RenderState;
 use hk_core::{
     Document, GlobalLibrary, Id, MediaKind, MediaSource, Project, TextFx, TextSpec, Tick,
@@ -116,6 +118,7 @@ const LOGO_PNG: &[u8] = include_bytes!("../../../assets/logo.png");
 
 impl HappyKitten {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        crate::i18n::set_lang(crate::i18n::initial());
         theme_init(&cc.egui_ctx);
         let render_state: &RenderState = cc.wgpu_render_state.as_ref().expect("wgpu backend");
         let doc = Document::new(demo_project());
@@ -439,7 +442,7 @@ impl HappyKitten {
     }
 
     pub fn say(&mut self, msg: impl Into<String>) {
-        self.toast = Some((msg.into(), Instant::now()));
+        self.toast = Some((crate::i18n::tr_dyn(&msg.into()), Instant::now()));
     }
 
     pub fn duration(&self) -> Tick {
@@ -487,22 +490,22 @@ impl HappyKitten {
             return true;
         }
         let answer = rfd::MessageDialog::new()
-            .set_title("Ungespeicherte Änderungen")
-            .set_description(
+            .set_title(tr("Ungespeicherte Änderungen"))
+            .set_description(tr(
                 "Das Projekt hat Änderungen, die noch nicht gespeichert sind. Trotzdem fortfahren?",
-            )
+            ))
             .set_buttons(rfd::MessageButtons::YesNoCancelCustom(
-                "Speichern".into(),
-                "Verwerfen".into(),
-                "Abbrechen".into(),
+                tr("Speichern").into(),
+                tr("Verwerfen").into(),
+                tr("Abbrechen").into(),
             ))
             .show();
         match answer {
-            rfd::MessageDialogResult::Custom(c) if c == "Speichern" => {
+            rfd::MessageDialogResult::Custom(c) if c == tr("Speichern") => {
                 self.save_project(false);
                 !self.doc.is_dirty()
             }
-            rfd::MessageDialogResult::Custom(c) => c == "Verwerfen",
+            rfd::MessageDialogResult::Custom(c) => c == tr("Verwerfen"),
             _ => false,
         }
     }
@@ -524,7 +527,7 @@ impl HappyKitten {
             return;
         }
         let Some(path) = rfd::FileDialog::new()
-            .add_filter("Happy-Kitten-Projekt", &["kitten"])
+            .add_filter(tr("Happy-Kitten-Projekt"), &["kitten"])
             .pick_file()
         else {
             return;
@@ -547,7 +550,7 @@ impl HappyKitten {
             (Some(p), false) => p.clone(),
             _ => {
                 let Some(p) = rfd::FileDialog::new()
-                    .add_filter("Happy-Kitten-Projekt", &["kitten"])
+                    .add_filter(tr("Happy-Kitten-Projekt"), &["kitten"])
                     .set_file_name(format!("{}.kitten", self.doc.project.name))
                     .save_file()
                 else {
@@ -683,10 +686,10 @@ impl HappyKitten {
         if n == 0 {
             self.say("Zwischen den gewählten Clips liegt kein Schnittpunkt");
         } else {
-            self.say(format!(
-                "{} an {} Schnittpunkt(en) eingefügt",
-                kind.name(),
-                n
+            self.say(trf!(
+                "{name} an {n} Schnittpunkt(en) eingefügt",
+                name = crate::i18n::tr(kind.name()),
+                n = n
             ));
         }
     }
@@ -704,7 +707,10 @@ impl HappyKitten {
         match res {
             Ok(()) => {
                 self.set_selection(Selection::Transition(right_clip));
-                self.say(format!("{} eingefügt", kind.name()));
+                self.say(trf!(
+                    "{name} eingefügt",
+                    name = crate::i18n::tr(kind.name())
+                ));
             }
             Err(e) => self.say(e.to_string()),
         }
@@ -829,6 +835,24 @@ impl HappyKitten {
         }
     }
 
+    /// Globe + country code of the current language; opens a list of all languages.
+    fn language_button(&mut self, ui: &mut egui::Ui) {
+        let current = crate::i18n::lang();
+        let resp = kit::pill(ui, Some(Icon::Globe), current.code(), false, true)
+            .on_hover_text(tr("Sprache"));
+        egui::Popup::menu(&resp).show(|ui| {
+            ui.set_min_width(150.0);
+            for l in crate::i18n::Lang::ALL {
+                let text = format!("{}   {}", l.code(), l.native_name());
+                if ui.selectable_label(l == current, text).clicked() {
+                    crate::i18n::set_lang(l);
+                    crate::i18n::save(l);
+                    ui.close();
+                }
+            }
+        });
+    }
+
     fn header(&mut self, ui: &mut egui::Ui) {
         let frame = egui::Frame::new()
             .fill(PINK)
@@ -893,7 +917,7 @@ impl HappyKitten {
                 );
                 if ui
                     .interact(about_hit, egui::Id::new("about-hit"), egui::Sense::click())
-                    .on_hover_text("Über Happy-Kitten")
+                    .on_hover_text(tr("Über Happy-Kitten"))
                     .clicked()
                 {
                     self.about = true;
@@ -906,16 +930,16 @@ impl HappyKitten {
                 );
                 ui.scope_builder(egui::UiBuilder::new().max_rect(left), |ui| {
                     ui.horizontal_centered(|ui| {
-                        if kit::pill(ui, Some(Icon::New), "Neu", false, true).clicked() {
+                        if kit::pill(ui, Some(Icon::New), tr("Neu"), false, true).clicked() {
                             self.new_project();
                         }
-                        if kit::pill(ui, Some(Icon::Folder), "Öffnen", false, true)
+                        if kit::pill(ui, Some(Icon::Folder), tr("Öffnen"), false, true)
                             .on_hover_text("Cmd+O")
                             .clicked()
                         {
                             self.open_project();
                         }
-                        if kit::pill(ui, Some(Icon::Save), "Speichern", false, true)
+                        if kit::pill(ui, Some(Icon::Save), tr("Speichern"), false, true)
                             .on_hover_text("Cmd+S")
                             .clicked()
                         {
@@ -925,24 +949,25 @@ impl HappyKitten {
                 });
                 // right
                 let right = egui::Rect::from_min_size(
-                    egui::pos2(full.right() - 500.0, full.center().y - 20.0),
-                    egui::vec2(486.0, 40.0),
+                    egui::pos2(full.right() - 580.0, full.center().y - 20.0),
+                    egui::vec2(566.0, 40.0),
                 );
                 ui.scope_builder(egui::UiBuilder::new().max_rect(right), |ui| {
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        if kit::pill(ui, Some(Icon::Film), "Exportieren", true, true)
-                            .on_hover_text("Film als MP4 speichern")
+                        self.language_button(ui);
+                        if kit::pill(ui, Some(Icon::Film), tr("Exportieren"), true, true)
+                            .on_hover_text(tr("Film als MP4 speichern"))
                             .clicked()
                         {
                             self.open_export_dialog();
                         }
-                        if kit::pill(ui, Some(Icon::Export), "Standbild", false, true)
-                            .on_hover_text("Aktuelles Vorschaubild als PNG speichern")
+                        if kit::pill(ui, Some(Icon::Export), tr("Standbild"), false, true)
+                            .on_hover_text(tr("Aktuelles Vorschaubild als PNG speichern"))
                             .clicked()
                         {
                             self.save_still();
                         }
-                        if kit::pill(ui, Some(Icon::Plus), "Import", false, true)
+                        if kit::pill(ui, Some(Icon::Plus), tr("Import"), false, true)
                             .on_hover_text("Cmd+I")
                             .clicked()
                         {

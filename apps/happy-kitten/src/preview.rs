@@ -1,6 +1,7 @@
 //! Preview player (top right) with the big kitten play button.
 
 use crate::app::{HappyKitten, Payload};
+use crate::i18n::tr;
 use crate::kit::{self, Icon};
 use crate::theme::*;
 use egui::{Align2, Color32, Rect, Sense, Stroke, StrokeKind, Ui, pos2, vec2};
@@ -54,7 +55,7 @@ impl HappyKitten {
                         ui.painter().text(
                             pos2(rect.center().x, rect.bottom() - 22.0),
                             Align2::CENTER_CENTER,
-                            "Zieh ein Medium auf die Timeline",
+                            tr("Zieh ein Medium auf die Timeline"),
                             egui::FontId::proportional(15.0),
                             BROWN,
                         );
@@ -71,7 +72,7 @@ impl HappyKitten {
         ui.horizontal(|ui| {
             ui.spacing_mut().item_spacing.x = 5.0;
             ui.label(
-                egui::RichText::new("Bildformat")
+                egui::RichText::new(tr("Bildformat"))
                     .size(13.0)
                     .color(BROWN_SOFT),
             );
@@ -80,9 +81,9 @@ impl HappyKitten {
                 let selected = cw as u64 * h as u64 == ch as u64 * w as u64;
                 if kit::pill(ui, None, label, selected, true)
                     .on_hover_text(if h > w {
-                        "Hochformat: Shorts, Reels, TikTok"
+                        tr("Hochformat: Shorts, Reels, TikTok")
                     } else {
-                        "Bildformat des Projekts"
+                        tr("Bildformat des Projekts")
                     })
                     .clicked()
                 {
@@ -92,11 +93,11 @@ impl HappyKitten {
             ui.add_space(6.0);
             let mut fit = self.doc.project.fit;
             egui::ComboBox::from_id_salt("canvas-fit")
-                .selected_text(fit.name())
+                .selected_text(tr(fit.name()))
                 .width(130.0)
                 .show_ui(ui, |ui| {
                     for f in hk_core::FitMode::ALL {
-                        ui.selectable_value(&mut fit, f, f.name());
+                        ui.selectable_value(&mut fit, f, tr(f.name()));
                     }
                 });
             if fit != self.doc.project.fit {
@@ -134,34 +135,34 @@ impl HappyKitten {
                 ui.spacing_mut().item_spacing.x = 12.0;
                 let has = total > Tick::ZERO;
                 if kit::round_button(ui, Icon::SkipStart, 44.0, false, has)
-                    .on_hover_text("Zum Anfang (Pos1)")
+                    .on_hover_text(tr("Zum Anfang (Pos1)"))
                     .clicked()
                 {
                     self.stop();
                     self.set_playhead(Tick::ZERO);
                 }
                 if kit::round_button(ui, Icon::StepBack, 44.0, false, has)
-                    .on_hover_text("Ein Bild zurück (←)")
+                    .on_hover_text(tr("Ein Bild zurück (←)"))
                     .clicked()
                 {
                     self.stop();
                     self.set_playhead(self.playhead - Tick::from_frames(1, fps));
                 }
                 if kit::kitten_play_button(ui, self.playing, 64.0)
-                    .on_hover_text("Abspielen / Pause (Leertaste)")
+                    .on_hover_text(tr("Abspielen / Pause (Leertaste)"))
                     .clicked()
                 {
                     self.toggle_play();
                 }
                 if kit::round_button(ui, Icon::StepForward, 44.0, false, has)
-                    .on_hover_text("Ein Bild vor (→)")
+                    .on_hover_text(tr("Ein Bild vor (→)"))
                     .clicked()
                 {
                     self.stop();
                     self.set_playhead(self.playhead + Tick::from_frames(1, fps));
                 }
                 if kit::round_button(ui, Icon::SkipEnd, 44.0, false, has)
-                    .on_hover_text("Zum Ende (Ende)")
+                    .on_hover_text(tr("Zum Ende (Ende)"))
                     .clicked()
                 {
                     self.stop();
@@ -186,7 +187,7 @@ impl HappyKitten {
                 .media(id)
                 .map(|m| m.name.clone())
                 .unwrap_or_default(),
-            Payload::Effect(k) => k.name().to_string(),
+            Payload::Effect(k) => tr(k.name()).to_string(),
             Payload::LibMedia(id) => self
                 .lib
                 .item(id)

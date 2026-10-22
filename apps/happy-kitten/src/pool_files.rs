@@ -2,10 +2,12 @@
 //! a table, with search, filters, sorting and a clear marker for everything already on the timeline.
 
 use crate::app::{HappyKitten, Payload};
+use crate::i18n::tr;
 use crate::import::Scope;
 use crate::kit::{self, Icon};
 use crate::pool::ellipsize;
 use crate::theme::*;
+use crate::trf;
 use egui::{Align2, Color32, Rect, Response, Sense, Shape, Stroke, StrokeKind, Ui, pos2, vec2};
 use hk_core::{Id, MediaKind, MediaSource, Tick};
 use std::path::PathBuf;
@@ -87,10 +89,10 @@ struct Row {
 impl Row {
     fn kind_label(&self) -> &'static str {
         match self.kind {
-            MediaKind::Video => "Video",
-            MediaKind::Image if self.alpha => "Grafik",
-            MediaKind::Image => "Bild",
-            MediaKind::Audio => "Ton",
+            MediaKind::Video => tr("Video"),
+            MediaKind::Image if self.alpha => tr("Grafik"),
+            MediaKind::Image => tr("Bild"),
+            MediaKind::Audio => tr("Ton"),
         }
     }
 
@@ -142,14 +144,16 @@ impl HappyKitten {
             ui.spacing_mut().item_spacing = vec2(5.0, 5.0);
             self.scope_switch_inline(ui);
             ui.add_space(4.0);
-            if kit::pill(ui, Some(Icon::Plus), "Dateien", false, true)
-                .on_hover_text("Mehrere Dateien auf einmal wählen (⌘I)")
+            if kit::pill(ui, Some(Icon::Plus), tr("Dateien"), false, true)
+                .on_hover_text(tr("Mehrere Dateien auf einmal wählen (⌘I)"))
                 .clicked()
             {
                 self.import_dialog();
             }
-            if kit::pill(ui, Some(Icon::Folder), "Ordner", false, true)
-                .on_hover_text("Alle Videos, Bilder, Audios und Untertitel eines Ordners")
+            if kit::pill(ui, Some(Icon::Folder), tr("Ordner"), false, true)
+                .on_hover_text(tr(
+                    "Alle Videos, Bilder, Audios und Untertitel eines Ordners",
+                ))
                 .clicked()
             {
                 self.import_folder_dialog();
@@ -159,7 +163,7 @@ impl HappyKitten {
 
         let (rows, total) = self.build_rows(audio);
         ui.label(
-            egui::RichText::new(format!("{} von {}", rows.len(), total))
+            egui::RichText::new(trf!("{n} von {total}", n = rows.len(), total = total))
                 .size(12.0)
                 .color(BROWN_SOFT),
         );
@@ -204,11 +208,11 @@ impl HappyKitten {
     /// Two kinds of imports: "Projekt" (only this project) and "Global" (every project).
     fn scope_switch_inline(&mut self, ui: &mut Ui) {
         {
-            if kit::pill(ui, Some(Icon::Film), "Dieses Projekt", self.scope == Scope::Project, true).on_hover_text("Dateien, die nur zu diesem Projekt gehören. Goldener Haken = schon auf der Timeline verwendet").clicked() {
+            if kit::pill(ui, Some(Icon::Film), tr("Dieses Projekt"), self.scope == Scope::Project, true).on_hover_text(tr("Dateien, die nur zu diesem Projekt gehören. Goldener Haken = schon auf der Timeline verwendet")).clicked() {
                 self.scope = Scope::Project;
             }
-            if kit::pill(ui, Some(Icon::Globe), "Global", self.scope == Scope::Global, true)
-                .on_hover_text("Bibliothek für alle Projekte: Dateien bleiben, wo sie sind, und sind überall verfügbar")
+            if kit::pill(ui, Some(Icon::Globe), tr("Global"), self.scope == Scope::Global, true)
+                .on_hover_text(tr("Bibliothek für alle Projekte: Dateien bleiben, wo sie sind, und sind überall verfügbar"))
                 .clicked()
             {
                 self.scope = Scope::Global;
@@ -221,21 +225,21 @@ impl HappyKitten {
             ui.spacing_mut().item_spacing.x = 6.0;
             ui.add(
                 egui::TextEdit::singleline(&mut self.pool.query)
-                    .hint_text("Suchen …")
+                    .hint_text(tr("Suchen …"))
                     .desired_width(140.0),
             );
             if !self.pool.query.is_empty()
                 && kit::round_button(ui, Icon::Trash, 26.0, false, true)
-                    .on_hover_text("Suche leeren")
+                    .on_hover_text(tr("Suche leeren"))
                     .clicked()
             {
                 self.pool.query.clear();
             }
             ui.add_space(2.0);
             for (mode, icon, tip) in [
-                (ViewMode::Tiles, Icon::Grid, "Kacheln"),
-                (ViewMode::List, Icon::List, "Liste mit ganzem Namen"),
-                (ViewMode::Table, Icon::Table, "Tabelle"),
+                (ViewMode::Tiles, Icon::Grid, tr("Kacheln")),
+                (ViewMode::List, Icon::List, tr("Liste mit ganzem Namen")),
+                (ViewMode::Table, Icon::Table, tr("Tabelle")),
             ] {
                 if kit::round_button(ui, icon, 30.0, self.pool.mode == mode, true)
                     .on_hover_text(tip)
@@ -250,16 +254,16 @@ impl HappyKitten {
             if !audio {
                 egui::ComboBox::from_id_salt("pool-kind")
                     .selected_text(match self.pool.kind {
-                        KindFilter::All => "Alle Arten",
-                        KindFilter::Video => "Videos",
-                        KindFilter::Image => "Bilder",
+                        KindFilter::All => tr("Alle Arten"),
+                        KindFilter::Video => tr("Videos"),
+                        KindFilter::Image => tr("Bilder"),
                     })
                     .width(96.0)
                     .show_ui(ui, |ui| {
                         for (k, label) in [
-                            (KindFilter::All, "Alle Arten"),
-                            (KindFilter::Video, "Videos"),
-                            (KindFilter::Image, "Bilder"),
+                            (KindFilter::All, tr("Alle Arten")),
+                            (KindFilter::Video, tr("Videos")),
+                            (KindFilter::Image, tr("Bilder")),
                         ] {
                             ui.selectable_value(&mut self.pool.kind, k, label);
                         }
@@ -267,43 +271,43 @@ impl HappyKitten {
             }
             egui::ComboBox::from_id_salt("pool-usage")
                 .selected_text(match self.pool.usage {
-                    UsageFilter::All => "Alles",
-                    UsageFilter::Used => "Verwendet",
-                    UsageFilter::Unused => "Noch frei",
+                    UsageFilter::All => tr("Alles"),
+                    UsageFilter::Used => tr("Verwendet"),
+                    UsageFilter::Unused => tr("Noch frei"),
                 })
                 .width(96.0)
                 .show_ui(ui, |ui| {
                     for (u, label) in [
-                        (UsageFilter::All, "Alles"),
-                        (UsageFilter::Used, "Verwendet"),
-                        (UsageFilter::Unused, "Noch frei"),
+                        (UsageFilter::All, tr("Alles")),
+                        (UsageFilter::Used, tr("Verwendet")),
+                        (UsageFilter::Unused, tr("Noch frei")),
                     ] {
                         ui.selectable_value(&mut self.pool.usage, u, label);
                     }
                 });
             egui::ComboBox::from_id_salt("pool-sort")
                 .selected_text(match self.pool.sort {
-                    SortKey::Added => "Reihenfolge",
-                    SortKey::Name => "Name",
-                    SortKey::Duration => "Dauer",
-                    SortKey::Kind => "Art",
+                    SortKey::Added => tr("Reihenfolge"),
+                    SortKey::Name => tr("Name"),
+                    SortKey::Duration => tr("Dauer"),
+                    SortKey::Kind => tr("Art"),
                 })
                 .width(100.0)
                 .show_ui(ui, |ui| {
                     for (k, label) in [
-                        (SortKey::Added, "Reihenfolge"),
-                        (SortKey::Name, "Name"),
-                        (SortKey::Duration, "Dauer"),
-                        (SortKey::Kind, "Art"),
+                        (SortKey::Added, tr("Reihenfolge")),
+                        (SortKey::Name, tr("Name")),
+                        (SortKey::Duration, tr("Dauer")),
+                        (SortKey::Kind, tr("Art")),
                     ] {
                         ui.selectable_value(&mut self.pool.sort, k, label);
                     }
                 });
             if kit::round_button(ui, Icon::Redo, 28.0, self.pool.desc, true)
                 .on_hover_text(if self.pool.desc {
-                    "Absteigend"
+                    tr("Absteigend")
                 } else {
-                    "Aufsteigend"
+                    tr("Aufsteigend")
                 })
                 .clicked()
             {
@@ -432,7 +436,7 @@ impl HappyKitten {
         ui.vertical_centered(|ui| {
             let (rect, _) = ui.allocate_exact_size(vec2(60.0, 60.0), Sense::hover());
             kit::paw(ui.painter(), rect.center(), 26.0, PEACH_DEEP);
-            let msg = if filtered { "Nichts passt zu Suche und Filtern." } else { "Noch nichts da – importiere Dateien oder einen ganzen Ordner, oder zieh sie ins Fenster." };
+            let msg = if filtered { tr("Nichts passt zu Suche und Filtern.") } else { tr("Noch nichts da – importiere Dateien oder einen ganzen Ordner, oder zieh sie ins Fenster.") };
             ui.label(egui::RichText::new(msg).color(BROWN_SOFT));
         });
     }
@@ -538,9 +542,14 @@ impl HappyKitten {
         }
         if row.used {
             // a clearly visible sticker, bottom left of the picture
+            let used = tr("verwendet");
+            let used_w = p
+                .layout_no_wrap(used.to_string(), egui::FontId::proportional(11.5), BROWN)
+                .size()
+                .x;
             let pill = Rect::from_min_size(
                 pos2(thumb.left() + 4.0, thumb.bottom() - 22.0),
-                vec2(86.0, 18.0),
+                vec2((used_w + 32.0).max(60.0), 18.0),
             );
             p.rect_filled(pill, round(9), GOLD);
             p.rect_stroke(pill, round(9), ink(1.4), StrokeKind::Inside);
@@ -553,7 +562,7 @@ impl HappyKitten {
             p.text(
                 pill.left_center() + vec2(21.0, 0.0),
                 Align2::LEFT_CENTER,
-                "verwendet",
+                used,
                 egui::FontId::proportional(11.5),
                 BROWN,
             );
@@ -562,7 +571,7 @@ impl HappyKitten {
             p.text(
                 thumb.center(),
                 Align2::CENTER_CENTER,
-                "Datei fehlt",
+                tr("Datei fehlt"),
                 egui::FontId::proportional(13.0),
                 Color32::from_rgb(180, 60, 60),
             );
@@ -633,7 +642,7 @@ impl HappyKitten {
             BROWN,
         );
         let sub = if row.missing {
-            "Datei fehlt".to_string()
+            tr("Datei fehlt").to_string()
         } else {
             row.details()
         };
@@ -668,11 +677,11 @@ impl HappyKitten {
         ui.painter().rect_filled(head, round(8), BEIGE);
         // headers: clickable to sort
         let header_cells = [
-            (cols[1], cols[2], "Name", Some(SortKey::Name)),
-            (cols[2], cols[3], "Art", Some(SortKey::Kind)),
-            (cols[3], cols[4], "Dauer", Some(SortKey::Duration)),
-            (cols[4], cols[5], "Größe", None),
-            (cols[5], total_w, "Ordner", None),
+            (cols[1], cols[2], tr("Name"), Some(SortKey::Name)),
+            (cols[2], cols[3], tr("Art"), Some(SortKey::Kind)),
+            (cols[3], cols[4], tr("Dauer"), Some(SortKey::Duration)),
+            (cols[4], cols[5], tr("Größe"), None),
+            (cols[5], total_w, tr("Ordner"), None),
         ];
         for (i, (x0, x1, label, key)) in header_cells.into_iter().enumerate() {
             let cell = Rect::from_min_max(
@@ -800,7 +809,7 @@ impl HappyKitten {
                 BROWN,
             );
             let folder = if row.missing {
-                "Datei fehlt".to_string()
+                tr("Datei fehlt").to_string()
             } else {
                 row.folder.clone()
             };
@@ -853,26 +862,28 @@ impl HappyKitten {
         );
         resp.context_menu(|ui| {
             if global {
-                if ui.button("In dieses Projekt übernehmen").clicked() {
+                if ui.button(tr("In dieses Projekt übernehmen")).clicked() {
                     self.use_lib_item(id);
                     ui.close();
                 }
                 if kind == MediaKind::Image
-                    && ui.button("Als Grafik über das Video legen").clicked()
+                    && ui.button(tr("Als Grafik über das Video legen")).clicked()
                 {
                     if let Some(pid) = self.use_lib_item(id) {
                         self.add_overlay_at_playhead(pid);
                     }
                     ui.close();
                 }
-                if ui.button("Aus der Bibliothek entfernen").clicked() {
+                if ui.button(tr("Aus der Bibliothek entfernen")).clicked() {
                     self.lib.remove_item(id);
                     self.save_library();
                     ui.close();
                 }
             } else {
                 if let Some(path) = path.clone()
-                    && ui.button("In die globale Bibliothek kopieren").clicked()
+                    && ui
+                        .button(tr("In die globale Bibliothek kopieren"))
+                        .clicked()
                 {
                     let lid =
                         self.lib
@@ -883,12 +894,12 @@ impl HappyKitten {
                     ui.close();
                 }
                 if kind == MediaKind::Image
-                    && ui.button("Als Grafik über das Video legen").clicked()
+                    && ui.button(tr("Als Grafik über das Video legen")).clicked()
                 {
                     self.add_overlay_at_playhead(id);
                     ui.close();
                 }
-                if ui.button("Aus dem Projekt entfernen").clicked() {
+                if ui.button(tr("Aus dem Projekt entfernen")).clicked() {
                     if let Err(e) = self.doc.edit(|p| p.remove_media(id)) {
                         self.say(e.to_string());
                     }
@@ -907,7 +918,7 @@ impl HappyKitten {
 
 fn folder_of(path: Option<&std::path::Path>) -> String {
     let Some(parent) = path.and_then(|p| p.parent()) else {
-        return "Beispiel".into();
+        return tr("Beispiel").into();
     };
     let parts: Vec<String> = parent
         .components()

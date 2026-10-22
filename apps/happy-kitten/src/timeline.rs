@@ -2,8 +2,10 @@
 //! transition badges and drop targets for media and cat effects.
 
 use crate::app::{Gesture, HappyKitten, Payload, Selection};
+use crate::i18n::tr;
 use crate::kit::{self, Icon};
 use crate::theme::*;
+use crate::trf;
 use egui::{Align2, Color32, CursorIcon, Rect, Sense, Stroke, StrokeKind, Ui, pos2, vec2};
 use hk_core::{Id, MediaKind, TextSpec, Tick, TrackKind, Transition, TransitionKind};
 
@@ -109,52 +111,52 @@ impl HappyKitten {
         ui.horizontal(|ui| {
             ui.spacing_mut().item_spacing.x = 8.0;
             if kit::round_button(ui, Icon::Undo, 34.0, false, self.doc.can_undo())
-                .on_hover_text("Rückgängig (Cmd+Z)")
+                .on_hover_text(tr("Rückgängig (Cmd+Z)"))
                 .clicked()
             {
                 self.doc.undo();
             }
             if kit::round_button(ui, Icon::Redo, 34.0, false, self.doc.can_redo())
-                .on_hover_text("Wiederholen (Cmd+Shift+Z)")
+                .on_hover_text(tr("Wiederholen (Cmd+Shift+Z)"))
                 .clicked()
             {
                 self.doc.redo();
             }
             ui.add_space(6.0);
-            if kit::pill(ui, Some(Icon::Scissors), "Teilen", false, true)
-                .on_hover_text("Clip am Zeiger teilen (S)")
+            if kit::pill(ui, Some(Icon::Scissors), tr("Teilen"), false, true)
+                .on_hover_text(tr("Clip am Zeiger teilen (S)"))
                 .clicked()
             {
                 self.split_at_playhead();
             }
             let can_delete = self.selection != Selection::None;
-            if kit::pill(ui, Some(Icon::Trash), "Löschen", false, can_delete)
-                .on_hover_text("Auswahl löschen (Entf), mit Shift Lücke schließen")
+            if kit::pill(ui, Some(Icon::Trash), tr("Löschen"), false, can_delete)
+                .on_hover_text(tr("Auswahl löschen (Entf), mit Shift Lücke schließen"))
                 .clicked()
             {
                 let ripple = ui.input(|i| i.modifiers.shift);
                 self.delete_selection(ripple);
             }
-            if kit::pill(ui, Some(Icon::Magnet), "Einrasten", self.snap, true)
-                .on_hover_text("Clips rasten an Kanten und am Zeiger ein")
+            if kit::pill(ui, Some(Icon::Magnet), tr("Einrasten"), self.snap, true)
+                .on_hover_text(tr("Clips rasten an Kanten und am Zeiger ein"))
                 .clicked()
             {
                 self.snap = !self.snap;
             }
-            if kit::pill(ui, Some(Icon::Plus), "Videospur", false, true)
-                .on_hover_text("Weitere Video-/Text-Spur oben auf den Stapel legen")
+            if kit::pill(ui, Some(Icon::Plus), tr("Videospur"), false, true)
+                .on_hover_text(tr("Weitere Video-/Text-Spur oben auf den Stapel legen"))
                 .clicked()
             {
                 self.add_track(TrackKind::Video);
             }
-            if kit::pill(ui, Some(Icon::Plus), "Audiospur", false, true)
-                .on_hover_text("Weitere Audio-Spur")
+            if kit::pill(ui, Some(Icon::Plus), tr("Audiospur"), false, true)
+                .on_hover_text(tr("Weitere Audio-Spur"))
                 .clicked()
             {
                 self.add_track(TrackKind::Audio);
             }
             ui.add_space(6.0);
-            ui.label(egui::RichText::new("Zoom").size(13.0).color(BROWN_SOFT));
+            ui.label(egui::RichText::new(tr("Zoom")).size(13.0).color(BROWN_SOFT));
             ui.add(
                 egui::Slider::new(&mut self.pps, 15.0..=400.0)
                     .logarithmic(true)
@@ -201,11 +203,11 @@ impl HappyKitten {
                 ui.add_space(30.0);
                 let mut new_kind = kind;
                 egui::ComboBox::from_id_salt("tr-kind")
-                    .selected_text(kind.name())
+                    .selected_text(tr(kind.name()))
                     .width(170.0)
                     .show_ui(ui, |ui| {
                         for k in TransitionKind::ALL {
-                            ui.selectable_value(&mut new_kind, k, k.name());
+                            ui.selectable_value(&mut new_kind, k, tr(k.name()));
                         }
                     });
                 if new_kind != kind {
@@ -220,7 +222,7 @@ impl HappyKitten {
                         .ok()
                     });
                 }
-                ui.label("Dauer");
+                ui.label(tr("Dauer"));
                 let mut secs = duration.secs() as f32;
                 let r = ui.add(
                     egui::Slider::new(&mut secs, 0.2..=max)
@@ -246,7 +248,7 @@ impl HappyKitten {
                 if r.drag_stopped() {
                     self.doc.end_gesture();
                 }
-                if kit::pill(ui, Some(Icon::Trash), "Entfernen", false, true).clicked() {
+                if kit::pill(ui, Some(Icon::Trash), tr("Entfernen"), false, true).clicked() {
                     self.doc.edit(|p| p.set_transition(id, None).ok());
                     self.set_selection(Selection::Clip(id));
                 }
@@ -263,9 +265,9 @@ impl HappyKitten {
                     BROWN,
                 );
                 ui.add_space(30.0);
-                ui.label(egui::RichText::new(format!("{n} Clips ausgewählt")).size(15.0));
+                ui.label(egui::RichText::new(trf!("{n} Clips ausgewählt", n = n)).size(15.0));
                 ui.label(
-                    egui::RichText::new("Ziehen = alle verschieben · Entf = alle löschen · Blenden-Tab: Blende für alle Schnittpunkte · Text-Tab: Stil für alle Texte")
+                    egui::RichText::new(tr("Ziehen = alle verschieben · Entf = alle löschen · Blenden-Tab: Blende für alle Schnittpunkte · Text-Tab: Stil für alle Texte"))
                         .size(12.0)
                         .color(BROWN_SOFT),
                 );
@@ -275,7 +277,9 @@ impl HappyKitten {
                     (
                         c.duration.secs(),
                         match &c.text {
-                            Some(t) => format!("Text: {}", t.text.lines().next().unwrap_or("")),
+                            Some(t) => {
+                                trf!("Text: {first}", first = t.text.lines().next().unwrap_or(""))
+                            }
                             None => self
                                 .doc
                                 .project
@@ -298,7 +302,7 @@ impl HappyKitten {
                     ui.add_space(30.0);
                     ui.label(egui::RichText::new(format!("{name}  ·  {secs:.1} s")).size(15.0));
                     ui.label(
-                        egui::RichText::new("Ränder ziehen = kürzen · S = teilen")
+                        egui::RichText::new(tr("Ränder ziehen = kürzen · S = teilen"))
                             .size(12.5)
                             .color(BROWN_SOFT),
                     );
@@ -308,7 +312,7 @@ impl HappyKitten {
             }
             Selection::None => {
                 ui.add_space(8.0);
-                ui.label(egui::RichText::new("Tipp: Ziehe Clips, Texte und Blenden aus dem Pool auf die Spuren, kürze sie an den Rändern und teile mit S.").size(13.0).color(BROWN_SOFT));
+                ui.label(egui::RichText::new(tr("Tipp: Ziehe Clips, Texte und Blenden aus dem Pool auf die Spuren, kürze sie an den Rändern und teile mit S.")).size(13.0).color(BROWN_SOFT));
             }
         }
     }
@@ -381,7 +385,7 @@ impl HappyKitten {
                         );
                         let hdr = ui.interact(r, egui::Id::new(("hdr", t.id)), Sense::click());
                         hdr.context_menu(|ui| {
-                            if ui.button("Spur löschen (wenn leer)").clicked() {
+                            if ui.button(tr("Spur löschen (wenn leer)")).clicked() {
                                 deferred.push(Deferred::RemoveTrack(t.id));
                                 ui.close();
                             }
@@ -437,9 +441,9 @@ impl HappyKitten {
                         );
                         if resp
                             .on_hover_text(if t.kind == TrackKind::Video {
-                                "Spur ein-/ausblenden"
+                                tr("Spur ein-/ausblenden")
                             } else {
-                                "Spur stumm schalten"
+                                tr("Spur stumm schalten")
                             })
                             .clicked()
                         {
@@ -1034,27 +1038,27 @@ impl HappyKitten {
 
                 // context menu
                 body.context_menu(|ui| {
-                    if ui.button("Am Zeiger teilen").clicked() {
+                    if ui.button(tr("Am Zeiger teilen")).clicked() {
                         deferred.push(Deferred::Split(c.id, self.playhead));
                         ui.close();
                     }
-                    if ui.button("Löschen").clicked() {
+                    if ui.button(tr("Löschen")).clicked() {
                         deferred.push(Deferred::Delete(c.id, false));
                         ui.close();
                     }
-                    if ui.button("Löschen und Lücke schließen").clicked() {
+                    if ui.button(tr("Löschen und Lücke schließen")).clicked() {
                         deferred.push(Deferred::Delete(c.id, true));
                         ui.close();
                     }
-                    if c.transition.is_some() && ui.button("Blende entfernen").clicked() {
+                    if c.transition.is_some() && ui.button(tr("Blende entfernen")).clicked() {
                         deferred.push(Deferred::ClearTransition(c.id));
                         ui.close();
                     }
                     if c.is_image {
                         let label = if c.is_overlay {
-                            "Als Vollbild-Bild verwenden"
+                            tr("Als Vollbild-Bild verwenden")
                         } else {
-                            "Als Grafik über das Video legen"
+                            tr("Als Grafik über das Video legen")
                         };
                         if ui.button(label).clicked() {
                             deferred.push(Deferred::ToggleOverlay(c.id));
@@ -1069,9 +1073,9 @@ impl HappyKitten {
                             1
                         };
                         let title = if n_targets > 1 {
-                            format!("Vorlage auf {n_targets} Clips anwenden")
+                            trf!("Vorlage auf {n} Clips anwenden", n = n_targets)
                         } else {
-                            "Vorlage anwenden".to_string()
+                            tr("Vorlage anwenden").to_string()
                         };
                         ui.menu_button(title, |ui| {
                             for (i, (name, _)) in crate::presets::builtin().into_iter().enumerate()
@@ -1176,7 +1180,11 @@ impl HappyKitten {
                 p.circle_stroke(badge.center(), 17.0, ink(2.0));
                 kit::paw(p, badge.center() + vec2(0.0, 1.0), 9.0, BROWN);
                 if resp
-                    .on_hover_text(format!("{} · {:.1} s", tr.kind.name(), tr.duration.secs()))
+                    .on_hover_text(format!(
+                        "{} · {:.1} s",
+                        crate::i18n::tr(tr.kind.name()),
+                        tr.duration.secs()
+                    ))
                     .clicked()
                 {
                     deferred.push(Deferred::Select(Selection::Transition(c.id)));
