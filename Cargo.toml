@@ -1,0 +1,42 @@
+[workspace]
+resolver = "3"
+members = ["crates/*", "apps/*"]
+default-members = ["crates/*", "apps/*"]
+
+[workspace.package]
+version = "1.0.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+rust-version = "1.95"
+authors = ["Gottpot"]
+description = "Happy-Kitten: lokaler, werbefreier Videoschnitt mit Pfoten-Blenden (wgpu/Metal)"
+publish = false
+
+[workspace.dependencies]
+hk-core = { path = "crates/hk-core" }
+hk-gpu = { path = "crates/hk-gpu" }
+hk-media = { path = "crates/hk-media" }
+hk-audio = { path = "crates/hk-audio" }
+hk-text = { path = "crates/hk-text" }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+log = "0.4"
+bytemuck = { version = "1", features = ["derive"] }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "gif", "webp", "bmp", "tiff"] }
+
+# UI: same stack as the filmcraft reference (egui on wgpu/Metal)
+egui = "0.36"
+eframe = { version = "0.36", default-features = false, features = ["default_fonts", "wgpu"] }
+rfd = "0.17"
+
+[profile.dev]
+opt-level = 2
+
+[profile.dev.package."*"]
+opt-level = 2
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

@@ -1,0 +1,23 @@
+# Happy-Kitten – Hinweise für die Arbeit am Code
+
+Lokaler macOS-Videoschnitt in Rust (wgpu/Metal, egui, AVFoundation). Komplett offline, kein Netzwerkcode, keine Telemetrie. Sprache der Oberfläche: Deutsch.
+
+## Befehle
+- Starten: `cargo run --release -p happy-kitten` · Paket: `./scripts/bundle.sh`
+- Prüfen: `cargo test --workspace` und `cargo clippy --workspace --all-targets`
+- Blenden ansehen ohne App: `cargo run -p hk-gpu --example contact_sheet -- out.png`
+- Oberfläche prüfen: `HK_SCREENSHOT=out.png target/debug/happy-kitten` (siehe README „Entwickler-Hilfen“)
+
+## Regeln
+- Schichten: `hk-core` kennt weder GPU noch UI noch Dateien außer Projekt-JSON. UI-Code liegt nur in `apps/happy-kitten`.
+- Zeit ist immer `hk_core::Tick`, nie `f64`-Sekunden in Schnittlogik.
+- Zahlen aus Dateien sind feindlich: kein `unwrap`/Indexzugriff auf Mediendaten, stattdessen `get`, `clamp`, `Result`.
+- `unsafe` nur in `crates/hk-media` (Apple-Frameworks), mit `// SAFETY:`-Kommentar.
+- Text: `TextSpec` (hk-core) → `hk-text` zeichnet ein frame-großes Bild (premultiplied) → `text_overlay.wgsl` blendet es mit `TextFx` ein/aus. Neuer Effekt: `TextFx` + `case` im Shader + `text_sheet` ansehen.
+- Szene: `Project::scene_at` liefert Bild (`video_frame_at`, Text-Clips zählen nie als Bild) plus Text-Ebenen; Vorschau und Export benutzen dieselbe Szene.
+- Globale Bibliothek: `GlobalLibrary` (hk-core), Ids mit `LIB_ID_BIT`; Einträge werden beim Benutzen per `ensure_media` ins Projekt übernommen.
+- Auswahl: `selection` (primär) + `extra` (weitere); immer `set_selection`/`select_many` benutzen, nie `selection =` direkt. Gruppen bewegen mit `Project::shift_clips` (zustandslos, aus `group_origins`). Während Ziehen hält `Document::begin_gesture` die Blenden (`hold_transitions`), erst `end_gesture` räumt auf.
+- Bildformat: `Project.size` + `Project.fit` (Contain/Cover/Blur); Compositor `set_fit`; Export-Größe aus dem Format-Dialog (kurze Seite = Auflösung).
+- Grafiken: `Clip.overlay: Option<OverlaySpec>` (Bild mit Größe/Position/Drehung/Deckkraft), Szene hat `layers` (Text und Bild in Spurreihenfolge); `layers.rs` rastert jede Ebene frame-groß (premultiplied) für den GPU-Overlay-Pass, Vorschau und Export teilen das. `MediaItem.alpha` wird beim Import erkannt und macht Bilder zu Grafiken.
+- Neue Blende: `TransitionKind` in `hk-core/src/transition.rs`, Funktion + `case` in `hk-gpu/src/transitions.wgsl`, danach `contact_sheet` ansehen.
+- UI-Stil: Farben nur aus `theme.rs`, Icons handgezeichnet in `kit.rs`; Texte deutsch.

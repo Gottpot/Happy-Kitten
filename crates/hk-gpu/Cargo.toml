@@ -1,0 +1,18 @@
+[package]
+name = "hk-gpu"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[dependencies]
+hk-core = { workspace = true }
+bytemuck = { workspace = true }
+eframe = { workspace = true }
+pollster = "0.4"
+
+[dev-dependencies]
+hk-media = { workspace = true }
+image = { workspace = true }
+hk-text = { workspace = true }

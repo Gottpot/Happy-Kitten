@@ -1,0 +1,6 @@
+/target
+/dist
+.DS_Store
+*.kitten.tmp
+# Kopie des Logos im Hauptordner (die gültige liegt in assets/)
+/happy-kitten-logo.png

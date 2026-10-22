@@ -1,0 +1,11 @@
+Happy-Kitten
+Copyright 2026 Gottpot
+
+Dieses Projekt steht wahlweise unter der MIT-Lizenz (LICENSE-MIT) oder der
+Apache-Lizenz 2.0 (LICENSE-APACHE).
+
+Das Kätzchen-Logo (assets/logo.png) ist davon ausgenommen, siehe assets/LICENSE.md.
+
+Es nutzt Open-Source-Bibliotheken anderer Autoren, deren Lizenzen in
+THIRD-PARTY-LICENSES.md aufgelistet sind. Schriften werden nicht mitgeliefert,
+sondern zur Laufzeit von macOS gelesen.
