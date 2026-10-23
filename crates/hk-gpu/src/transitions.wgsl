@@ -14,6 +14,8 @@ struct U {
     b_x: vec4<f32>,
     a_c: vec4<f32>, // same for the "cover" fit
     b_c: vec4<f32>,
+    a_gain: vec4<f32>, // colour grade: per-channel gain of picture a / b
+    b_gain: vec4<f32>,
 }
 
 @group(0) @binding(0) var tex_a: texture_2d<f32>;
@@ -62,8 +64,8 @@ fn sample_src(tex: texture_2d<f32>, uv: vec2<f32>, x: vec4<f32>, xc: vec4<f32>) 
     }
     return acc / 24.0 * 0.7;
 }
-fn sa(uv: vec2<f32>) -> vec3<f32> { return sample_src(tex_a, uv, u.a_x, u.a_c); }
-fn sb(uv: vec2<f32>) -> vec3<f32> { return sample_src(tex_b, uv, u.b_x, u.b_c); }
+fn sa(uv: vec2<f32>) -> vec3<f32> { return min(sample_src(tex_a, uv, u.a_x, u.a_c) * u.a_gain.rgb, vec3(1.0)); }
+fn sb(uv: vec2<f32>) -> vec3<f32> { return min(sample_src(tex_b, uv, u.b_x, u.b_c) * u.b_gain.rgb, vec3(1.0)); }
 
 fn aspect() -> f32 { return u.res.x / u.res.y; }
 // uv -> centred coordinates, height = 1, y down

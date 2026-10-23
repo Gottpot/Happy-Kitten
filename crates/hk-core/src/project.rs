@@ -1,3 +1,5 @@
+use crate::audio::AudioSpec;
+use crate::grade::Grade;
 use crate::overlay::OverlaySpec;
 use crate::subtitles::Cue;
 use crate::text::{TextFx, TextSpec};
@@ -94,6 +96,12 @@ pub struct Clip {
     /// Set for graphic clips: an image laid over the picture instead of replacing it.
     #[serde(default)]
     pub overlay: Option<OverlaySpec>,
+    /// Volume, fades and effect of the clip's sound.
+    #[serde(default)]
+    pub audio: AudioSpec,
+    /// Colour temperature and tint of the picture.
+    #[serde(default)]
+    pub grade: Grade,
 }
 
 impl Clip {
@@ -192,6 +200,7 @@ pub struct Project {
 pub struct SourceRef {
     pub media: Id,
     pub time: Tick,
+    pub grade: Grade,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -592,6 +601,8 @@ impl Project {
             transition_in: None,
             text: None,
             overlay,
+            audio: AudioSpec::default(),
+            grade: Grade::default(),
         });
         clips.sort_by_key(|c| c.start);
         self.prune_transitions();
@@ -688,6 +699,8 @@ impl Project {
             transition_in: None,
             text: Some(spec),
             overlay: None,
+            audio: AudioSpec::default(),
+            grade: Grade::default(),
         });
         clips.sort_by_key(|c| c.start);
         Ok(id)
@@ -736,6 +749,22 @@ impl Project {
                 }
             }
         }
+    }
+
+    pub fn audio_of_mut(&mut self, clip: Id) -> Option<&mut AudioSpec> {
+        self.tracks
+            .iter_mut()
+            .flat_map(|t| t.clips.iter_mut())
+            .find(|c| c.id == clip)
+            .map(|c| &mut c.audio)
+    }
+
+    pub fn grade_of_mut(&mut self, clip: Id) -> Option<&mut Grade> {
+        self.tracks
+            .iter_mut()
+            .flat_map(|t| t.clips.iter_mut())
+            .find(|c| c.id == clip)
+            .map(|c| &mut c.grade)
     }
 
     pub fn text_of_mut(&mut self, clip: Id) -> Option<&mut TextSpec> {
@@ -814,7 +843,14 @@ impl Project {
                 o.fx_in = TextFx::None;
                 o
             }),
+            // the fade-in belongs to the first half, the fade-out to the second
+            audio: AudioSpec {
+                fade_in: Tick::ZERO,
+                ..c.audio
+            },
+            grade: c.grade,
         };
+        self.tracks[ti].clips[ci].audio.fade_out = Tick::ZERO;
         if let Some(t) = &mut self.tracks[ti].clips[ci].text {
             t.fx_out = TextFx::None;
         }
@@ -1074,10 +1110,12 @@ impl Project {
                     from: SourceRef {
                         media: left.media,
                         time: Self::source_time(left, t),
+                        grade: left.grade,
                     },
                     to: SourceRef {
                         media: c.media,
                         time: Self::source_time(c, t),
+                        grade: c.grade,
                     },
                     progress: progress.clamp(0.0, 1.0),
                 }));
@@ -1091,6 +1129,7 @@ impl Project {
                 VideoFrame::Single(SourceRef {
                     media: c.media,
                     time: Self::source_time(c, t),
+                    grade: c.grade,
                 })
             })
     }
@@ -1137,6 +1176,52 @@ mod tests {
         assert_eq!(l.duration + r.duration, s(5.0));
         assert_eq!(r.source_in, s(2.0));
         assert_eq!(r.start, l.end());
+    }
+
+    #[test]
+    fn split_gives_the_fade_in_to_the_first_half_and_the_fade_out_to_the_second() {
+        let (mut p, v, m) = sample();
+        let a = p.add_clip(v, m, s(0.0)).unwrap();
+        *p.audio_of_mut(a).unwrap() = AudioSpec {
+            volume: 0.5,
+            fade_in: s(0.5),
+            fade_out: s(0.7),
+            ..AudioSpec::default()
+        };
+        p.grade_of_mut(a).unwrap().temperature = 0.4;
+        let b = p.split_clip(a, s(2.0)).unwrap();
+        let (_, left) = p.clip(a).unwrap();
+        let (_, right) = p.clip(b).unwrap();
+        assert_eq!(
+            (left.audio.fade_in, left.audio.fade_out),
+            (s(0.5), Tick::ZERO)
+        );
+        assert_eq!(
+            (right.audio.fade_in, right.audio.fade_out),
+            (Tick::ZERO, s(0.7))
+        );
+        assert_eq!((left.audio.volume, right.audio.volume), (0.5, 0.5));
+        assert_eq!(
+            (left.grade.temperature, right.grade.temperature),
+            (0.4, 0.4)
+        );
+    }
+
+    #[test]
+    fn projects_from_version_1_0_load_with_neutral_sound_and_colour() {
+        let (mut p, v, m) = sample();
+        p.add_clip(v, m, s(0.0)).unwrap();
+        let mut json = serde_json::to_value(&p).unwrap();
+        // a 1.0 file has neither field
+        for track in json["tracks"].as_array_mut().unwrap() {
+            for clip in track["clips"].as_array_mut().unwrap() {
+                let o = clip.as_object_mut().unwrap();
+                assert!(o.remove("audio").is_some() && o.remove("grade").is_some());
+            }
+        }
+        let back: Project = serde_json::from_value(json).unwrap();
+        let c = &back.tracks[0].clips[0];
+        assert!(c.audio.is_neutral() && c.grade.is_neutral());
     }
 
     #[test]

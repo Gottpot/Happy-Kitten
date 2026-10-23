@@ -34,6 +34,9 @@ struct Uniforms {
     b_xform: [f32; 4],
     a_cover: [f32; 4],
     b_cover: [f32; 4],
+    /// Colour grade gains (rgb, w unused) of the two pictures.
+    a_gain: [f32; 4],
+    b_gain: [f32; 4],
 }
 
 /// A decoded picture living in GPU memory.
@@ -84,7 +87,10 @@ pub struct Compositor {
     text_uniforms: wgpu::Buffer,
     black: GpuFrame,
     fit: std::cell::Cell<u32>,
+    gains: std::cell::Cell<([f32; 4], [f32; 4])>,
 }
+
+const NO_GAIN: [f32; 4] = [1.0, 1.0, 1.0, 0.0];
 
 impl Compositor {
     pub fn new(device: wgpu::Device, queue: wgpu::Queue) -> Self {
@@ -177,7 +183,18 @@ impl Compositor {
             text_uniforms,
             black,
             fit: std::cell::Cell::new(0),
+            gains: std::cell::Cell::new((NO_GAIN, NO_GAIN)),
         }
+    }
+
+    /// Colour grade of the picture that is about to be drawn: `a` for the single or outgoing
+    /// picture, `b` for the incoming one. Call before every render; it stays until changed.
+    pub fn set_grades(&self, a: hk_core::Grade, b: hk_core::Grade) {
+        let g = |x: hk_core::Grade| {
+            let [r, gr, bl] = x.gains();
+            [r, gr, bl, 0.0]
+        };
+        self.gains.set((g(a), g(b)));
     }
 
     /// How pictures of another shape are placed on the canvas (see [`hk_core::FitMode`]).
@@ -271,6 +288,8 @@ impl Compositor {
             b_xform: contain(b.size, out.size),
             a_cover: cover(a.size, out.size),
             b_cover: cover(b.size, out.size),
+            a_gain: self.gains.get().0,
+            b_gain: self.gains.get().1,
         };
         self.queue
             .write_buffer(&self.uniforms, 0, bytemuck::bytes_of(&u));
@@ -591,5 +610,39 @@ mod tests {
         let tall = contain((1000, 2000), (1000, 1000));
         assert!(tall[0] > 1.0 && tall[1] == 1.0);
         assert_eq!(contain((1280, 720), (1280, 720)), [1.0, 1.0, 0.0, 0.0]);
+    }
+
+    /// Renders a grey picture through the real shader; skipped on machines without a GPU.
+    #[test]
+    fn warm_grade_makes_grey_orange_and_neutral_changes_nothing() {
+        let Ok((device, queue)) = headless() else {
+            return;
+        };
+        let comp = Compositor::new(device, queue);
+        let out = comp.create_output(8, 8);
+        let grey = comp.upload(&[128u8, 128, 128, 255].repeat(16), 4, 4);
+        let pixel = |comp: &Compositor| {
+            let px = comp.read_output(&out).expect("read back");
+            [px[0] as i32, px[1] as i32, px[2] as i32]
+        };
+        comp.render_single(&out, &grey);
+        let plain = pixel(&comp);
+        assert!((plain[0] - 128).abs() <= 1 && (plain[2] - 128).abs() <= 1);
+        comp.set_grades(
+            hk_core::Grade {
+                temperature: 1.0,
+                tint: 0.0,
+            },
+            hk_core::Grade::default(),
+        );
+        comp.render_single(&out, &grey);
+        let warm = pixel(&comp);
+        assert!(
+            warm[0] > plain[0] + 10 && warm[2] < plain[2] - 10,
+            "{warm:?} vs {plain:?}"
+        );
+        comp.set_grades(hk_core::Grade::default(), hk_core::Grade::default());
+        comp.render_single(&out, &grey);
+        assert_eq!(pixel(&comp), plain);
     }
 }

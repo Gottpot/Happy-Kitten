@@ -1,4 +1,4 @@
-# 🐾 Happy-Kitten v1.0
+# 🐾 Happy-Kitten v1.1
 
 [English](README.md) · [日本語](README.ja.md) · **Deutsch**
 
@@ -68,7 +68,9 @@ Beim ersten Start liegt ein kleines Demo-Projekt auf der Timeline (drei Szenen, 
 | Blende einfügen | Im Tab „Blenden“ eine Blende zwischen zwei Clips ziehen; Dauer und Art im Feld über der Timeline ändern |
 | Abspielen | **Leertaste**; ←/→ springen ein Bild, Pos1/Ende zum Anfang/Ende |
 | Rückgängig / Wiederholen | ⌘Z / ⇧⌘Z |
-| Speichern / Öffnen | ⌘S / ⌘O (`.kitten`-Dateien, reines JSON) |
+| Klang einstellen | Audio- oder Video-Clip wählen, Tab **Audio** → „Klang“: **Lautstärke** (0 bis 200 %), **Einblenden**, **Ausblenden** und ein **Effekt**: Echo, Hall, Dumpf oder Telefon, mit Stärke-Regler. Mehrere Clips lassen sich gemeinsam ändern. Vorschau, Wiedergabe und Export klingen gleich |
+| Farbe anpassen | Video-Clip oder Bild wählen, Tab **Farbe**: **Temperatur** (kalt bis warm) und **Farbton** (grün bis magenta). Sofort in der Vorschau und im Export, mehrere Clips gemeinsam änderbar |
+| Speichern / Öffnen | ⌘S / ⌘O (`.kitten`-Dateien, reines JSON). Nach dem Speichern zeigt ein grüner Hinweis „Gespeichert ✓“ und den Dateipfad für ein paar Sekunden |
 | Film exportieren | „Exportieren“ → MP4 (H.264 oder HEVC) mit Ton. Format wie das Projekt oder 16:9, **9:16 Short**, 1:1, 4:5; Auflösung = kurze Seite (720 / 1080 / 2160 Pixel); **Bildrate** (23,976 · 24 · 25 · 29,97 · 30 · 50 · 59,94 · 60, zum Beispiel 24 für Midjourney-Material); **Bitrate** automatisch oder selbst festgelegt (1 bis 150 Mbit/s); **Audio** 32 / 44,1 / 48 kHz (AAC) und 128 bis 320 kbit/s |
 | Standbild | „Standbild“ speichert das aktuelle Vorschaubild als PNG |
 | Absturzschutz | ungespeicherte Arbeit wird alle 30 s zur Seite kopiert (`~/Library/Application Support/Happy-Kitten`) und nach einem Absturz beim Start zurückgeholt; vor „Neu“, „Öffnen“ und dem Schließen wird gefragt |
@@ -141,6 +143,9 @@ HK_PLAYHEAD=5.0 HK_TAB=effects HK_IMPORT=clip.mp4:song.wav  # Zeiger, Tab, Impor
 HK_PLAY=1                    # Wiedergabe starten und die Audio-Uhr ausgeben
 HK_EXPORT=film.mp4 HK_HEVC=1 # Export in 720p ohne Dialog, dann beenden
 HK_GLOBAL=1 HK_IMPORT=ordner # Import in die globale Bibliothek (in Entwicklerläufen wird nichts gespeichert)
+HK_TAB=color HK_SELECT_PICTURE=1   # Tab Farbe mit dem ersten Bild-Clip öffnen
+HK_FX=echo HK_VOLUME=0.5 HK_FADE=1 HK_TEMP=0.6 HK_TINT=-0.3  # Klang und Farbe auf alle Clips setzen
+HK_BANNER=1                  # den grünen „Gespeichert“-Hinweis zeigen
 HK_SCRIPT=build|text         # spielt Mausbedienung ab (Ziehen, Trimmen, Blende, Text, Bibliothek); mit HK_DUMP=1 wird die Timeline ausgegeben
 ```
 
@@ -154,11 +159,12 @@ Erstellt von **Gottpot**. Der Quelltext steht wahlweise unter der [MIT-Lizenz](L
 
 - **Logo:** `assets/logo.png` ist © Gottpot und **nicht** Teil der freien Lizenz, siehe [assets/LICENSE.md](assets/LICENSE.md). Wer einen Fork veröffentlicht, ersetzt es durch ein eigenes.
 - **Bibliotheken:** Alle Drittbibliotheken sind freie Lizenzen (MIT, Apache-2.0, Zlib, BSD, MPL-2.0, …), aufgelistet in [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md) (erzeugt mit `python3 scripts/third_party_licenses.py`). Schriften der Textclips werden nicht mitgeliefert, sondern zur Laufzeit aus macOS gelesen.
+- **Änderungsprotokoll:** Was sich in welcher Version geändert hat, steht in [CHANGELOG.de.md](CHANGELOG.de.md).
 - Beiträge sind willkommen, siehe [CONTRIBUTING.md](CONTRIBUTING.md). Das ist ein Hobbyprojekt und keine Rechtsberatung.
 
 ## Als Nächstes
 
 - Text frei auf dem Bild verschieben (bisher per Positionsfeld)
 - Bild-in-Bild: Größe und Position von Video-Clips
-- Geschwindigkeit, Lautstärke und Ein-/Ausblenden pro Clip
+- Geschwindigkeit pro Clip
 - Audio-Überblendungen an Schnitten

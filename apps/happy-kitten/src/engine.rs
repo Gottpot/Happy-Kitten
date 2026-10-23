@@ -178,6 +178,8 @@ impl Engine {
     /// Re-render one effect card at `progress` (hover animation).
     pub fn animate_effect_card(&self, kind: TransitionKind, progress: f32) {
         if let Some((_, out, _)) = self.effect_cards.iter().find(|(k, _, _)| *k == kind) {
+            // the cards are never colour graded; the next preview render sets its own grades
+            self.comp.set_grades(Default::default(), Default::default());
             self.comp
                 .render_blend(out, &self.card_a, &self.card_b, kind, progress, progress);
         }
@@ -400,12 +402,14 @@ impl Engine {
         match base {
             VideoFrame::Black => self.comp.render_black(&self.preview),
             VideoFrame::Single(src) => {
+                self.comp.set_grades(src.grade, src.grade);
                 match self.request(project, src).and_then(|k| self.cache.get(&k)) {
                     Some(c) => self.comp.render_single(&self.preview, &c.frame),
                     None => self.comp.render_black(&self.preview),
                 }
             }
             VideoFrame::Blend(span) => {
+                self.comp.set_grades(span.from.grade, span.to.grade);
                 let ka = self.request(project, span.from);
                 let kb = self.request(project, span.to);
                 let a = ka.and_then(|k| self.cache.get(&k)).map(|c| &c.frame);
@@ -419,7 +423,12 @@ impl Engine {
                         span.progress,
                         t.secs() as f32,
                     ),
-                    (Some(only), None) | (None, Some(only)) => {
+                    (Some(only), None) => {
+                        self.comp.set_grades(span.from.grade, span.from.grade);
+                        self.comp.render_single(&self.preview, only)
+                    }
+                    (None, Some(only)) => {
+                        self.comp.set_grades(span.to.grade, span.to.grade);
                         self.comp.render_single(&self.preview, only)
                     }
                     (None, None) => self.comp.render_black(&self.preview),

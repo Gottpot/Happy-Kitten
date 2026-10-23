@@ -316,7 +316,7 @@ impl HappyKitten {
                             .suffix("°")
                             .fixed_decimals(0),
                     );
-                    if kit::pill(ui, None, "gerade", s.rotation == 0.0, true).clicked() {
+                    if kit::pill(ui, None, tr("gerade"), s.rotation == 0.0, true).clicked() {
                         s.rotation = 0.0;
                     }
                 });

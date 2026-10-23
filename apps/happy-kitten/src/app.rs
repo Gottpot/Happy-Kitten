@@ -15,12 +15,22 @@ use hk_core::{
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
 
+/// A short, clearly visible confirmation (title plus where the file went).
+pub struct Banner {
+    pub title: String,
+    pub detail: String,
+    pub at: Instant,
+}
+
+const BANNER_SECS: f32 = 3.8;
+
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum PoolTab {
     Files,
     Text,
     Graphics,
     Effects,
+    Color,
     Audio,
 }
 
@@ -96,6 +106,10 @@ pub struct HappyKitten {
     pub preset_with_pos: bool,
     pub pool: crate::pool_files::PoolView,
     pub tab: PoolTab,
+    /// Audio tab: sound settings (true) or the sound files (false).
+    pub audio_settings: bool,
+    /// The sound clip whose settings the Audio tab last switched to.
+    pub audio_seen: Option<Id>,
     pub scope: Scope,
     pub lib: GlobalLibrary,
     pub lib_exists: std::collections::HashMap<Id, (bool, Instant)>,
@@ -104,6 +118,8 @@ pub struct HappyKitten {
     pub snap: bool,
     pub gesture: Gesture,
     pub toast: Option<(String, Instant)>,
+    /// Green "saved" notice with the file path, shown for a few seconds.
+    pub banner: Option<Banner>,
     pub logo: egui::TextureHandle,
     pub effect_hover: Option<(TransitionKind, Instant)>,
     pub export_dialog: Option<ExportOptions>,
@@ -141,6 +157,8 @@ impl HappyKitten {
             preset_with_pos: false,
             pool: Default::default(),
             tab: PoolTab::Files,
+            audio_settings: false,
+            audio_seen: None,
             scope: Scope::Project,
             lib: GlobalLibrary::default(),
             lib_exists: Default::default(),
@@ -148,6 +166,7 @@ impl HappyKitten {
             snap: true,
             gesture: Gesture::None,
             toast: None,
+            banner: None,
             logo,
             effect_hover: None,
             export_dialog: None,
@@ -207,6 +226,58 @@ impl HappyKitten {
     }
 
     /// True when a developer hook (screenshot, script) drives the app: nothing is written to disk.
+    /// Developer hook: `HK_FX=echo|hall|dumpf|telefon HK_VOLUME=0.5 HK_FADE=1.0 HK_TEMP=0.6
+    /// HK_TINT=-0.3` set sound and colour on every clip, to check the result in a screenshot
+    /// or an export without clicking.
+    fn dev_clip_settings(&mut self) {
+        let num = |name: &str| std::env::var(name).ok().and_then(|v| v.parse::<f32>().ok());
+        let fx = std::env::var("HK_FX").ok().and_then(|v| {
+            hk_core::AudioFx::ALL.into_iter().find(|f| {
+                f.name().eq_ignore_ascii_case(&v) || format!("{f:?}").eq_ignore_ascii_case(&v)
+            })
+        });
+        let (volume, fade, temp, tint) = (
+            num("HK_VOLUME"),
+            num("HK_FADE"),
+            num("HK_TEMP"),
+            num("HK_TINT"),
+        );
+        if fx.is_none() && volume.is_none() && fade.is_none() && temp.is_none() && tint.is_none() {
+            return;
+        }
+        let ids: Vec<Id> = self
+            .doc
+            .project
+            .tracks
+            .iter()
+            .flat_map(|t| t.clips.iter())
+            .map(|c| c.id)
+            .collect();
+        self.doc.edit(|p| {
+            for id in ids {
+                if let Some(a) = p.audio_of_mut(id) {
+                    if let Some(fx) = fx {
+                        a.fx = fx;
+                        a.fx_amount = num("HK_FX_AMOUNT").unwrap_or(0.6);
+                    }
+                    if let Some(v) = volume {
+                        a.volume = v;
+                    }
+                    if let Some(f) = fade {
+                        a.fade_in = Tick::from_secs(f as f64);
+                        a.fade_out = Tick::from_secs(f as f64);
+                    }
+                    *a = a.sanitized();
+                }
+                if let Some(g) = p.grade_of_mut(id) {
+                    g.temperature = temp.unwrap_or(g.temperature);
+                    g.tint = tint.unwrap_or(g.tint);
+                    *g = g.sanitized();
+                }
+            }
+        });
+    }
+
     pub fn is_dev_run(&self) -> bool {
         self.shot.is_some() || self.script.is_some()
     }
@@ -257,10 +328,24 @@ impl HappyKitten {
             self.tab = match tab.as_str() {
                 "effects" => PoolTab::Effects,
                 "audio" => PoolTab::Audio,
+                "color" => PoolTab::Color,
                 "text" => PoolTab::Text,
                 "graphics" => PoolTab::Graphics,
                 _ => PoolTab::Files,
             };
+        }
+        if frames == 5 && std::env::var_os("HK_SELECT_PICTURE").is_some() {
+            let first = self
+                .doc
+                .project
+                .tracks
+                .iter()
+                .flat_map(|t| t.clips.iter())
+                .find(|c| !c.is_layer())
+                .map(|c| c.id);
+            if let Some(id) = first {
+                self.set_selection(Selection::Clip(id));
+            }
         }
         if frames == 5 && std::env::var_os("HK_SELECT_TEXTS").is_some() {
             let ids: Vec<Id> = self
@@ -287,6 +372,15 @@ impl HappyKitten {
                 },
                 &targets,
             );
+        }
+        if frames == 5 && std::env::var_os("HK_BANNER").is_some() {
+            self.banner(
+                tr("Gespeichert ✓"),
+                "/Users/gottpot/Filme/Mein Kätzchen-Film.kitten".to_string(),
+            );
+        }
+        if frames == 3 {
+            self.dev_clip_settings();
         }
         if frames == 5 && std::env::var_os("HK_ABOUT").is_some() {
             self.about = true;
@@ -441,6 +535,15 @@ impl HappyKitten {
         self.select_many(ids);
     }
 
+    /// Green notice with the path of what was just written.
+    pub fn banner(&mut self, title: &str, detail: String) {
+        self.banner = Some(Banner {
+            title: title.to_string(),
+            detail,
+            at: Instant::now(),
+        });
+    }
+
     pub fn say(&mut self, msg: impl Into<String>) {
         self.toast = Some((crate::i18n::tr_dyn(&msg.into()), Instant::now()));
     }
@@ -560,7 +663,7 @@ impl HappyKitten {
             }
         };
         match self.doc.save(&path) {
-            Ok(()) => self.say("Gespeichert ✓"),
+            Ok(()) => self.banner(tr("Gespeichert ✓"), path.display().to_string()),
             Err(e) => self.say(format!("Speichern fehlgeschlagen: {e}")),
         }
     }
@@ -578,7 +681,7 @@ impl HappyKitten {
             image::RgbaImage::from_raw(w, h, px).ok_or_else(|| "Bildgröße".to_string())
         }) {
             Ok(img) => match img.save(&path) {
-                Ok(()) => self.say("Standbild gespeichert ✓"),
+                Ok(()) => self.banner(tr("Standbild gespeichert ✓"), path.display().to_string()),
                 Err(e) => self.say(format!("Standbild fehlgeschlagen: {e}")),
             },
             Err(e) => self.say(format!("Standbild fehlgeschlagen: {e}")),
@@ -835,6 +938,55 @@ impl HappyKitten {
         }
     }
 
+    /// The green "saved" notice, floating below the header; fades out at the end.
+    fn banner_ui(&mut self, ctx: &egui::Context) {
+        let Some(b) = &self.banner else { return };
+        let age = b.at.elapsed().as_secs_f32();
+        if age > BANNER_SECS {
+            self.banner = None;
+            return;
+        }
+        let alpha = (age / 0.15).min((BANNER_SECS - age) / 0.6).clamp(0.0, 1.0);
+        let path = shorten_path(&b.detail, 64);
+        egui::Area::new(egui::Id::new("saved-banner"))
+            .order(egui::Order::Tooltip)
+            .anchor(egui::Align2::CENTER_TOP, egui::vec2(0.0, 92.0))
+            .interactable(false)
+            .show(ctx, |ui| {
+                egui::Frame::new()
+                    .fill(SAVED_BG.gamma_multiply(alpha))
+                    .stroke(egui::Stroke::new(2.0, SAVED_TEXT.gamma_multiply(alpha)))
+                    .corner_radius(round(20))
+                    .inner_margin(egui::Margin::symmetric(18, 10))
+                    .show(ui, |ui| {
+                        ui.horizontal(|ui| {
+                            let (rect, _) = ui
+                                .allocate_exact_size(egui::vec2(30.0, 30.0), egui::Sense::hover());
+                            kit::draw_icon(
+                                ui.painter(),
+                                Icon::Check,
+                                rect,
+                                SAVED_TEXT.gamma_multiply(alpha),
+                            );
+                            ui.vertical(|ui| {
+                                ui.label(
+                                    egui::RichText::new(&b.title)
+                                        .size(22.0)
+                                        .strong()
+                                        .color(SAVED_TEXT.gamma_multiply(alpha)),
+                                );
+                                ui.label(
+                                    egui::RichText::new(path)
+                                        .size(13.5)
+                                        .color(SAVED_TEXT.gamma_multiply(alpha)),
+                                );
+                            });
+                        });
+                    });
+            });
+        ctx.request_repaint_after(Duration::from_millis(40));
+    }
+
     /// Globe + country code of the current language; opens a list of all languages.
     fn language_button(&mut self, ui: &mut egui::Ui) {
         let current = crate::i18n::lang();
@@ -1053,6 +1205,7 @@ impl eframe::App for HappyKitten {
         self.drag_ghost(&ctx);
         self.export_ui(&ctx);
         self.about_ui(&ctx);
+        self.banner_ui(&ctx);
         self.developer_screenshot(&ctx);
 
         let title = format!(
@@ -1135,4 +1288,35 @@ pub fn demo_project() -> Project {
             .ok();
     }
     p
+}
+
+/// A long path with its middle cut out: `/Users/…/Filme/film.kitten`. The file name always stays.
+fn shorten_path(path: &str, max: usize) -> String {
+    let chars: Vec<char> = path.chars().collect();
+    if chars.len() <= max {
+        return path.to_string();
+    }
+    let name_start = path.rfind('/').map_or(0, |i| path[..i].chars().count() + 1);
+    let name_len = chars.len() - name_start;
+    let head = max.saturating_sub(name_len + 3).max(8).min(chars.len());
+    let head: String = chars[..head.min(name_start)].iter().collect();
+    let tail: String = chars[name_start..].iter().collect();
+    format!("{head}…/{tail}")
+}
+
+#[cfg(test)]
+mod path_tests {
+    use super::shorten_path;
+
+    #[test]
+    fn short_paths_stay_and_long_ones_keep_their_file_name() {
+        assert_eq!(shorten_path("/a/b.kitten", 64), "/a/b.kitten");
+        let long = "/Users/gottpot/Filme/Projekte/2026/Sommer/Urlaub/Strand/Schnitt/film.kitten";
+        let s = shorten_path(long, 40);
+        assert!(
+            s.ends_with("/film.kitten") && s.starts_with("/Users"),
+            "{s}"
+        );
+        assert!(s.chars().count() < long.chars().count());
+    }
 }

@@ -84,7 +84,7 @@ impl AudioEngine {
                         start: c.start.secs(),
                         duration: c.duration.secs(),
                         source_in: c.source_in.secs(),
-                        gain: 1.0,
+                        audio: c.audio,
                     });
                 }
             }

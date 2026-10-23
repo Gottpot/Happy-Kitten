@@ -26,6 +26,10 @@ pub const CLIP_COLORS: [Color32; 6] = [
     Color32::from_rgb(255, 232, 150),
 ];
 
+/// The "saved" notice: soft mint background, deep green text.
+pub const SAVED_BG: Color32 = Color32::from_rgb(214, 244, 222);
+pub const SAVED_TEXT: Color32 = Color32::from_rgb(26, 122, 66);
+
 pub const AUDIO_COLOR: Color32 = Color32::from_rgb(214, 200, 244);
 
 pub fn round(r: u8) -> CornerRadius {

@@ -42,7 +42,8 @@ impl HappyKitten {
                     ui.add_space(6.0);
                     match self.tab {
                         PoolTab::Files => self.pool_files(ui, false),
-                        PoolTab::Audio => self.pool_files(ui, true),
+                        PoolTab::Audio => self.pool_audio(ui),
+                        PoolTab::Color => self.pool_color(ui),
                         PoolTab::Effects => self.pool_effects(ui),
                         PoolTab::Text => self.pool_text(ui),
                         PoolTab::Graphics => self.pool_graphics(ui),
@@ -54,12 +55,13 @@ impl HappyKitten {
     fn pool_tabs(&mut self, ui: &mut Ui) {
         ui.horizontal(|ui| {
             ui.spacing_mut().item_spacing.x = 6.0;
-            let w = (ui.available_width() - 24.0) / 5.0;
+            let w = (ui.available_width() - 30.0) / 6.0;
             for (tab, icon, label) in [
                 (PoolTab::Files, Icon::Film, tr("Dateien")),
                 (PoolTab::Text, Icon::Text, tr("Text")),
                 (PoolTab::Graphics, Icon::Image, tr("Grafik")),
                 (PoolTab::Effects, Icon::Sparkle, tr("Blenden")),
+                (PoolTab::Color, Icon::Sun, tr("Farbe")),
                 (PoolTab::Audio, Icon::Note, tr("Audio")),
             ] {
                 let (rect, resp) = ui.allocate_exact_size(vec2(w, 58.0), Sense::click());
@@ -108,6 +110,9 @@ impl HappyKitten {
                 );
                 if resp.clicked() {
                     self.tab = tab;
+                    if tab == PoolTab::Audio && !self.selected_sound_clips().is_empty() {
+                        self.audio_settings = true;
+                    }
                 }
             }
         });

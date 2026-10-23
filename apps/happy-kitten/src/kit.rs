@@ -36,6 +36,7 @@ pub enum Icon {
     Grid,
     List,
     Table,
+    Sun,
 }
 
 fn ellipse(p: &egui::Painter, c: Pos2, r: Vec2, angle: f32, fill: Color32) {
@@ -426,6 +427,14 @@ pub fn draw_icon(p: &egui::Painter, icon: Icon, rect: Rect, color: Color32) {
             for y in [-0.6, 0.0, 0.6] {
                 p.circle_filled(at(-0.7, y), s * 0.12, color);
                 p.line_segment([at(-0.35, y), at(0.8, y)], line);
+            }
+        }
+        Icon::Sun => {
+            p.circle_filled(c, s * 0.38, color);
+            for i in 0..8 {
+                let a = i as f32 * std::f32::consts::FRAC_PI_4;
+                let (sn, cs) = a.sin_cos();
+                p.line_segment([at(cs * 0.62, sn * 0.62), at(cs * 0.92, sn * 0.92)], line);
             }
         }
         Icon::Table => {

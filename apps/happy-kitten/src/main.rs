@@ -1,7 +1,9 @@
 mod about;
 mod app;
 mod audio;
+mod audio_ui;
 mod autosave;
+mod color_ui;
 mod devscript;
 mod engine;
 mod export;

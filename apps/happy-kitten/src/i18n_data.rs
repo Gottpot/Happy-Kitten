@@ -2152,4 +2152,157 @@ pub const ENTRIES: &[(&str, [&str; 4])] = &[
     ("verwendet", ["used", "使用済み", "사용됨", "usado"]),
     ("ohne", ["none", "なし", "없음", "ninguno"]),
     ("Sprache", ["Language", "言語", "언어", "Idioma"]),
+    ("gerade", ["straight", "まっすぐ", "똑바로", "recto"]),
+    (
+        "Wähle einen Video-Clip oder ein Bild in der Timeline, um Farbtemperatur und Farbton zu ändern.",
+        [
+            "Select a video clip or an image in the timeline to change colour temperature and tint.",
+            "タイムラインで動画クリップか画像を選ぶと、色温度と色合いを変更できます。",
+            "타임라인에서 영상 클립이나 이미지를 선택하면 색온도와 색조를 바꿀 수 있어요.",
+            "Selecciona un clip de vídeo o una imagen en la línea de tiempo para cambiar la temperatura de color y el matiz.",
+        ],
+    ),
+    (
+        "Farbe anpassen: {name}",
+        [
+            "Adjust colour: {name}",
+            "色を調整: {name}",
+            "색상 조정: {name}",
+            "Ajustar color: {name}",
+        ],
+    ),
+    (
+        "{n} Clips anpassen",
+        [
+            "Adjust {n} clips",
+            "{n}個のクリップを調整",
+            "클립 {n}개 조정",
+            "Ajustar {n} clips",
+        ],
+    ),
+    (
+        "Änderungen gelten für alle gewählten Clips.",
+        [
+            "Changes apply to all selected clips.",
+            "変更は選択したすべてのクリップに反映されます。",
+            "변경 사항은 선택한 모든 클립에 적용돼요.",
+            "Los cambios se aplican a todos los clips seleccionados.",
+        ],
+    ),
+    (
+        "Temperatur",
+        ["Temperature", "色温度", "색온도", "Temperatura"],
+    ),
+    ("Kalt", ["Cool", "寒色", "차갑게", "Frío"]),
+    ("Warm", ["Warm", "暖色", "따뜻하게", "Cálido"]),
+    ("Farbton", ["Tint", "色合い", "색조", "Matiz"]),
+    ("Grün", ["Green", "グリーン", "초록", "Verde"]),
+    ("Magenta", ["Magenta", "マゼンタ", "마젠타", "Magenta"]),
+    (
+        "Temperatur und Farbton auf neutral",
+        [
+            "Temperature and tint back to neutral",
+            "色温度と色合いをニュートラルに戻します",
+            "색온도와 색조를 중립으로 되돌려요",
+            "Temperatura y matiz vuelven a neutro",
+        ],
+    ),
+    ("Klang", ["Sound", "サウンド", "사운드", "Sonido"]),
+    (
+        "Lautstärke, Ein- und Ausblenden und Effekte des gewählten Clips",
+        [
+            "Volume, fades and effects of the selected clip",
+            "選択したクリップの音量、フェード、エフェクト",
+            "선택한 클립의 음량, 페이드, 효과",
+            "Volumen, fundidos y efectos del clip seleccionado",
+        ],
+    ),
+    (
+        "Wähle einen Audio- oder Video-Clip in der Timeline, um Lautstärke, Ein- und Ausblenden und Effekte zu ändern.",
+        [
+            "Select an audio or video clip in the timeline to change volume, fades and effects.",
+            "タイムラインでオーディオまたはビデオのクリップを選ぶと、音量・フェード・エフェクトを変更できます。",
+            "타임라인에서 오디오 또는 비디오 클립을 선택하면 음량, 페이드, 효과를 바꿀 수 있어요.",
+            "Selecciona un clip de audio o de vídeo en la línea de tiempo para cambiar el volumen, los fundidos y los efectos.",
+        ],
+    ),
+    (
+        "Klang bearbeiten: {name}",
+        [
+            "Edit sound: {name}",
+            "サウンドを編集: {name}",
+            "사운드 편집: {name}",
+            "Editar sonido: {name}",
+        ],
+    ),
+    (
+        "{n} Clips bearbeiten",
+        [
+            "Edit {n} clips",
+            "{n}個のクリップを編集",
+            "클립 {n}개 편집",
+            "Editar {n} clips",
+        ],
+    ),
+    ("Lautstärke", ["Volume", "音量", "음량", "Volumen"]),
+    ("Effekt", ["Effect", "エフェクト", "효과", "Efecto"]),
+    ("Stärke", ["Amount", "強さ", "세기", "Intensidad"]),
+    (
+        "Lautstärke, Ein- und Ausblenden und Effekt auf Standard",
+        [
+            "Volume, fades and effect back to default",
+            "音量・フェード・エフェクトを初期値に戻します",
+            "음량, 페이드, 효과를 기본값으로 되돌려요",
+            "Volumen, fundidos y efecto vuelven a los valores predeterminados",
+        ],
+    ),
+    ("Echo", ["Echo", "エコー", "에코", "Eco"]),
+    ("Hall", ["Reverb", "リバーブ", "리버브", "Reverberación"]),
+    ("Dumpf", ["Muffled", "こもった音", "먹먹하게", "Apagado"]),
+    ("Telefon", ["Telephone", "電話", "전화", "Teléfono"]),
+    (
+        "Der Ton bleibt, wie er ist",
+        [
+            "The sound stays as it is",
+            "音はそのままです",
+            "소리는 그대로예요",
+            "El sonido se queda como está",
+        ],
+    ),
+    (
+        "Der Ton wiederholt sich und klingt leiser aus",
+        [
+            "The sound repeats and fades away",
+            "音がくり返され、だんだん小さくなります",
+            "소리가 반복되며 점점 작아져요",
+            "El sonido se repite y se va apagando",
+        ],
+    ),
+    (
+        "Klingt wie in einem großen Raum",
+        [
+            "Sounds like a large room",
+            "大きな部屋にいるような響きになります",
+            "넓은 공간에 있는 것처럼 울려요",
+            "Suena como en una sala grande",
+        ],
+    ),
+    (
+        "Wie hinter einer Wand: die Höhen fehlen",
+        [
+            "As if behind a wall: the highs are missing",
+            "壁の向こうのように、高い音が消えます",
+            "벽 너머처럼 높은 소리가 사라져요",
+            "Como detrás de una pared: faltan los agudos",
+        ],
+    ),
+    (
+        "Schmaler Klang wie aus einem alten Telefon",
+        [
+            "Thin sound like from an old telephone",
+            "古い電話のような細い音になります",
+            "옛날 전화기처럼 가느다란 소리예요",
+            "Sonido fino como de un teléfono antiguo",
+        ],
+    ),
 ];

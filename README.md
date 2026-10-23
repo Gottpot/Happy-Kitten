@@ -1,4 +1,4 @@
-# 🐾 Happy-Kitten v1.0
+# 🐾 Happy-Kitten v1.1
 
 **English** · [日本語](README.ja.md) · [Deutsch](README.de.md)
 
@@ -76,7 +76,9 @@ The translations are machine-assisted and have not been proofread by native spea
 | Insert a transition | In the “Transitions” tab drag one between two clips; change duration and kind in the field above the timeline |
 | Play | **Space**; ←/→ step one frame, Home/End jump to the start/end |
 | Undo / redo | ⌘Z / ⇧⌘Z |
-| Save / open | ⌘S / ⌘O (`.kitten` files, plain JSON) |
+| Sound settings | Select an audio or video clip, open the **Audio** tab → “Sound”: **volume** (0 to 200 %), **fade in** and **fade out**, and one **effect**: echo, reverb, muffled or telephone, with an amount slider. Several clips can be changed together. Preview, playback and export sound the same |
+| Colour | Select a video clip or an image, open the **Colour** tab: **temperature** (cool to warm) and **tint** (green to magenta). Live in the preview and in the export; several clips can be changed together |
+| Save / open | ⌘S / ⌘O (`.kitten` files, plain JSON). After saving, a green notice shows “Saved ✓” and the file path for a few seconds |
 | Export a movie | “Export” → MP4 (H.264 or HEVC) with sound. Format like the project or 16:9, **9:16 Short**, 1:1, 4:5; resolution = short side (720 / 1080 / 2160 pixels); **frame rate** (23.976 · 24 · 25 · 29.97 · 30 · 50 · 59.94 · 60, for example 24 for Midjourney material); **bitrate** automatic or your own (1 to 150 Mbit/s); **audio** 32 / 44.1 / 48 kHz (AAC) and 128 to 320 kbit/s |
 | Still frame | “Still frame” saves the current preview picture as a PNG |
 | Crash protection | Unsaved work is copied aside every 30 s (`~/Library/Application Support/Happy-Kitten`) and restored on the next start after a crash; “New”, “Open” and closing ask first |
@@ -143,6 +145,9 @@ HK_PLAYHEAD=5.0 HK_TAB=effects HK_IMPORT=clip.mp4:song.wav  # preset playhead, t
 HK_PLAY=1                    # start playback and print the audio clock
 HK_EXPORT=film.mp4 HK_HEVC=1 # export in 720p without a dialog, then quit
 HK_GLOBAL=1 HK_IMPORT=folder # import into the global library (nothing is saved in developer runs)
+HK_TAB=color HK_SELECT_PICTURE=1   # open the Colour tab with the first picture clip selected
+HK_FX=echo HK_VOLUME=0.5 HK_FADE=1 HK_TEMP=0.6 HK_TINT=-0.3  # set sound and colour on every clip
+HK_BANNER=1                  # show the green "saved" notice
 HK_SCRIPT=build|text         # replays mouse actions (drag, trim, transition, text, library); with HK_DUMP=1 the timeline is printed
 ```
 
@@ -156,11 +161,12 @@ Created by **Gottpot**. The source code is available under either the [MIT licen
 
 - **Logo:** `assets/logo.png` is © Gottpot and is **not** part of the free licence, see [assets/LICENSE.md](assets/LICENSE.md). Whoever publishes a fork replaces it with their own.
 - **Libraries:** All third-party libraries use free licences (MIT, Apache-2.0, Zlib, BSD, MPL-2.0, …), listed in [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md) (generated with `python3 scripts/third_party_licenses.py`). The fonts for text clips are not shipped; they are read from macOS at run time.
+- **Changelog:** see [CHANGELOG.md](CHANGELOG.md) for what changed in each version.
 - Contributions are welcome, see [CONTRIBUTING.md](CONTRIBUTING.md). This is a hobby project and not legal advice.
 
 ## What's next
 
 - Move text freely on the picture (for now via the position field)
 - Picture-in-picture: size and position of video clips
-- Speed, volume and fade in/out per clip
+- Speed per clip
 - Audio crossfades at cuts

@@ -1,7 +1,9 @@
 //! Happy-Kitten core: exact time, project model and the (very small) set of
 //! editing operations. No GPU, no UI, no I/O besides project (de)serialisation.
 
+mod audio;
 mod document;
+mod grade;
 mod library;
 mod overlay;
 mod project;
@@ -10,7 +12,9 @@ mod text;
 mod time;
 mod transition;
 
+pub use audio::{AudioFx, AudioSpec, MAX_VOLUME};
 pub use document::Document;
+pub use grade::Grade;
 pub use library::{GlobalLibrary, LIB_ID_BIT, LibItem, TextPreset};
 pub use overlay::OverlaySpec;
 pub use project::{

@@ -297,7 +297,10 @@ fn render_frame(
     match scene.base {
         VideoFrame::Black => comp.render_black(out),
         VideoFrame::Single(src) => match source.get(comp, project, src) {
-            Some(f) => comp.render_single(out, &f),
+            Some(f) => {
+                comp.set_grades(src.grade, src.grade);
+                comp.render_single(out, &f)
+            }
             None => comp.render_black(out),
         },
         VideoFrame::Blend(span) => match (
@@ -305,9 +308,17 @@ fn render_frame(
             source.get(comp, project, span.to),
         ) {
             (Some(a), Some(b)) => {
+                comp.set_grades(span.from.grade, span.to.grade);
                 comp.render_blend(out, &a, &b, span.kind, span.progress, t.secs() as f32)
             }
-            (Some(only), None) | (None, Some(only)) => comp.render_single(out, &only),
+            (Some(only), None) => {
+                comp.set_grades(span.from.grade, span.from.grade);
+                comp.render_single(out, &only)
+            }
+            (None, Some(only)) => {
+                comp.set_grades(span.to.grade, span.to.grade);
+                comp.render_single(out, &only)
+            }
             (None, None) => comp.render_black(out),
         },
     }
