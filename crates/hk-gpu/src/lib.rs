@@ -645,4 +645,53 @@ mod tests {
         comp.render_single(&out, &grey);
         assert_eq!(pixel(&comp), plain);
     }
+
+    /// Every blend must start on the old picture and end on the new one, with no leftovers of
+    /// its own effect (rims, lines, glow) right before the ends. Skipped without a GPU.
+    #[test]
+    fn every_transition_starts_on_a_and_ends_on_b() {
+        let Ok((device, queue)) = headless() else {
+            return;
+        };
+        let comp = Compositor::new(device, queue);
+        let (w, h) = (96u32, 54u32);
+        let pic = |seed: u8| -> Vec<u8> {
+            (0..w * h)
+                .flat_map(|i| {
+                    let (x, y) = (i % w, i / w);
+                    [
+                        (x * 255 / w) as u8 ^ seed,
+                        (y * 255 / h) as u8,
+                        ((x + y) * 255 / (w + h)) as u8 ^ seed.rotate_left(3),
+                        255,
+                    ]
+                })
+                .collect()
+        };
+        let (pa, pb) = (pic(0), pic(0x5a));
+        let fa = comp.upload(&pa, w, h);
+        let fb = comp.upload(&pb, w, h);
+        let out = comp.create_output(w, h);
+        let diff = |px: &[u8], want: &[u8]| -> f32 {
+            px.iter()
+                .zip(want)
+                .map(|(a, b)| (*a as i32 - *b as i32).abs() as f32)
+                .sum::<f32>()
+                / px.len() as f32
+        };
+        for kind in TransitionKind::ALL {
+            comp.render_blend(&out, &fa, &fb, kind, 0.001, 0.0);
+            let near_start = diff(&comp.read_output(&out).expect("read"), &pa);
+            comp.render_blend(&out, &fa, &fb, kind, 0.999, 0.0);
+            let near_end = diff(&comp.read_output(&out).expect("read"), &pb);
+            assert!(
+                near_start < 6.0,
+                "{kind:?} does not start on the old picture: {near_start}"
+            );
+            assert!(
+                near_end < 6.0,
+                "{kind:?} does not end on the new picture: {near_end}"
+            );
+        }
+    }
 }

@@ -958,7 +958,7 @@ dependencies = [
 
 [[package]]
 name = "happy-kitten"
-version = "1.1.0"
+version = "1.2.0"
 dependencies = [
  "eframe",
  "egui",
@@ -1024,7 +1024,7 @@ checksum = "e17592d60ebacc7d5e169f4663c5f84f9161cc90328abcfe8456f41e4dfcb284"
 
 [[package]]
 name = "hk-audio"
-version = "1.1.0"
+version = "1.2.0"
 dependencies = [
  "cpal",
  "hk-core",
@@ -1034,7 +1034,7 @@ dependencies = [
 
 [[package]]
 name = "hk-core"
-version = "1.1.0"
+version = "1.2.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -1043,7 +1043,7 @@ dependencies = [
 
 [[package]]
 name = "hk-gpu"
-version = "1.1.0"
+version = "1.2.0"
 dependencies = [
  "bytemuck",
  "eframe",
@@ -1056,7 +1056,7 @@ dependencies = [
 
 [[package]]
 name = "hk-media"
-version = "1.1.0"
+version = "1.2.0"
 dependencies = [
  "block2 0.6.2",
  "hk-core",
@@ -1075,7 +1075,7 @@ dependencies = [
 
 [[package]]
 name = "hk-text"
-version = "1.1.0"
+version = "1.2.0"
 dependencies = [
  "fontdue",
  "hk-core",

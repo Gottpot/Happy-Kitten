@@ -137,7 +137,12 @@ impl HappyKitten {
         crate::i18n::set_lang(crate::i18n::initial());
         theme_init(&cc.egui_ctx);
         let render_state: &RenderState = cc.wgpu_render_state.as_ref().expect("wgpu backend");
-        let doc = Document::new(demo_project());
+        // A new project starts empty. `HK_DEMO=1` brings back the sample scenes for screenshots.
+        let doc = Document::new(if std::env::var_os("HK_DEMO").is_some() {
+            demo_project()
+        } else {
+            Project::default()
+        });
         let engine = Engine::new(render_state, doc.project.size);
         let logo = load_logo(&cc.egui_ctx);
         let mut app = HappyKitten {
@@ -618,7 +623,7 @@ impl HappyKitten {
             return;
         }
         self.reset_media_caches();
-        self.doc = Document::new(demo_media_only());
+        self.doc = Document::new(Project::default());
         self.playhead = Tick::ZERO;
         self.stop();
         self.set_selection(Selection::None);

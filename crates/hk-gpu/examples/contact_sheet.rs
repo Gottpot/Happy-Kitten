@@ -1,6 +1,7 @@
 //! Renders every transition at 5 progress steps into one PNG so the shaders
 //! can be judged without opening the app:
-//!   cargo run -p hk-gpu --example contact_sheet -- out.png
+//!   cargo run -p hk-gpu --example contact_sheet -- out.png [first] [count]
+//! `first` and `count` pick a slice of the transition list (default: all).
 use hk_core::TransitionKind;
 use hk_gpu::{Compositor, headless};
 
@@ -15,7 +16,20 @@ fn main() {
     let a = comp.upload(&hk_media::sample_frame(0, 640, 360).pixels, 640, 360);
     let b = comp.upload(&hk_media::sample_frame(2, 640, 360).pixels, 640, 360);
     let out = comp.create_output(w, h);
-    let kinds = TransitionKind::ALL;
+    let first: usize = std::env::args()
+        .nth(2)
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(0);
+    let count: usize = std::env::args()
+        .nth(3)
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(usize::MAX);
+    let kinds: Vec<TransitionKind> = TransitionKind::ALL
+        .iter()
+        .copied()
+        .skip(first)
+        .take(count)
+        .collect();
     let mut sheet = image::RgbaImage::new(w * steps.len() as u32, h * kinds.len() as u32);
     for (row, kind) in kinds.iter().enumerate() {
         for (col, p) in steps.iter().enumerate() {

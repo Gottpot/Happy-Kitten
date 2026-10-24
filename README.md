@@ -1,4 +1,4 @@
-# 🐾 Happy-Kitten v1.1
+# 🐾 Happy-Kitten v1.2
 
 **English** · [日本語](README.ja.md) · [Deutsch](README.de.md)
 
@@ -42,7 +42,7 @@ cargo run --release -p happy-kitten
 ./scripts/bundle.sh      # creates dist/Happy-Kitten.app
 ```
 
-On first launch a small demo project is on the timeline (three scenes, two paw transitions). The four sample scenes are always in the media pool, so you need no files of your own to try it out.
+A new project is empty, so you can start with your own files right away: drag them into the window or use “Import”.
 
 ## Languages
 
@@ -112,7 +112,19 @@ All transitions are WGSL shaders (`crates/hk-gpu/src/transitions.wgsl`) that com
 
 Plus **13 classic transitions**: crossfade, dip to black, dip to white, wipe →, wipe ↓, push, zoom, iris open, clock wipe, barn doors, pixelate, swirl, blur.
 
-`cargo run -p hk-gpu --example contact_sheet -- transitions.png` renders all transitions in five steps into one image, `--example single` renders a single frame in any size.
+### 25 more transitions (1.2)
+
+All computed by the shader as well, in five groups in the Transitions tab:
+
+| Group | Transitions |
+|---|---|
+| **Noise and cells** | *Paper burn* (fractal noise against progress with a glowing rim), *Shatter* (Voronoi cells tip away one by one, the cell edges stay as lines), *Ink in water* (domain warping like smoke) |
+| **Waves and optics** | *Raindrop* (ripples from one point), *Fisheye* (lens zoom), *Zoom blur*, *Spin blur*, *Colour fringe* (chromatic aberration), *Light leak* (a Gaussian streak outshines the cut) |
+| **Curves and shapes** | *Sakura* (five-petal rose curve), *Heart iris* (implicit heart curve), *Spiral* (Archimedean spiral wipe), *Paw bloom* (phyllotaxis: paw pads at the golden angle), *Honeycomb* (hexagons flip from the middle), *Kaleidoscope* (angle folded into 1 to 8 mirrored segments) |
+| **Manga look** | *Halftone dots* (screentone grid turned by 45°), *Retro dither* (8×8 Bayer matrix), *Tabby stripes* (noise-bent stripes), *Calico cat* (Voronoi patches) |
+| **3D and physics** | *Page curl* (cylinder), *Cube*, *Flip* (perspective with a rotation matrix), *Melt* (columns fall with y = ½gt²), *Droste zoom* (log-polar mapping), *Fractal* (Julia set escape time as the mask) |
+
+`cargo run -p hk-gpu --example contact_sheet -- transitions.png` renders all transitions in five steps into one image (`… transitions.png 19 6` only six of them, starting at the 20th), `--example single` renders a single frame in any size.
 
 ## Structure
 
@@ -140,6 +152,7 @@ Environment variables for automatic checks without a mouse click:
 
 ```bash
 HK_LANG=en                   # force a language (de, en, ja, ko, es)
+HK_DEMO=1                    # start with the three sample scenes on the timeline instead of an empty project
 HK_SCREENSHOT=out.png        # saves the window after a short while and quits
 HK_PLAYHEAD=5.0 HK_TAB=effects HK_IMPORT=clip.mp4:song.wav  # preset playhead, tab, import
 HK_PLAY=1                    # start playback and print the audio clock

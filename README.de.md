@@ -1,4 +1,4 @@
-# 🐾 Happy-Kitten v1.1
+# 🐾 Happy-Kitten v1.2
 
 [English](README.md) · [日本語](README.ja.md) · **Deutsch**
 
@@ -42,7 +42,7 @@ cargo run --release -p happy-kitten
 ./scripts/bundle.sh      # erzeugt dist/Happy-Kitten.app
 ```
 
-Beim ersten Start liegt ein kleines Demo-Projekt auf der Timeline (drei Szenen, zwei Pfoten-Blenden). Die vier Beispielszenen sind im Media Pool immer vorhanden, es braucht also keine eigenen Dateien zum Ausprobieren.
+Ein neues Projekt ist leer, du kannst also sofort mit deinen eigenen Dateien beginnen: ins Fenster ziehen oder „Import“ benutzen.
 
 ## Bedienung
 
@@ -110,7 +110,19 @@ Alle Blenden sind WGSL-Shader (`crates/hk-gpu/src/transitions.wgsl`), die Pfoten
 
 Dazu **13 klassische Blenden**: Überblenden, Schwarzblende, Weißblende, Wischen →, Wischen ↓, Schieben, Zoom, Kreis öffnen, Uhrzeiger, Flügeltür, Verpixeln, Verwirbeln, Weichzeichner.
 
-`cargo run -p hk-gpu --example contact_sheet -- blenden.png` rendert alle Blenden in fünf Stufen in ein Bild, `--example single` ein einzelnes Bild in beliebiger Größe.
+### 25 weitere Blenden (1.2)
+
+Auch sie rechnet der Shader aus, in fünf Gruppen im Tab Blenden:
+
+| Gruppe | Blenden |
+|---|---|
+| **Rauschen und Zellen** | *Papierbrand* (fraktales Rauschen gegen den Fortschritt, leuchtende Kante), *Scherben* (Voronoi-Zellen kippen nacheinander weg, die Kanten bleiben als Linien), *Tinte im Wasser* (Domain Warping wie Rauch) |
+| **Wellen und Optik** | *Wassertropfen* (Ringe von einem Punkt aus), *Fischauge* (Linsen-Zoom), *Zoom-Unschärfe*, *Dreh-Unschärfe*, *Farbsaum* (chromatische Aberration), *Lichtleck* (ein Gauß-Streifen überstrahlt den Schnitt) |
+| **Kurven und Formen** | *Sakura* (Rosenkurve mit fünf Blütenblättern), *Herz öffnen* (implizite Herzkurve), *Spirale* (archimedische Spirale als Wischkante), *Pfotenblüte* (Phyllotaxis: Pfotenballen am Goldenen Winkel), *Waben* (Sechsecke klappen von der Mitte aus um), *Kaleidoskop* (Winkel in 1 bis 8 gespiegelte Segmente gefaltet) |
+| **Manga-Look** | *Rasterpunkte* (um 45° gedrehtes Screentone-Gitter), *Retro-Raster* (8×8-Bayer-Matrix), *Tigerstreifen* (per Rauschen verzerrte Streifen), *Glückskatze* (Voronoi-Flecken) |
+| **3D und Physik** | *Seite umblättern* (Zylinder), *Würfel*, *Umklappen* (Perspektive mit Rotationsmatrix), *Schmelzen* (Spalten fallen nach y = ½gt²), *Droste-Zoom* (log-polare Abbildung), *Fraktal* (Fluchtzeit der Julia-Menge als Maske) |
+
+`cargo run -p hk-gpu --example contact_sheet -- blenden.png` rendert alle Blenden in fünf Stufen in ein Bild (`… blenden.png 19 6` nur sechs davon, ab der 20.), `--example single` ein einzelnes Bild in beliebiger Größe.
 
 ## Aufbau
 
@@ -138,6 +150,7 @@ Umgebungsvariablen für automatische Prüfungen ohne Mausklick:
 
 ```bash
 HK_LANG=en                   # Sprache erzwingen (de, en, ja, ko, es)
+HK_DEMO=1                    # statt eines leeren Projekts mit den drei Beispielszenen starten
 HK_SCREENSHOT=out.png        # speichert das Fenster nach kurzer Zeit und beendet sich
 HK_PLAYHEAD=5.0 HK_TAB=effects HK_IMPORT=clip.mp4:song.wav  # Zeiger, Tab, Import vorbelegen
 HK_PLAY=1                    # Wiedergabe starten und die Audio-Uhr ausgeben

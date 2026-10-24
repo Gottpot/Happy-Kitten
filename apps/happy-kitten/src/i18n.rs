@@ -235,6 +235,23 @@ mod tests {
     }
 
     #[test]
+    fn every_transition_and_effect_text_is_translated() {
+        let known: std::collections::HashSet<&str> = ENTRIES.iter().map(|(k, _)| *k).collect();
+        let mut keys: Vec<&str> = Vec::new();
+        for k in hk_core::TransitionKind::ALL {
+            keys.push(k.name());
+            keys.push(k.blurb());
+        }
+        for fx in hk_core::AudioFx::ALL {
+            keys.push(fx.name());
+            keys.push(fx.blurb());
+        }
+        for key in keys {
+            assert!(known.contains(key), "no translation for {key:?}");
+        }
+    }
+
+    #[test]
     fn keys_are_unique() {
         let mut seen = std::collections::HashSet::new();
         for (de, _) in ENTRIES {

@@ -4,6 +4,30 @@
 
 Alle wichtigen Änderungen an Happy-Kitten stehen hier. Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.2.0] - 2026-10-24
+
+### Neu
+- **25 neue Blenden** in fünf Gruppen im Tab Blenden, alle auf der GPU berechnet:
+  - *Rauschen und Zellen:* Papierbrand, Scherben, Tinte im Wasser,
+  - *Wellen und Optik:* Wassertropfen, Fischauge, Zoom-Unschärfe, Dreh-Unschärfe, Farbsaum, Lichtleck,
+  - *Kurven und Formen:* Sakura, Herz öffnen, Spirale, Pfotenblüte, Waben, Kaleidoskop,
+  - *Manga-Look:* Rasterpunkte, Retro-Raster, Tigerstreifen, Glückskatze,
+  - *3D und Physik:* Seite umblättern, Würfel, Umklappen, Schmelzen, Droste-Zoom, Fraktal.
+- Ein GPU-Test prüft, dass **jede** Blende auf dem alten Bild beginnt und auf dem neuen endet, ohne Reste ihres eigenen Effekts.
+- `contact_sheet` kann einen Ausschnitt der Blenden rendern (`… out.png 19 6`), `HK_DEMO=1` startet mit den Beispielszenen.
+- Übersetzungen (Englisch, Japanisch, Koreanisch, Spanisch) für alle neuen Namen und Beschreibungen, mit einem Test, dass kein Blendentext unübersetzt bleibt.
+
+### Geändert
+- **Ein neues Projekt ist leer.** Die vier Beispielszenen (Sonnenwiese, Wollknäuel, Abendkatze, Minzgarten) werden nicht mehr hinzugefügt, du kannst also sofort mit eigenen Dateien beginnen. Projekte, die sie schon enthalten, öffnen sich unverändert.
+- Die Bildkarten im Tab Blenden zeigen jede Blende bei einem Fortschritt, bei dem man sie gut erkennt (zum Beispiel das Umklappen, das bei 50 % genau von der Kante zu sehen ist).
+
+### Behoben
+- Ränder und Leuchten mehrerer Shader (Claw Wipe, Gentle Paw Fade, Kitty Dash) benutzten `pow(x, 2.0)`, das für negatives `x` undefiniert ist. Jetzt steht dort `x * x`, der Rand zeigt sich auf beiden Seiten der Kante.
+- Claw Wipe springt nicht mehr im allerersten Bild herein.
+
+### Kompatibilität
+- Projekte, die eine der neuen Blenden benutzen, lassen sich mit Version 1.1 oder älter nicht öffnen, weil diese Versionen die Blende nicht kennen. Sonst ändert sich nichts; Projekte aus 1.0 und 1.1 öffnen sich in 1.2.
+
 ## [1.1.0] - 2026-10-23
 
 ### Neu
@@ -33,5 +57,6 @@ Alle wichtigen Änderungen an Happy-Kitten stehen hier. Das Format folgt [Keep a
 
 Erste öffentliche Version: lokaler, offline arbeitender Videoschnitt für macOS in Rust mit wgpu/Metal, Pfoten-Blenden und 13 klassischen Blenden, Text-Clips mit Effekten, Untertitel und Lyrics (SRT/LRC/TXT), mehrere Video- und Audiospuren, Grafiken mit Transparenz, 9:16-Export, Exportoptionen (Bildrate, Bitrate, Audio-Samplerate) und eine Oberfläche auf Deutsch, Englisch, Japanisch, Koreanisch und Spanisch.
 
+[1.2.0]: https://github.com/Gottpot/Happy-Kitten/releases/tag/v1.2.0
 [1.1.0]: https://github.com/Gottpot/Happy-Kitten/releases/tag/v1.1.0
 [1.0.0]: https://github.com/Gottpot/Happy-Kitten/releases/tag/V1.0.0

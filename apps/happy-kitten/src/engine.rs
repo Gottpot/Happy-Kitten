@@ -94,7 +94,14 @@ impl Engine {
             .iter()
             .map(|k| {
                 let out = comp.create_output(card_w, card_h);
-                comp.render_blend(&out, &card_a, &card_b, *k, 0.5, 0.5);
+                comp.render_blend(
+                    &out,
+                    &card_a,
+                    &card_b,
+                    *k,
+                    k.card_progress(),
+                    k.card_progress(),
+                );
                 let id = register(render_state, &out);
                 (*k, out, id)
             })

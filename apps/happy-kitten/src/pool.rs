@@ -167,12 +167,23 @@ impl HappyKitten {
                 ui.add_space(8.0);
                 ui.label(egui::RichText::new(tr("Klassische Blenden")).size(16.0));
                 self.effect_grid(ui, &TransitionKind::CLASSIC, &mut now_hover);
+                for (title, kinds) in [
+                    ("Rauschen und Zellen", &TransitionKind::NOISE[..]),
+                    ("Wellen und Optik", &TransitionKind::OPTICS[..]),
+                    ("Kurven und Formen", &TransitionKind::CURVES[..]),
+                    ("Manga-Look", &TransitionKind::MANGA[..]),
+                    ("3D und Physik", &TransitionKind::PHYSICS[..]),
+                ] {
+                    ui.add_space(8.0);
+                    ui.label(egui::RichText::new(tr(title)).size(16.0));
+                    self.effect_grid(ui, kinds, &mut now_hover);
+                }
             });
         // Hover plays the blend on its card; leaving restores the still preview.
         let prev = self.effect_hover.map(|(k, _)| k);
         if prev != now_hover {
             if let Some(k) = prev {
-                self.engine.animate_effect_card(k, 0.5);
+                self.engine.animate_effect_card(k, k.card_progress());
             }
             self.effect_hover = now_hover.map(|k| (k, Instant::now()));
         }

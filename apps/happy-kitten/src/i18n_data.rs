@@ -2305,4 +2305,367 @@ pub const ENTRIES: &[(&str, [&str; 4])] = &[
             "Sonido fino como de un teléfono antiguo",
         ],
     ),
+    (
+        "Rauschen und Zellen",
+        [
+            "Noise and cells",
+            "ノイズとセル",
+            "노이즈와 셀",
+            "Ruido y celdas",
+        ],
+    ),
+    (
+        "Wellen und Optik",
+        [
+            "Waves and optics",
+            "波と光学",
+            "파동과 광학",
+            "Ondas y óptica",
+        ],
+    ),
+    (
+        "Kurven und Formen",
+        [
+            "Curves and shapes",
+            "曲線と形",
+            "곡선과 도형",
+            "Curvas y formas",
+        ],
+    ),
+    (
+        "Manga-Look",
+        ["Manga look", "マンガ風", "만화 스타일", "Estilo manga"],
+    ),
+    (
+        "3D und Physik",
+        ["3D and physics", "3Dと物理", "3D와 물리", "3D y física"],
+    ),
+    (
+        "Papierbrand",
+        ["Paper burn", "紙が燃える", "종이 불태우기", "Papel quemado"],
+    ),
+    (
+        "Das Bild verglüht wie Papier mit leuchtender Kante",
+        [
+            "The picture burns away like paper with a glowing edge",
+            "縁が光りながら紙のように燃えて消えます",
+            "가장자리가 빛나며 종이처럼 타서 사라져요",
+            "La imagen se quema como papel con un borde brillante",
+        ],
+    ),
+    ("Scherben", ["Shatter", "粉々", "산산조각", "Cristal roto"]),
+    (
+        "Das Bild zerspringt in Zellen und kippt weg",
+        [
+            "The picture breaks into cells and tips away",
+            "映像がセルに砕けて倒れていきます",
+            "화면이 조각으로 깨져 넘어가요",
+            "La imagen se rompe en celdas y se inclina",
+        ],
+    ),
+    (
+        "Tinte im Wasser",
+        [
+            "Ink in water",
+            "水の中のインク",
+            "물속의 잉크",
+            "Tinta en el agua",
+        ],
+    ),
+    (
+        "Das Bild verfließt wie Rauch oder Tinte",
+        [
+            "The picture flows apart like smoke or ink",
+            "映像が煙やインクのように流れます",
+            "화면이 연기나 잉크처럼 흘러가요",
+            "La imagen se disuelve como humo o tinta",
+        ],
+    ),
+    (
+        "Wassertropfen",
+        ["Raindrop", "水滴", "물방울", "Gota de lluvia"],
+    ),
+    (
+        "Ein Tropfen schickt Wellen übers Bild",
+        [
+            "A drop sends ripples across the picture",
+            "水滴から波紋が広がります",
+            "물방울에서 물결이 퍼져요",
+            "Una gota lanza ondas por la imagen",
+        ],
+    ),
+    ("Fischauge", ["Fisheye", "魚眼", "어안 렌즈", "Ojo de pez"]),
+    (
+        "Eine Linse zieht das Bild hinein",
+        [
+            "A lens pulls the picture in",
+            "レンズが映像を引き込みます",
+            "렌즈가 화면을 끌어당겨요",
+            "Una lente atrae la imagen",
+        ],
+    ),
+    (
+        "Zoom-Unschärfe",
+        ["Zoom blur", "ズームブラー", "줌 블러", "Desenfoque de zoom"],
+    ),
+    (
+        "Rasanter Zoom mit Wischeffekt",
+        [
+            "A rapid zoom with streaks",
+            "流れる線を伴う高速ズーム",
+            "줄무늬가 번지는 빠른 줌",
+            "Un zoom rápido con estelas",
+        ],
+    ),
+    (
+        "Dreh-Unschärfe",
+        [
+            "Spin blur",
+            "スピンブラー",
+            "회전 블러",
+            "Desenfoque giratorio",
+        ],
+    ),
+    (
+        "Das Bild dreht sich verschwommen um die Mitte",
+        [
+            "The picture spins blurred around the centre",
+            "映像が中心を軸にぼやけて回ります",
+            "화면이 중심을 축으로 흐릿하게 돌아요",
+            "La imagen gira borrosa alrededor del centro",
+        ],
+    ),
+    (
+        "Farbsaum",
+        ["Colour fringe", "色収差", "색수차", "Aberración de color"],
+    ),
+    (
+        "Rot, Grün und Blau laufen auseinander",
+        [
+            "Red, green and blue drift apart",
+            "赤・緑・青がずれていきます",
+            "빨강, 초록, 파랑이 어긋나요",
+            "Rojo, verde y azul se separan",
+        ],
+    ),
+    (
+        "Lichtleck",
+        ["Light leak", "ライトリーク", "라이트 리크", "Fuga de luz"],
+    ),
+    (
+        "Ein Lichtstreifen überstrahlt den Schnitt",
+        [
+            "A streak of light blows out the cut",
+            "光の筋がカットを飛ばします",
+            "빛줄기가 컷을 하얗게 날려요",
+            "Un haz de luz sobreexpone el corte",
+        ],
+    ),
+    ("Sakura", ["Sakura", "さくら", "벚꽃", "Sakura"]),
+    (
+        "Eine Kirschblüte öffnet das neue Bild",
+        [
+            "A cherry blossom opens the new picture",
+            "桜の花が新しい映像を開きます",
+            "벚꽃이 새 화면을 열어요",
+            "Una flor de cerezo abre la nueva imagen",
+        ],
+    ),
+    (
+        "Herz öffnen",
+        [
+            "Heart iris",
+            "ハート開き",
+            "하트 열기",
+            "Corazón que se abre",
+        ],
+    ),
+    (
+        "Ein Herz geht auf und zeigt das neue Bild",
+        [
+            "A heart opens and shows the new picture",
+            "ハートが開いて新しい映像が現れます",
+            "하트가 열리며 새 화면이 나타나요",
+            "Un corazón se abre y muestra la nueva imagen",
+        ],
+    ),
+    ("Spirale", ["Spiral", "スパイラル", "나선", "Espiral"]),
+    (
+        "Eine Spirale wischt das Bild weg",
+        [
+            "A spiral wipes the picture away",
+            "スパイラルが映像を消していきます",
+            "나선이 화면을 닦아내요",
+            "Una espiral borra la imagen",
+        ],
+    ),
+    (
+        "Pfotenblüte",
+        ["Paw bloom", "肉球の花", "발바닥 꽃", "Flor de patitas"],
+    ),
+    (
+        "Pfotenballen wachsen wie ein Sonnenblumenkopf",
+        [
+            "Paw pads grow like a sunflower head",
+            "肉球がひまわりのように広がります",
+            "발바닥이 해바라기처럼 자라요",
+            "Las almohadillas crecen como un girasol",
+        ],
+    ),
+    ("Waben", ["Honeycomb", "ハニカム", "벌집", "Panal"]),
+    (
+        "Sechsecke klappen von der Mitte aus um",
+        [
+            "Hexagons flip over from the middle",
+            "六角形が中心から順にひっくり返ります",
+            "육각형이 가운데부터 차례로 뒤집혀요",
+            "Hexágonos se voltean desde el centro",
+        ],
+    ),
+    (
+        "Kaleidoskop",
+        ["Kaleidoscope", "万華鏡", "만화경", "Calidoscopio"],
+    ),
+    (
+        "Das Bild spiegelt sich in immer mehr Segmenten",
+        [
+            "The picture mirrors into more and more segments",
+            "映像がだんだん多くの鏡面に映ります",
+            "화면이 점점 더 많은 조각으로 거울처럼 비쳐요",
+            "La imagen se refleja en cada vez más segmentos",
+        ],
+    ),
+    (
+        "Rasterpunkte",
+        [
+            "Halftone dots",
+            "ハーフトーン",
+            "하프톤 도트",
+            "Puntos de trama",
+        ],
+    ),
+    (
+        "Manga-Rasterpunkte wachsen zusammen",
+        [
+            "Manga screentone dots grow together",
+            "マンガのスクリーントーンの点が広がって繋がります",
+            "만화 스크린톤 점이 커지며 이어져요",
+            "Los puntos de trama de manga crecen hasta unirse",
+        ],
+    ),
+    (
+        "Retro-Raster",
+        [
+            "Retro dither",
+            "レトロディザ",
+            "레트로 디더",
+            "Tramado retro",
+        ],
+    ),
+    (
+        "Pixelmuster wie auf einem alten Bildschirm",
+        [
+            "Pixel pattern like an old screen",
+            "昔の画面のようなピクセルパターン",
+            "옛날 화면 같은 픽셀 패턴",
+            "Patrón de píxeles como en una pantalla antigua",
+        ],
+    ),
+    (
+        "Tigerstreifen",
+        ["Tabby stripes", "トラ柄", "호랑이 줄무늬", "Rayas de tigre"],
+    ),
+    (
+        "Verwackelte Streifen wischen das Bild weg",
+        [
+            "Wobbly stripes wipe the picture away",
+            "ゆらゆらした縞が映像を消していきます",
+            "흔들리는 줄무늬가 화면을 닦아내요",
+            "Rayas ondulantes borran la imagen",
+        ],
+    ),
+    (
+        "Glückskatze",
+        ["Calico cat", "三毛猫", "삼색 고양이", "Gato calicó"],
+    ),
+    (
+        "Fellflecken wie bei einer Glückskatze",
+        [
+            "Patches like a lucky calico cat",
+            "三毛猫のような毛の模様が広がります",
+            "삼색 고양이 같은 털 무늬가 퍼져요",
+            "Manchas de pelo como las de un gato calicó",
+        ],
+    ),
+    (
+        "Seite umblättern",
+        ["Page curl", "ページめくり", "페이지 넘김", "Pasar página"],
+    ),
+    (
+        "Das Bild rollt sich wie ein Blatt Papier auf",
+        [
+            "The picture rolls up like a sheet of paper",
+            "映像が紙のように丸まります",
+            "화면이 종이처럼 말려요",
+            "La imagen se enrolla como una hoja de papel",
+        ],
+    ),
+    ("Würfel", ["Cube", "キューブ", "큐브", "Cubo"]),
+    (
+        "Das Bild dreht sich um die Würfelkante",
+        [
+            "The picture turns around the cube edge",
+            "映像がキューブの角を軸に回ります",
+            "화면이 큐브의 모서리를 따라 돌아요",
+            "La imagen gira sobre la arista del cubo",
+        ],
+    ),
+    ("Umklappen", ["Flip", "フリップ", "뒤집기", "Voltear"]),
+    (
+        "Das Bild wird wie eine Karte umgedreht",
+        [
+            "The picture turns over like a card",
+            "映像がカードのようにひっくり返ります",
+            "화면이 카드처럼 뒤집혀요",
+            "La imagen se da la vuelta como una carta",
+        ],
+    ),
+    ("Schmelzen", ["Melt", "とろける", "녹아내림", "Derretir"]),
+    (
+        "Das Bild tropft nach unten weg",
+        [
+            "The picture drips downwards",
+            "映像が下へ滴り落ちます",
+            "화면이 아래로 흘러내려요",
+            "La imagen gotea hacia abajo",
+        ],
+    ),
+    (
+        "Droste-Zoom",
+        [
+            "Droste zoom",
+            "ドロステズーム",
+            "드로스테 줌",
+            "Zoom Droste",
+        ],
+    ),
+    (
+        "Das Bild zoomt endlos in sich hinein",
+        [
+            "The picture zooms endlessly into itself",
+            "映像が自分自身の中へ無限にズームします",
+            "화면이 끝없이 자기 안으로 줌인해요",
+            "La imagen se acerca sin fin hacia sí misma",
+        ],
+    ),
+    ("Fraktal", ["Fractal", "フラクタル", "프랙탈", "Fractal"]),
+    (
+        "Ein Julia-Fraktal gibt das neue Bild frei",
+        [
+            "A Julia fractal reveals the new picture",
+            "ジュリア集合が新しい映像を明らかにします",
+            "줄리아 프랙탈이 새 화면을 드러내요",
+            "Un fractal de Julia revela la nueva imagen",
+        ],
+    ),
 ];
