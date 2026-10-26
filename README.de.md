@@ -1,4 +1,4 @@
-# 🐾 Happy-Kitten v1.2
+# 🐾 Happy-Kitten v1.3
 
 [English](README.md) · [日本語](README.ja.md) · **Deutsch**
 
@@ -19,6 +19,7 @@ Alles passiert **offline**: keine Cloud, kein Konto, keine Telemetrie, kein Abo.
 |---|---|
 | ![Text und Effekte](docs/screenshots/text.png) | ![Blenden](docs/screenshots/transitions.png) |
 | ![Export](docs/screenshots/export.png) | ![Japanische Oberfläche](docs/screenshots/japanese.png) |
+| ![Feuer-Rahmen](docs/screenshots/effects.png) | ![Balken-Equalizer reagiert auf einen Beat](docs/screenshots/equalizer.png) |
 
 ## Download und erster Start
 
@@ -70,6 +71,7 @@ Ein neues Projekt ist leer, du kannst also sofort mit deinen eigenen Dateien beg
 | Rückgängig / Wiederholen | ⌘Z / ⇧⌘Z |
 | Klang einstellen | Audio- oder Video-Clip wählen, Tab **Audio** → „Klang“: **Lautstärke** (0 bis 200 %), **Einblenden**, **Ausblenden** und ein **Effekt**: Echo, Hall, Dumpf oder Telefon, mit Stärke-Regler. Mehrere Clips lassen sich gemeinsam ändern. Vorschau, Wiedergabe und Export klingen gleich |
 | Farbe anpassen | Video-Clip oder Bild wählen, Tab **Farbe**: **Temperatur** (kalt bis warm) und **Farbton** (grün bis magenta). Sofort in der Vorschau und im Export, mehrere Clips gemeinsam änderbar |
+| Overlay-Effekt | Tab **Effekte**: Karte auf eine Videospur ziehen oder anklicken, dann liegt sie am Zeiger (auf einer freien Videospur, sonst auf einer neuen). Er ist ein Clip wie jeder andere: Länge an den Rändern ändern, verschieben, teilen, löschen. Gewählt lassen sich Breite, Geschwindigkeit, Stärke, Farbe, Beat-Reaktion, Position und Ein-/Ausblenden einstellen. Equalizer reagieren auf den Ton der Timeline |
 | Speichern / Öffnen | ⌘S / ⌘O (`.kitten`-Dateien, reines JSON). Nach dem Speichern zeigt ein grüner Hinweis „Gespeichert ✓“ und den Dateipfad für ein paar Sekunden |
 | Film exportieren | „Exportieren“ → MP4 (H.264 oder HEVC) mit Ton. Format wie das Projekt oder 16:9, **9:16 Short**, 1:1, 4:5; Auflösung = kurze Seite (720 / 1080 / 2160 Pixel); **Bildrate** (23,976 · 24 · 25 · 29,97 · 30 · 50 · 59,94 · 60, zum Beispiel 24 für Midjourney-Material); **Bitrate** automatisch oder selbst festgelegt (1 bis 150 Mbit/s); **Audio** 32 / 44,1 / 48 kHz (AAC) und 128 bis 320 kbit/s |
 | Standbild | „Standbild“ speichert das aktuelle Vorschaubild als PNG |
@@ -124,6 +126,21 @@ Auch sie rechnet der Shader aus, in fünf Gruppen im Tab Blenden:
 
 `cargo run -p hk-gpu --example contact_sheet -- blenden.png` rendert alle Blenden in fünf Stufen in ein Bild (`… blenden.png 19 6` nur sechs davon, ab der 20.), `--example single` ein einzelnes Bild in beliebiger Größe.
 
+## Overlay-Effekte (1.3)
+
+Der Tab **Effekte** hat 13 Effekte, die die GPU komplett aus Mathematik über das darunterliegende Bild zeichnet. Sie sind Clips auf Videospuren: Die Länge stellst du in der Timeline ein, und mehrere können auf verschiedenen Spuren übereinanderliegen.
+
+| Gruppe | Effekte |
+|---|---|
+| **Umrandungen** | *Feuer-Rahmen* (Rausch-Flammen, die nach innen ziehen), *Eis-Rahmen* (Voronoi-Frostkristalle mit Glitzern), *Blitz-Rahmen* (gezackte Blitze, die etwa zehnmal pro Sekunde neu zucken), *Neon-Rahmen* |
+| **Equalizer** | *Balken-Equalizer* (32 LED-Balken, auf Wunsch gespiegelt), *Kreis-Equalizer* (64 Balken um eine Mitte), *Wellen-Equalizer* (übereinanderliegende Spektrum-Kurven), *Beat-Ringe* (jeder Beat schickt einen Ring nach außen) |
+| **Glitch und Cyberpunk** | *Glitch* (verschobene Zeilen, Farbversatz, Scanlinien, blinkende Blöcke), *Cyber-Raster* (Neon-Boden in Perspektive, Scanbalken, Eckklammern), *Laser-Show* (ein Fächer schwenkender Strahlen) |
+| **Licht** | *Linsenreflex* (Kern, Streifen, Strahlen und Geister auf der Achse), *Lichtleck* (wandernde warme Lichtflecken) |
+
+Jeder Effekt hat, soweit sinnvoll, Breite (oder Höhe, Größe), Geschwindigkeit, Stärke, Farbe (Farbverschiebung), Beat-Reaktion, Position, Spiegeln und Ein-/Ausblenden. Die **Equalizer und die Beat-Reaktion** nutzen den Ton der Timeline: Er wird für den jeweiligen Moment analysiert (FFT, 32 Bänder von 40 Hz bis 14 kHz, dazu ein Beat-Erkenner auf dem Bass). Die Analyse braucht keine Vorgeschichte, deshalb zeigen Vorschau, Wiedergabe und Export genau dasselbe.
+
+`cargo run -p hk-gpu --example fx_sheet -- effekte.png` rendert jeden Effekt zu vier Zeitpunkten mit einem ausgedachten Spektrum.
+
 ## Aufbau
 
 ```
@@ -132,7 +149,7 @@ crates/
   hk-gpu     wgpu-Compositor und die Blenden-Shader. Rendert in eine Rgba8-Textur (Vorschau, Export, Tests).
   hk-media   Bilder (inkl. Grafiken mit Transparenz), Demo-Szenen, Video über AVFoundation (sequenzielles Hardware-Decoding, MP4-Export per AVAssetWriter).
   hk-text    Text-Rasterizer: Schriften, Zeilenumbruch, Kontur, Schatten, Hintergrundbox.
-  hk-audio   Ton-Decoding (symphonia), Waveform, Mixer und Wiedergabe (cpal). Die Audio-Uhr führt das Bild.
+  hk-audio   Ton-Decoding (symphonia), Waveform, Mixer, Wiedergabe (cpal) und die Spektrum-/Beat-Analyse für die Equalizer. Die Audio-Uhr führt das Bild.
 apps/
   happy-kitten  egui-Oberfläche (eigenes Pastell-Theme, handgezeichnete Icons), Vorschau-Engine, Export.
 ```
@@ -159,6 +176,7 @@ HK_GLOBAL=1 HK_IMPORT=ordner # Import in die globale Bibliothek (in Entwicklerl�
 HK_TAB=color HK_SELECT_PICTURE=1   # Tab Farbe mit dem ersten Bild-Clip öffnen
 HK_FX=echo HK_VOLUME=0.5 HK_FADE=1 HK_TEMP=0.6 HK_TINT=-0.3  # Klang und Farbe auf alle Clips setzen
 HK_BANNER=1                  # den grünen „Gespeichert“-Hinweis zeigen
+HK_TAB=fx HK_ADD_FX=EqBars   # Tab Effekte öffnen und den Effekt auf eine Videospur legen (HK_DESELECT=1 zeigt die Karten)
 HK_SCRIPT=build|text         # spielt Mausbedienung ab (Ziehen, Trimmen, Blende, Text, Bibliothek); mit HK_DUMP=1 wird die Timeline ausgegeben
 ```
 

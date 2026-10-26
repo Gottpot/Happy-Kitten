@@ -30,6 +30,7 @@ pub enum PoolTab {
     Text,
     Graphics,
     Effects,
+    Fx,
     Color,
     Audio,
 }
@@ -51,6 +52,8 @@ pub enum Payload {
     /// An image that is to be laid over the video as a graphic.
     Overlay(Id),
     Effect(TransitionKind),
+    /// An overlay effect (flames, equalizer ...) for a video track.
+    Fx(hk_core::FxKind),
     Text(TextPick),
 }
 
@@ -122,6 +125,7 @@ pub struct HappyKitten {
     pub banner: Option<Banner>,
     pub logo: egui::TextureHandle,
     pub effect_hover: Option<(TransitionKind, Instant)>,
+    pub fx_hover: Option<(hk_core::FxKind, Instant)>,
     pub export_dialog: Option<ExportOptions>,
     pub export_job: Option<ExportJob>,
     /// Developer aid: `HK_SCREENSHOT=out.png` saves the window after a moment and quits.
@@ -174,6 +178,7 @@ impl HappyKitten {
             banner: None,
             logo,
             effect_hover: None,
+            fx_hover: None,
             export_dialog: None,
             export_job: None,
             shot: std::env::var_os("HK_SCREENSHOT").map(|p| (PathBuf::from(p), 0)),
@@ -334,6 +339,7 @@ impl HappyKitten {
                 "effects" => PoolTab::Effects,
                 "audio" => PoolTab::Audio,
                 "color" => PoolTab::Color,
+                "fx" => PoolTab::Fx,
                 "text" => PoolTab::Text,
                 "graphics" => PoolTab::Graphics,
                 _ => PoolTab::Files,
@@ -378,6 +384,9 @@ impl HappyKitten {
                 &targets,
             );
         }
+        if frames == 6 && std::env::var_os("HK_DESELECT").is_some() {
+            self.set_selection(Selection::None);
+        }
         if frames == 5 && std::env::var_os("HK_BANNER").is_some() {
             self.banner(
                 tr("Gespeichert ✓"),
@@ -386,6 +395,16 @@ impl HappyKitten {
         }
         if frames == 3 {
             self.dev_clip_settings();
+            // `HK_ADD_FX=EqBars` puts that effect on a video track at the playhead
+            if let Ok(name) = std::env::var("HK_ADD_FX")
+                && let Some(kind) = hk_core::FxKind::ALL
+                    .into_iter()
+                    .find(|k| format!("{k:?}").eq_ignore_ascii_case(&name))
+            {
+                self.add_fx_at_playhead(kind);
+                // look at the effect a moment after it started, not while it fades in
+                self.playhead += Tick::from_secs(1.2);
+            }
         }
         if frames == 5 && std::env::var_os("HK_ABOUT").is_some() {
             self.about = true;
@@ -1192,7 +1211,17 @@ impl eframe::App for HappyKitten {
         }
         self.engine.ensure_size(self.doc.project.size);
         let loading = self.engine.pump(&ctx);
-        self.engine.render(&self.doc.project, self.playhead);
+        let levels = if self.doc.project.needs_levels_at(self.playhead) {
+            hk_audio::analyze(
+                &self.audio.plan(&self.doc.project),
+                &self.audio.snapshot(),
+                self.playhead.secs(),
+            )
+        } else {
+            hk_core::AudioLevels::SILENT
+        };
+        self.engine
+            .render(&self.doc.project, self.playhead, &levels);
         if self.playing {
             self.engine.prefetch(&self.doc.project, self.playhead, 4);
         }

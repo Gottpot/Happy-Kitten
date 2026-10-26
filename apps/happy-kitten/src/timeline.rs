@@ -30,6 +30,8 @@ struct ClipView {
     transition: Option<Transition>,
     has_left: bool,
     is_text: bool,
+    /// Set for effect clips.
+    fx: Option<hk_core::FxKind>,
     is_overlay: bool,
     /// An image clip (can be switched between full picture and graphic).
     is_image: bool,
@@ -64,6 +66,11 @@ enum Deferred {
     },
     DropOverlay {
         media: Id,
+        track: Id,
+        at: Tick,
+    },
+    DropFx {
+        kind: hk_core::FxKind,
         track: Id,
         at: Tick,
     },
@@ -353,11 +360,13 @@ impl HappyKitten {
                             end: c.end(),
                             source_in: c.source_in,
                             color: c.color,
-                            name: match &c.text {
-                                Some(t) => t.text.lines().next().unwrap_or("").to_string(),
-                                None => m.map(|m| m.name.clone()).unwrap_or_else(|| "?".into()),
+                            name: match (&c.text, c.fx) {
+                                (Some(t), _) => t.text.lines().next().unwrap_or("").to_string(),
+                                (None, Some(f)) => tr(f.kind.name()).to_string(),
+                                _ => m.map(|m| m.name.clone()).unwrap_or_else(|| "?".into()),
                             },
                             is_text: c.is_text(),
+                            fx: c.fx.map(|f| f.kind),
                             is_overlay: c.is_overlay(),
                             is_image: !c.is_text() && m.is_some_and(|m| m.kind == MediaKind::Image),
                             kind: m.map_or(MediaKind::Image, |m| m.kind),
@@ -636,6 +645,7 @@ impl HappyKitten {
                     }),
                     Payload::Text(_) => Some((t.kind == TrackKind::Video, Tick::from_secs(4.0))),
                     Payload::Overlay(_) => Some((t.kind == TrackKind::Video, Tick::from_secs(5.0))),
+                    Payload::Fx(_) => Some((t.kind == TrackKind::Video, Tick::from_secs(5.0))),
                     Payload::Effect(_) => None,
                 };
                 if let (Some((ok, dur)), true) = (info, lane.contains(pos)) {
@@ -686,6 +696,11 @@ impl HappyKitten {
                             }
                             Payload::Overlay(media) => deferred.push(Deferred::DropOverlay {
                                 media,
+                                track: t.id,
+                                at: wanted,
+                            }),
+                            Payload::Fx(kind) => deferred.push(Deferred::DropFx {
+                                kind,
                                 track: t.id,
                                 at: wanted,
                             }),
@@ -757,6 +772,8 @@ impl HappyKitten {
                 // paint
                 let color = if t.kind == TrackKind::Audio {
                     AUDIO_COLOR
+                } else if c.fx.is_some() {
+                    Color32::from_rgb(255, 206, 190)
                 } else if c.is_text {
                     Color32::from_rgb(240, 214, 250)
                 } else if c.is_overlay {
@@ -792,10 +809,14 @@ impl HappyKitten {
                 }
                 let inner = r.shrink2(vec2(6.0, 5.0));
                 let mut text_x = inner.left() + 4.0;
-                if c.is_text {
+                if c.is_text || c.fx.is_some() {
                     kit::draw_icon(
                         ui.painter(),
-                        Icon::Text,
+                        if c.fx.is_some() {
+                            Icon::Bolt
+                        } else {
+                            Icon::Text
+                        },
                         Rect::from_min_size(
                             pos2(inner.left() + 2.0, inner.top() + 2.0),
                             vec2(20.0, 20.0),
@@ -1313,11 +1334,26 @@ impl HappyKitten {
                     {
                         if c.is_text() {
                             self.tab = crate::app::PoolTab::Text;
+                        } else if c.is_fx() {
+                            self.tab = crate::app::PoolTab::Fx;
                         } else if c.is_overlay() {
                             self.tab = crate::app::PoolTab::Graphics;
                         }
                     }
                     self.set_selection(s);
+                }
+                Deferred::DropFx { kind, track, at } => {
+                    let spec = hk_core::FxSpec::new(kind);
+                    match self
+                        .doc
+                        .edit(|p| p.add_fx_clip(track, at, Tick::from_secs(5.0), spec))
+                    {
+                        Ok(id) => {
+                            self.set_selection(Selection::Clip(id));
+                            self.tab = crate::app::PoolTab::Fx;
+                        }
+                        Err(e) => self.say(e.to_string()),
+                    }
                 }
                 Deferred::DropOverlay { media, track, at } => {
                     match self.doc.edit(|p| p.add_overlay_clip(track, media, at)) {

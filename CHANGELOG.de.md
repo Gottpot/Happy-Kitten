@@ -4,6 +4,24 @@
 
 Alle wichtigen Änderungen an Happy-Kitten stehen hier. Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.3.0] - 2026-10-26
+
+### Neu
+- **Neuer Tab Effekte** mit 13 Overlay-Effekten, die die GPU komplett aus Mathematik über das darunterliegende Bild zeichnet:
+  - *Umrandungen:* Feuer-Rahmen, Eis-Rahmen, Blitz-Rahmen, Neon-Rahmen,
+  - *Equalizer:* Balken-Equalizer, Kreis-Equalizer, Wellen-Equalizer, Beat-Ringe,
+  - *Glitch und Cyberpunk:* Glitch, Cyber-Raster, Laser-Show,
+  - *Licht:* Linsenreflex, Lichtleck.
+- Ein Effekt ist ein Clip: auf eine Videospur ziehen oder anklicken, dann liegt er am Zeiger auf einer freien Videospur (sonst auf einer neuen). Die Länge stellst du an den Rändern in der Timeline ein, er lässt sich wie jeder Clip verschieben, teilen und löschen. Mehrere Effekte können übereinanderliegen.
+- Einstellungen pro Effekt (soweit sinnvoll): Breite, Höhe oder Größe, Geschwindigkeit, Stärke, Farbe (Farbverschiebung), Beat-Reaktion, Position, Spiegeln, Ein- und Ausblenden. Mehrere Effekte lassen sich gemeinsam ändern, ein Knopf setzt alles zurück.
+- **Die Equalizer und die Beat-Reaktion folgen der Musik.** Der Ton der Timeline wird für den jeweiligen Moment analysiert (FFT, 32 Bänder von 40 Hz bis 14 kHz, ein Beat-Erkenner auf dem Bass). Die Analyse braucht keine Vorgeschichte, deshalb zeigen Vorschau, Wiedergabe und Export genau dasselbe.
+- Die Karten im Tab sind lebendig: Mit der Maus darüber siehst du den Effekt laufen.
+- Tests: Audio-Analyse (richtiges Band für einen Ton, Beat nur wenn der Bass springt), Effekt-Clips (Ein-/Ausblenden, Teilen, Spuren) und ein GPU-Test, dass jeder Effekt zeichnet, bei 0 % verschwindet und die Equalizer auf den Ton reagieren. Das Beispiel `fx_sheet` rendert alle Effekte in ein Bild.
+- Übersetzungen (Englisch, Japanisch, Koreanisch, Spanisch) für alles Neue.
+
+### Kompatibilität
+- Projekte mit einem Effekt-Clip lassen sich mit Version 1.2 oder älter nicht öffnen, weil diese Versionen Effekt-Clips nicht kennen. Projekte aus 1.0 bis 1.2 öffnen sich in 1.3 unverändert.
+
 ## [1.2.0] - 2026-10-24
 
 ### Neu
@@ -57,6 +75,7 @@ Alle wichtigen Änderungen an Happy-Kitten stehen hier. Das Format folgt [Keep a
 
 Erste öffentliche Version: lokaler, offline arbeitender Videoschnitt für macOS in Rust mit wgpu/Metal, Pfoten-Blenden und 13 klassischen Blenden, Text-Clips mit Effekten, Untertitel und Lyrics (SRT/LRC/TXT), mehrere Video- und Audiospuren, Grafiken mit Transparenz, 9:16-Export, Exportoptionen (Bildrate, Bitrate, Audio-Samplerate) und eine Oberfläche auf Deutsch, Englisch, Japanisch, Koreanisch und Spanisch.
 
+[1.3.0]: https://github.com/Gottpot/Happy-Kitten/releases/tag/v1.3.0
 [1.2.0]: https://github.com/Gottpot/Happy-Kitten/releases/tag/v1.2.0
 [1.1.0]: https://github.com/Gottpot/Happy-Kitten/releases/tag/v1.1.0
 [1.0.0]: https://github.com/Gottpot/Happy-Kitten/releases/tag/V1.0.0

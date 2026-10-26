@@ -4,6 +4,24 @@
 
 All notable changes to Happy-Kitten are written down here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] - 2026-10-26
+
+### Added
+- **New Effects tab** with 13 overlay effects, drawn by the GPU completely from maths over the picture below them:
+  - *Frames:* fire frame, ice frame, lightning frame, neon frame,
+  - *Equalizers:* bar equalizer, circle equalizer, wave equalizer, beat rings,
+  - *Glitch and cyberpunk:* glitch, cyber grid, laser show,
+  - *Light:* lens flare, light leak.
+- An effect is a clip: drag it onto a video track, or click it to put it at the playhead on a free video track (or on a new one). Its length is changed by its edges on the timeline, and it can be moved, split, deleted and copied like any other clip. Several effects can lie over each other.
+- Settings per effect (as far as they make sense): width, height or size, speed, strength, colour (hue shift), beat reaction, position, mirror, fade in and out. Several effects can be edited together, and a reset button restores the defaults.
+- **The equalizers and the beat reaction follow the music.** The sound of the timeline is analysed at the current moment (FFT, 32 bands from 40 Hz to 14 kHz, a beat detector on the bass). The analysis needs no history, so preview, playback and export show exactly the same.
+- The cards in the tab are live: hover one to see the effect move.
+- Tests: audio analysis (right band for a tone, beat only when the bass jumps), effect clips (fade in/out, split, tracks), and a GPU test that every effect draws, disappears at 0 % and that the equalizers react to the sound. The `fx_sheet` example renders all effects into one picture.
+- English, Japanese, Korean and Spanish translations for everything new.
+
+### Compatibility
+- Projects that contain an effect clip cannot be opened with version 1.2 or older, because those versions do not know effect clips. Projects from 1.0 to 1.2 open in 1.3 unchanged.
+
 ## [1.2.0] - 2026-10-24
 
 ### Added
@@ -57,6 +75,7 @@ All notable changes to Happy-Kitten are written down here. The format follows [K
 
 First public version: local, offline video editor for macOS in Rust with wgpu/Metal, paw transitions and 13 classic transitions, text clips with effects, subtitles and lyrics (SRT/LRC/TXT), several video and audio tracks, graphics with transparency, 9:16 export, export options (frame rate, bitrate, audio sample rate) and an interface in German, English, Japanese, Korean and Spanish.
 
+[1.3.0]: https://github.com/Gottpot/Happy-Kitten/releases/tag/v1.3.0
 [1.2.0]: https://github.com/Gottpot/Happy-Kitten/releases/tag/v1.2.0
 [1.1.0]: https://github.com/Gottpot/Happy-Kitten/releases/tag/v1.1.0
 [1.0.0]: https://github.com/Gottpot/Happy-Kitten/releases/tag/V1.0.0

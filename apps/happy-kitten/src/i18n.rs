@@ -246,6 +246,13 @@ mod tests {
             keys.push(fx.name());
             keys.push(fx.blurb());
         }
+        for k in hk_core::FxKind::ALL {
+            keys.push(k.name());
+            keys.push(k.blurb());
+        }
+        for g in hk_core::FxGroup::ALL {
+            keys.push(g.name());
+        }
         for key in keys {
             assert!(known.contains(key), "no translation for {key:?}");
         }

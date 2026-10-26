@@ -2668,4 +2668,331 @@ pub const ENTRIES: &[(&str, [&str; 4])] = &[
             "Un fractal de Julia revela la nueva imagen",
         ],
     ),
+    ("Effekte", ["Effects", "エフェクト", "이펙트", "Efectos"]),
+    (
+        "Effekt hinzufügen",
+        [
+            "Add effect",
+            "エフェクトを追加",
+            "이펙트 추가",
+            "Añadir efecto",
+        ],
+    ),
+    (
+        "Auf eine Videospur ziehen oder anklicken. Der Effekt liegt über dem Bild darunter, seine Länge änderst du in der Timeline.",
+        [
+            "Drag onto a video track or click. The effect lies over the picture below it; change its length on the timeline.",
+            "ビデオトラックにドラッグするかクリックします。エフェクトは下の映像の上に重なり、長さはタイムラインで変更できます。",
+            "비디오 트랙으로 끌거나 클릭하세요. 이펙트는 아래 화면 위에 올라가며 길이는 타임라인에서 바꿀 수 있어요.",
+            "Arrástralo a una pista de vídeo o haz clic. El efecto se superpone a la imagen de debajo; su duración se cambia en la línea de tiempo.",
+        ],
+    ),
+    (
+        "Auf eine Videospur ziehen – oder anklicken, um den Effekt am Zeiger einzufügen",
+        [
+            "Drag onto a video track – or click to insert the effect at the playhead",
+            "ビデオトラックにドラッグ、またはクリックで再生ヘッドの位置に挿入",
+            "비디오 트랙으로 끌거나 클릭해서 재생 헤드 위치에 넣기",
+            "Arrástralo a una pista de vídeo o haz clic para insertarlo en el cursor",
+        ],
+    ),
+    (
+        "Effekt bearbeiten: {name}",
+        [
+            "Edit effect: {name}",
+            "エフェクトを編集: {name}",
+            "이펙트 편집: {name}",
+            "Editar efecto: {name}",
+        ],
+    ),
+    (
+        "{n} Effekte bearbeiten",
+        [
+            "Edit {n} effects",
+            "{n}個のエフェクトを編集",
+            "이펙트 {n}개 편집",
+            "Editar {n} efectos",
+        ],
+    ),
+    (
+        "Änderungen gelten für alle gewählten Effekte.",
+        [
+            "Changes apply to all selected effects.",
+            "変更は選択したすべてのエフェクトに反映されます。",
+            "변경 사항은 선택한 모든 이펙트에 적용돼요.",
+            "Los cambios se aplican a todos los efectos seleccionados.",
+        ],
+    ),
+    (
+        "Tipp: Dieser Effekt reagiert auf den Ton. Lege einen Audio- oder Video-Clip auf die Timeline.",
+        [
+            "Tip: This effect reacts to sound. Put an audio or video clip on the timeline.",
+            "ヒント: このエフェクトは音に反応します。タイムラインにオーディオまたはビデオのクリップを置いてください。",
+            "팁: 이 이펙트는 소리에 반응해요. 타임라인에 오디오 또는 비디오 클립을 놓아 주세요.",
+            "Consejo: este efecto reacciona al sonido. Pon un clip de audio o de vídeo en la línea de tiempo.",
+        ],
+    ),
+    ("Breite", ["Width", "幅", "너비", "Anchura"]),
+    (
+        "Verschiebung",
+        ["Shift", "ずれ", "이동량", "Desplazamiento"],
+    ),
+    (
+        "Linienbreite",
+        ["Line width", "線の太さ", "선 굵기", "Grosor de línea"],
+    ),
+    (
+        "Strahlbreite",
+        ["Beam width", "ビームの太さ", "빔 굵기", "Grosor del haz"],
+    ),
+    ("Geschwindigkeit", ["Speed", "速さ", "속도", "Velocidad"]),
+    (
+        "Beat-Reaktion",
+        [
+            "Beat reaction",
+            "ビート反応",
+            "비트 반응",
+            "Reacción al ritmo",
+        ],
+    ),
+    (
+        "Wie stark der Effekt mit dem Bass der Musik zuckt",
+        [
+            "How strongly the effect jumps with the bass of the music",
+            "音楽の低音に合わせてエフェクトがどれだけ動くか",
+            "음악의 저음에 맞춰 이펙트가 얼마나 튀는지",
+            "Cuánto salta el efecto con los graves de la música",
+        ],
+    ),
+    ("Spiegeln", ["Mirror", "ミラー", "반사", "Reflejar"]),
+    (
+        "Alle Einstellungen dieses Effekts auf Standard",
+        [
+            "All settings of this effect back to default",
+            "このエフェクトのすべての設定を初期値に戻します",
+            "이 이펙트의 모든 설정을 기본값으로 되돌려요",
+            "Todos los ajustes de este efecto vuelven a los valores predeterminados",
+        ],
+    ),
+    ("Umrandungen", ["Frames", "フレーム", "테두리", "Marcos"]),
+    (
+        "Equalizer",
+        ["Equalizers", "イコライザー", "이퀄라이저", "Ecualizadores"],
+    ),
+    (
+        "Glitch und Cyberpunk",
+        [
+            "Glitch and cyberpunk",
+            "グリッチとサイバーパンク",
+            "글리치와 사이버펑크",
+            "Glitch y ciberpunk",
+        ],
+    ),
+    ("Licht", ["Light", "ライト", "빛", "Luz"]),
+    (
+        "Feuer-Rahmen",
+        [
+            "Fire frame",
+            "炎のフレーム",
+            "불꽃 테두리",
+            "Marco de fuego",
+        ],
+    ),
+    (
+        "Flammen lecken am Bildrand",
+        [
+            "Flames lick at the edge of the picture",
+            "画面の縁を炎がなめます",
+            "화면 가장자리에서 불꽃이 널름거려요",
+            "Las llamas lamen el borde de la imagen",
+        ],
+    ),
+    (
+        "Eis-Rahmen",
+        ["Ice frame", "氷のフレーム", "얼음 테두리", "Marco de hielo"],
+    ),
+    (
+        "Frostkristalle wachsen vom Rand hinein",
+        [
+            "Frost crystals grow in from the edge",
+            "霜の結晶が縁から広がります",
+            "서리 결정이 가장자리에서 자라나요",
+            "Cristales de escarcha crecen desde el borde",
+        ],
+    ),
+    (
+        "Blitz-Rahmen",
+        [
+            "Lightning frame",
+            "稲妻のフレーム",
+            "번개 테두리",
+            "Marco de rayos",
+        ],
+    ),
+    (
+        "Elektrische Blitze zucken am Rand",
+        [
+            "Electric bolts flicker along the edge",
+            "電気の稲妻が縁を走ります",
+            "전기 번개가 가장자리를 따라 번쩍여요",
+            "Rayos eléctricos centellean en el borde",
+        ],
+    ),
+    (
+        "Neon-Rahmen",
+        [
+            "Neon frame",
+            "ネオンのフレーム",
+            "네온 테두리",
+            "Marco de neón",
+        ],
+    ),
+    (
+        "Leuchtender Neonrahmen",
+        [
+            "A glowing neon frame",
+            "光るネオンのフレーム",
+            "빛나는 네온 테두리",
+            "Un marco de neón brillante",
+        ],
+    ),
+    (
+        "Balken-Equalizer",
+        [
+            "Bar equalizer",
+            "バーイコライザー",
+            "막대 이퀄라이저",
+            "Ecualizador de barras",
+        ],
+    ),
+    (
+        "Leuchtende Balken tanzen zur Musik",
+        [
+            "Glowing bars dance to the music",
+            "光るバーが音楽に合わせて踊ります",
+            "빛나는 막대가 음악에 맞춰 춤춰요",
+            "Barras luminosas bailan al ritmo de la música",
+        ],
+    ),
+    (
+        "Kreis-Equalizer",
+        [
+            "Circle equalizer",
+            "サークルイコライザー",
+            "원형 이퀄라이저",
+            "Ecualizador circular",
+        ],
+    ),
+    (
+        "Ein Ring aus Balken schlägt zur Musik aus",
+        [
+            "A ring of bars swings with the music",
+            "バーの輪が音楽に合わせて揺れます",
+            "막대로 된 링이 음악에 맞춰 흔들려요",
+            "Un anillo de barras se mueve con la música",
+        ],
+    ),
+    (
+        "Wellen-Equalizer",
+        [
+            "Wave equalizer",
+            "ウェーブイコライザー",
+            "파형 이퀄라이저",
+            "Ecualizador de ondas",
+        ],
+    ),
+    (
+        "Eine Klangwelle läuft übers Bild",
+        [
+            "A sound wave runs across the picture",
+            "音の波が画面を横切ります",
+            "소리의 물결이 화면을 가로질러요",
+            "Una onda de sonido recorre la imagen",
+        ],
+    ),
+    (
+        "Beat-Ringe",
+        ["Beat rings", "ビートリング", "비트 링", "Anillos de ritmo"],
+    ),
+    (
+        "Ringe wandern bei jedem Beat nach außen",
+        [
+            "Rings travel outwards with every beat",
+            "ビートごとにリングが外へ広がります",
+            "비트마다 링이 바깥으로 퍼져요",
+            "Los anillos se expanden con cada golpe",
+        ],
+    ),
+    (
+        "Bildstörung mit Farbversatz und Zeilen",
+        [
+            "Picture noise with colour split and lines",
+            "色ずれとラインの入った映像の乱れ",
+            "색 분리와 줄무늬가 있는 화면 깨짐",
+            "Interferencia con separación de color y líneas",
+        ],
+    ),
+    (
+        "Cyber-Raster",
+        [
+            "Cyber grid",
+            "サイバーグリッド",
+            "사이버 그리드",
+            "Rejilla cibernética",
+        ],
+    ),
+    (
+        "Neon-Gitter und Scanlinien wie im Cyberpunk",
+        [
+            "Neon grid and scan lines like in cyberpunk",
+            "サイバーパンク風のネオングリッドとスキャンライン",
+            "사이버펑크 같은 네온 격자와 스캔라인",
+            "Rejilla de neón y líneas de barrido como en el ciberpunk",
+        ],
+    ),
+    (
+        "Laser-Show",
+        [
+            "Laser show",
+            "レーザーショー",
+            "레이저 쇼",
+            "Espectáculo láser",
+        ],
+    ),
+    (
+        "Laserstrahlen fächern durch den Nebel",
+        [
+            "Laser beams fan out through the haze",
+            "レーザー光線が霧の中に扇状に広がります",
+            "레이저 빔이 안개 속에서 부채꼴로 퍼져요",
+            "Los rayos láser se abren en abanico entre la niebla",
+        ],
+    ),
+    (
+        "Linsenreflex",
+        [
+            "Lens flare",
+            "レンズフレア",
+            "렌즈 플레어",
+            "Destello de lente",
+        ],
+    ),
+    (
+        "Sonne mit Streifen und Linsenreflexen",
+        [
+            "Sun with streaks and lens reflections",
+            "光の筋とレンズ反射を伴う太陽",
+            "줄기와 렌즈 반사가 있는 태양",
+            "Sol con haces y reflejos de lente",
+        ],
+    ),
+    (
+        "Warme Lichtflecken wie auf altem Film",
+        [
+            "Warm patches of light like on old film",
+            "古いフィルムのような暖かい光のにじみ",
+            "오래된 필름 같은 따뜻한 빛 번짐",
+            "Manchas de luz cálidas como en una película antigua",
+        ],
+    ),
 ];

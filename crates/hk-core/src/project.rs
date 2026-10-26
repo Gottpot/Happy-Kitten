@@ -1,4 +1,5 @@
 use crate::audio::AudioSpec;
+use crate::fx::FxSpec;
 use crate::grade::Grade;
 use crate::overlay::OverlaySpec;
 use crate::subtitles::Cue;
@@ -102,6 +103,9 @@ pub struct Clip {
     /// Colour temperature and tint of the picture.
     #[serde(default)]
     pub grade: Grade,
+    /// Set for effect clips: a drawn overlay (flames, equalizer, glitch ...) over the picture.
+    #[serde(default)]
+    pub fx: Option<FxSpec>,
 }
 
 impl Clip {
@@ -113,9 +117,13 @@ impl Clip {
         self.overlay.is_some()
     }
 
+    pub fn is_fx(&self) -> bool {
+        self.fx.is_some()
+    }
+
     /// Text and graphics are drawn on top of the picture and are never the picture itself.
     pub fn is_layer(&self) -> bool {
-        self.text.is_some() || self.overlay.is_some()
+        self.text.is_some() || self.overlay.is_some() || self.fx.is_some()
     }
 
     pub fn end(&self) -> Tick {
@@ -244,6 +252,20 @@ pub struct ImageLayer {
 pub enum Layer {
     Text(TextLayer),
     Image(ImageLayer),
+    Effect(EffectLayer),
+}
+
+/// An effect clip as it must be drawn right now.
+#[derive(Clone, Debug, PartialEq)]
+pub struct EffectLayer {
+    pub clip: Id,
+    pub spec: FxSpec,
+    /// Timeline time in seconds: effects keep running when a clip is split or moved.
+    pub time: f32,
+    /// 0..1, the fade in at the start and out at the end of the clip.
+    pub alpha: f32,
+    /// Differs per clip so two copies of an effect do not look the same.
+    pub seed: f32,
 }
 
 /// Everything to draw at one point in time: the picture, then text and graphics on top of it
@@ -603,6 +625,7 @@ impl Project {
             overlay,
             audio: AudioSpec::default(),
             grade: Grade::default(),
+            fx: None,
         });
         clips.sort_by_key(|c| c.start);
         self.prune_transitions();
@@ -701,6 +724,7 @@ impl Project {
             overlay: None,
             audio: AudioSpec::default(),
             grade: Grade::default(),
+            fx: None,
         });
         clips.sort_by_key(|c| c.start);
         Ok(id)
@@ -749,6 +773,50 @@ impl Project {
                 }
             }
         }
+    }
+
+    /// Put an effect clip on a video track at the nearest free spot.
+    pub fn add_fx_clip(
+        &mut self,
+        track: Id,
+        at: Tick,
+        duration: Tick,
+        spec: FxSpec,
+    ) -> Result<Id, EditError> {
+        let ti = self.track_index(track)?;
+        if self.tracks[ti].kind != TrackKind::Video {
+            return Err(EditError::WrongTrackKind);
+        }
+        let duration = duration.max(MIN_CLIP);
+        let start = self
+            .free_start(track, None, at, duration)
+            .ok_or(EditError::NoRoom)?;
+        let id = self.alloc_id();
+        let clips = &mut self.tracks[ti].clips;
+        clips.push(Clip {
+            id,
+            media: 0,
+            start,
+            duration,
+            source_in: Tick::ZERO,
+            color: 2,
+            transition_in: None,
+            text: None,
+            overlay: None,
+            audio: AudioSpec::default(),
+            grade: Grade::default(),
+            fx: Some(spec.sanitized()),
+        });
+        clips.sort_by_key(|c| c.start);
+        Ok(id)
+    }
+
+    pub fn fx_of_mut(&mut self, clip: Id) -> Option<&mut FxSpec> {
+        self.tracks
+            .iter_mut()
+            .flat_map(|t| t.clips.iter_mut())
+            .find(|c| c.id == clip)
+            .and_then(|c| c.fx.as_mut())
     }
 
     pub fn audio_of_mut(&mut self, clip: Id) -> Option<&mut AudioSpec> {
@@ -849,6 +917,7 @@ impl Project {
                 ..c.audio
             },
             grade: c.grade,
+            fx: c.fx,
         };
         self.tracks[ti].clips[ci].audio.fade_out = Tick::ZERO;
         if let Some(t) = &mut self.tracks[ti].clips[ci].text {
@@ -1003,6 +1072,15 @@ impl Project {
 
     /// The picture and all text on top of it at time `t`. Text of every unmuted video track is
     /// drawn, lower tracks first.
+    /// True when an effect clip that reacts to the sound is on screen at `t`.
+    pub fn needs_levels_at(&self, t: Tick) -> bool {
+        self.tracks
+            .iter()
+            .filter(|tr| tr.kind == TrackKind::Video && !tr.muted)
+            .flat_map(|tr| tr.clips.iter())
+            .any(|c| t >= c.start && t < c.end() && c.fx.is_some_and(|f| f.needs_audio()))
+    }
+
     pub fn scene_at(&self, t: Tick) -> Scene {
         let mut layers = Vec::new();
         for track in self
@@ -1059,6 +1137,17 @@ impl Project {
                         spec: spec.clone(),
                         fx,
                         progress,
+                    }));
+                } else if let Some(spec) = &c.fx {
+                    let spec = spec.sanitized();
+                    let fade_in = ramp(spec.fade, t - c.start);
+                    let fade_out = ramp(spec.fade, c.end() - t);
+                    layers.push(Layer::Effect(EffectLayer {
+                        clip: c.id,
+                        spec,
+                        time: t.secs() as f32,
+                        alpha: fade_in.min(fade_out),
+                        seed: (c.id % 997) as f32 * 1.618,
                     }));
                 }
             }
@@ -1217,11 +1306,62 @@ mod tests {
             for clip in track["clips"].as_array_mut().unwrap() {
                 let o = clip.as_object_mut().unwrap();
                 assert!(o.remove("audio").is_some() && o.remove("grade").is_some());
+                o.remove("fx");
             }
         }
         let back: Project = serde_json::from_value(json).unwrap();
         let c = &back.tracks[0].clips[0];
         assert!(c.audio.is_neutral() && c.grade.is_neutral());
+    }
+
+    #[test]
+    fn effect_clips_lie_on_video_tracks_and_never_count_as_the_picture() {
+        let (mut p, v, _m) = sample();
+        let spec = FxSpec::new(crate::FxKind::EqBars);
+        let a = p
+            .tracks
+            .iter()
+            .find(|t| t.kind == TrackKind::Audio)
+            .unwrap()
+            .id;
+        assert_eq!(
+            p.add_fx_clip(a, s(0.0), s(4.0), spec),
+            Err(EditError::WrongTrackKind)
+        );
+        let id = p.add_fx_clip(v, s(1.0), s(4.0), spec).unwrap();
+        assert!(p.clip(id).unwrap().1.is_layer() && p.clip(id).unwrap().1.is_fx());
+        assert_eq!(p.video_frame_at(s(2.0)), VideoFrame::Black);
+        assert!(
+            p.needs_levels_at(s(2.0)) && !p.needs_levels_at(s(0.5)) && !p.needs_levels_at(s(5.5))
+        );
+        // the length is changed like for any clip, by its edges
+        p.trim_end(id, s(3.0)).unwrap();
+        assert_eq!(p.clip(id).unwrap().1.duration, s(2.0));
+        p.trim_start(id, s(1.5)).unwrap();
+        assert_eq!(p.clip(id).unwrap().1.start, s(1.5));
+    }
+
+    #[test]
+    fn effects_fade_in_and_out_and_stay_when_the_clip_is_split() {
+        let (mut p, v, _m) = sample();
+        let spec = FxSpec {
+            fade: s(1.0),
+            ..FxSpec::new(crate::FxKind::FireFrame)
+        };
+        let id = p.add_fx_clip(v, s(0.0), s(6.0), spec).unwrap();
+        let alpha_at = |p: &Project, t: f64| {
+            p.scene_at(s(t)).layers.iter().find_map(|l| match l {
+                Layer::Effect(e) => Some(e.alpha),
+                _ => None,
+            })
+        };
+        assert_eq!(alpha_at(&p, 0.0), Some(0.0));
+        assert!((alpha_at(&p, 0.5).unwrap() - 0.5).abs() < 1e-3);
+        assert_eq!(alpha_at(&p, 3.0), Some(1.0));
+        assert!(alpha_at(&p, 5.75).unwrap() < 0.3);
+        assert_eq!(alpha_at(&p, 6.5), None);
+        let right = p.split_clip(id, s(3.0)).unwrap();
+        assert_eq!(p.clip(right).unwrap().1.fx, Some(spec));
     }
 
     #[test]

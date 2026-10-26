@@ -44,6 +44,7 @@ impl HappyKitten {
                         PoolTab::Files => self.pool_files(ui, false),
                         PoolTab::Audio => self.pool_audio(ui),
                         PoolTab::Color => self.pool_color(ui),
+                        PoolTab::Fx => self.pool_fx(ui),
                         PoolTab::Effects => self.pool_effects(ui),
                         PoolTab::Text => self.pool_text(ui),
                         PoolTab::Graphics => self.pool_graphics(ui),
@@ -55,12 +56,13 @@ impl HappyKitten {
     fn pool_tabs(&mut self, ui: &mut Ui) {
         ui.horizontal(|ui| {
             ui.spacing_mut().item_spacing.x = 6.0;
-            let w = (ui.available_width() - 30.0) / 6.0;
+            let w = (ui.available_width() - 36.0) / 7.0;
             for (tab, icon, label) in [
                 (PoolTab::Files, Icon::Film, tr("Dateien")),
                 (PoolTab::Text, Icon::Text, tr("Text")),
                 (PoolTab::Graphics, Icon::Image, tr("Grafik")),
                 (PoolTab::Effects, Icon::Sparkle, tr("Blenden")),
+                (PoolTab::Fx, Icon::Bolt, tr("Effekte")),
                 (PoolTab::Color, Icon::Sun, tr("Farbe")),
                 (PoolTab::Audio, Icon::Note, tr("Audio")),
             ] {

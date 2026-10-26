@@ -37,6 +37,7 @@ pub enum Icon {
     List,
     Table,
     Sun,
+    Bolt,
 }
 
 fn ellipse(p: &egui::Painter, c: Pos2, r: Vec2, angle: f32, fill: Color32) {
@@ -428,6 +429,20 @@ pub fn draw_icon(p: &egui::Painter, icon: Icon, rect: Rect, color: Color32) {
                 p.circle_filled(at(-0.7, y), s * 0.12, color);
                 p.line_segment([at(-0.35, y), at(0.8, y)], line);
             }
+        }
+        Icon::Bolt => {
+            p.add(Shape::convex_polygon(
+                vec![
+                    at(0.25, -0.95),
+                    at(-0.55, 0.10),
+                    at(-0.05, 0.10),
+                    at(-0.30, 0.95),
+                    at(0.60, -0.25),
+                    at(0.08, -0.25),
+                ],
+                color,
+                Stroke::NONE,
+            ));
         }
         Icon::Sun => {
             p.circle_filled(c, s * 0.38, color);

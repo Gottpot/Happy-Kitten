@@ -39,6 +39,23 @@ struct Uniforms {
     b_gain: [f32; 4],
 }
 
+#[repr(C)]
+#[derive(Clone, Copy, Pod, Zeroable)]
+struct FxUniforms {
+    res: [f32; 2],
+    time: f32,
+    alpha: f32,
+    kind: u32,
+    mirror: u32,
+    _pad: [u32; 2],
+    p0: [f32; 4],
+    p1: [f32; 4],
+    audio: [f32; 4],
+    hist0: [f32; 4],
+    hist1: [f32; 4],
+    bands: [[f32; 4]; 8],
+}
+
 /// A decoded picture living in GPU memory.
 pub struct GpuFrame {
     view: wgpu::TextureView,
@@ -85,6 +102,8 @@ pub struct Compositor {
     uniforms: wgpu::Buffer,
     text_pipeline: wgpu::RenderPipeline,
     text_uniforms: wgpu::Buffer,
+    fx_pipeline: wgpu::RenderPipeline,
+    fx_uniforms: wgpu::Buffer,
     black: GpuFrame,
     fit: std::cell::Cell<u32>,
     gains: std::cell::Cell<([f32; 4], [f32; 4])>,
@@ -172,6 +191,41 @@ impl Compositor {
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
         });
+        let fx_shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+            label: Some("hk-fx"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("fx.wgsl").into()),
+        });
+        let fx_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+            label: Some("hk-fx"),
+            layout: None,
+            vertex: wgpu::VertexState {
+                module: &fx_shader,
+                entry_point: Some("vs"),
+                compilation_options: Default::default(),
+                buffers: &[],
+            },
+            primitive: Default::default(),
+            depth_stencil: None,
+            multisample: Default::default(),
+            fragment: Some(wgpu::FragmentState {
+                module: &fx_shader,
+                entry_point: Some("fs"),
+                compilation_options: Default::default(),
+                targets: &[Some(wgpu::ColorTargetState {
+                    format: OUTPUT_FORMAT,
+                    blend: None,
+                    write_mask: wgpu::ColorWrites::ALL,
+                })],
+            }),
+            multiview_mask: None,
+            cache: None,
+        });
+        let fx_uniforms = device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("hk-fx-uniforms"),
+            size: std::mem::size_of::<FxUniforms>() as u64,
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+            mapped_at_creation: false,
+        });
         let black = upload_rgba(&device, &queue, &[0, 0, 0, 255], 1, 1);
         Compositor {
             device,
@@ -181,6 +235,8 @@ impl Compositor {
             uniforms,
             text_pipeline,
             text_uniforms,
+            fx_pipeline,
+            fx_uniforms,
             black,
             fit: std::cell::Cell::new(0),
             gains: std::cell::Cell::new((NO_GAIN, NO_GAIN)),
@@ -429,6 +485,116 @@ impl Compositor {
                 multiview_mask: None,
             });
             pass.set_pipeline(&self.text_pipeline);
+            pass.set_bind_group(0, &bind, &[]);
+            pass.draw(0..3, 0..1);
+        }
+        self.queue.submit([enc.finish()]);
+    }
+
+    /// Draw an overlay effect over what is already in `out`. `time` is the timeline time in
+    /// seconds, `alpha` the fade of the clip, `seed` makes copies of an effect differ and
+    /// `levels` is what the sound is doing (the equalizers and the beat setting use it).
+    pub fn overlay_fx(
+        &self,
+        out: &Output,
+        spec: &hk_core::FxSpec,
+        time: f32,
+        alpha: f32,
+        seed: f32,
+        levels: &hk_core::AudioLevels,
+    ) {
+        let spec = spec.sanitized();
+        let levels = levels.sanitized();
+        let mut bands = [[0.0f32; 4]; 8];
+        for (i, b) in levels.bands.iter().enumerate() {
+            bands[i / 4][i % 4] = *b;
+        }
+        let beat = |i: usize| levels.beat.get(i).copied().unwrap_or(0.0);
+        let u = FxUniforms {
+            res: [out.size.0 as f32, out.size.1 as f32],
+            time: if time.is_finite() { time } else { 0.0 },
+            alpha: if alpha.is_finite() {
+                alpha.clamp(0.0, 1.0)
+            } else {
+                1.0
+            },
+            kind: spec.kind.shader_id(),
+            mirror: spec.mirror as u32,
+            _pad: [0; 2],
+            p0: [spec.width, spec.speed, spec.intensity, spec.hue],
+            p1: [
+                spec.beat,
+                spec.pos[0],
+                spec.pos[1],
+                if seed.is_finite() { seed } else { 0.0 },
+            ],
+            audio: [levels.bass, levels.mid, levels.treble, 0.0],
+            hist0: [beat(0), beat(1), beat(2), beat(3)],
+            hist1: [beat(4), beat(5), beat(6), beat(7)],
+            bands,
+        };
+        self.queue
+            .write_buffer(&self.fx_uniforms, 0, bytemuck::bytes_of(&u));
+        let bind = self.device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("hk-fx-bind"),
+            layout: &self.fx_pipeline.get_bind_group_layout(0),
+            entries: &[
+                wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: wgpu::BindingResource::TextureView(&out.scratch_view),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 1,
+                    resource: wgpu::BindingResource::Sampler(&self.sampler),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 2,
+                    resource: self.fx_uniforms.as_entire_binding(),
+                },
+            ],
+        });
+        let mut enc = self
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("hk-fx"),
+            });
+        enc.copy_texture_to_texture(
+            wgpu::TexelCopyTextureInfo {
+                texture: &out.texture,
+                mip_level: 0,
+                origin: wgpu::Origin3d::ZERO,
+                aspect: wgpu::TextureAspect::All,
+            },
+            wgpu::TexelCopyTextureInfo {
+                texture: &out.scratch,
+                mip_level: 0,
+                origin: wgpu::Origin3d::ZERO,
+                aspect: wgpu::TextureAspect::All,
+            },
+            wgpu::Extent3d {
+                width: out.size.0,
+                height: out.size.1,
+                depth_or_array_layers: 1,
+            },
+        );
+        {
+            let mut pass = enc.begin_render_pass(&wgpu::RenderPassDescriptor {
+                label: Some("hk-fx-pass"),
+                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                    view: &out.view,
+                    depth_slice: None,
+                    resolve_target: None,
+                    ops: wgpu::Operations {
+                        load: wgpu::LoadOp::Load,
+                        store: wgpu::StoreOp::Store,
+                    },
+                })],
+                depth_stencil_attachment: None,
+                timestamp_writes: None,
+                occlusion_query_set: None,
+                multiview_mask: None,
+            });
+            pass.set_pipeline(&self.fx_pipeline);
             pass.set_bind_group(0, &bind, &[]);
             pass.draw(0..3, 0..1);
         }
@@ -692,6 +858,56 @@ mod tests {
                 near_end < 6.0,
                 "{kind:?} does not end on the new picture: {near_end}"
             );
+        }
+    }
+
+    /// Every overlay effect must leave the picture alone at alpha 0 and change it at alpha 1, and
+    /// the equalizers must react to the sound. Skipped without a GPU.
+    #[test]
+    fn every_overlay_effect_draws_fades_out_and_the_equalizers_hear_the_sound() {
+        let Ok((device, queue)) = headless() else {
+            return;
+        };
+        let comp = Compositor::new(device, queue);
+        let (w, h) = (128u32, 72u32);
+        let pic: Vec<u8> = (0..w * h)
+            .flat_map(|i| [60u8, ((i / w) * 3) as u8, 120, 255])
+            .collect();
+        let frame = comp.upload(&pic, w, h);
+        let out = comp.create_output(w, h);
+        let render = |kind: hk_core::FxKind, alpha: f32, levels: &hk_core::AudioLevels| {
+            comp.render_single(&out, &frame);
+            comp.overlay_fx(&out, &hk_core::FxSpec::new(kind), 1.4, alpha, 0.0, levels);
+            comp.read_output(&out).expect("read")
+        };
+        let diff = |a: &[u8], b: &[u8]| -> f32 {
+            a.iter()
+                .zip(b)
+                .map(|(x, y)| (*x as i32 - *y as i32).abs() as f32)
+                .sum::<f32>()
+                / a.len() as f32
+        };
+        comp.render_single(&out, &frame);
+        let plain = comp.read_output(&out).expect("read");
+        let demo = hk_core::AudioLevels::demo(1.4);
+        for kind in hk_core::FxKind::ALL {
+            let faded = render(kind, 0.0, &demo);
+            assert!(
+                diff(&faded, &plain) < 0.5,
+                "{kind:?} shows through at alpha 0"
+            );
+            let shown = render(kind, 1.0, &demo);
+            assert!(
+                diff(&shown, &plain) > 0.3,
+                "{kind:?} does not draw anything"
+            );
+            if kind.is_visualiser() {
+                let silent = render(kind, 1.0, &hk_core::AudioLevels::SILENT);
+                assert!(
+                    diff(&shown, &silent) > 0.2,
+                    "{kind:?} does not react to the sound"
+                );
+            }
         }
     }
 }

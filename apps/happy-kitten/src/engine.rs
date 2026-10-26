@@ -3,7 +3,10 @@
 
 use crate::layers::{self, ImageCache};
 use eframe::egui_wgpu::RenderState;
-use hk_core::{Id, MediaKind, MediaSource, Project, SourceRef, Tick, TransitionKind, VideoFrame};
+use hk_core::{
+    AudioLevels, FxKind, FxSpec, Id, Layer, MediaKind, MediaSource, Project, SourceRef, Tick,
+    TransitionKind, VideoFrame,
+};
 use hk_gpu::{Compositor, GpuFrame, Output};
 use hk_media::Rgba;
 use std::collections::{HashMap, HashSet};
@@ -64,6 +67,7 @@ pub struct Engine {
     text_cache: HashMap<(u64, u32, u32), (GpuFrame, u64)>,
     images: ImageCache,
     effect_cards: Vec<(TransitionKind, Output, egui::TextureId)>,
+    fx_cards: Vec<(FxKind, Output, egui::TextureId)>,
     card_a: GpuFrame,
     card_b: GpuFrame,
     jobs: Sender<Job>,
@@ -106,6 +110,15 @@ impl Engine {
                 (*k, out, id)
             })
             .collect();
+        let fx_cards = FxKind::ALL
+            .iter()
+            .map(|k| {
+                let out = comp.create_output(card_w, card_h);
+                draw_fx_card(&comp, &out, &card_b, *k, 1.4);
+                let id = register(render_state, &out);
+                (*k, out, id)
+            })
+            .collect();
         let (jobs, job_rx) = channel();
         let (done_tx, done) = channel();
         std::thread::Builder::new()
@@ -125,6 +138,7 @@ impl Engine {
             text_cache: HashMap::new(),
             images: ImageCache::default(),
             effect_cards,
+            fx_cards,
             card_a,
             card_b,
             jobs,
@@ -180,6 +194,21 @@ impl Engine {
             .iter()
             .find(|(k, _, _)| *k == kind)
             .map(|(_, _, id)| *id)
+    }
+
+    /// The picture card of an overlay effect (a sample scene with the effect on it).
+    pub fn fx_card(&self, kind: FxKind) -> Option<egui::TextureId> {
+        self.fx_cards
+            .iter()
+            .find(|(k, _, _)| *k == kind)
+            .map(|(_, _, id)| *id)
+    }
+
+    /// Re-render the card of an overlay effect at `secs` (hover animation).
+    pub fn animate_fx_card(&self, kind: FxKind, secs: f32) {
+        if let Some((_, out, _)) = self.fx_cards.iter().find(|(k, _, _)| *k == kind) {
+            draw_fx_card(&self.comp, out, &self.card_b, kind, secs);
+        }
     }
 
     /// Re-render one effect card at `progress` (hover animation).
@@ -374,12 +403,17 @@ impl Engine {
     }
 
     /// Draw the picture at time `t` into the preview texture.
-    pub fn render(&mut self, project: &Project, t: Tick) {
+    pub fn render(&mut self, project: &Project, t: Tick, levels: &AudioLevels) {
         self.comp.set_fit(project.fit);
         let scene = project.scene_at(t);
         self.render_base(project, t, scene.base);
         let (w, h) = self.preview.size();
         for layer in &scene.layers {
+            if let Layer::Effect(e) = layer {
+                self.comp
+                    .overlay_fx(&self.preview, &e.spec, e.time, e.alpha, e.seed, levels);
+                continue;
+            }
             let key = (layers::key(layer), w, h);
             if !self.text_cache.contains_key(&key) {
                 if self.text_cache.len() >= 24
@@ -579,4 +613,19 @@ fn decode(
             MediaKind::Audio => Err("Audio hat kein Bild".into()),
         },
     }
+}
+
+/// A card of the effects tab: the sample scene with the effect at its default settings, the sound
+/// made up (there is none to hear in a card).
+fn draw_fx_card(comp: &Compositor, out: &Output, scene: &GpuFrame, kind: FxKind, secs: f32) {
+    comp.set_grades(Default::default(), Default::default());
+    comp.render_single(out, scene);
+    comp.overlay_fx(
+        out,
+        &FxSpec::new(kind),
+        secs,
+        1.0,
+        0.0,
+        &AudioLevels::demo(secs),
+    );
 }

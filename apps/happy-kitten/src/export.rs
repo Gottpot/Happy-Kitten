@@ -3,7 +3,9 @@
 
 use crate::layers::{self, ImageCache};
 use hk_audio::{ClipPlan, Pcm, mix_block};
-use hk_core::{Id, MediaKind, MediaSource, Project, SourceRef, Tick, VideoFrame};
+use hk_core::{
+    AudioLevels, Id, Layer, MediaKind, MediaSource, Project, SourceRef, Tick, VideoFrame,
+};
 use hk_gpu::{Compositor, GpuFrame};
 use hk_media::{Codec, VideoSource, VideoWriter};
 use std::collections::HashMap;
@@ -223,6 +225,7 @@ fn run(
                         &mut source,
                         next_video,
                         fps,
+                        (plan, pcm),
                     )?);
                 }
                 if writer.video_ready() {
@@ -291,6 +294,7 @@ fn render_frame(
     source: &mut Source,
     i: i64,
     fps: hk_core::Fps,
+    audio: (&[ClipPlan], &HashMap<Id, Arc<Pcm>>),
 ) -> Result<Vec<u8>, String> {
     let t = Tick::from_frames(i, fps);
     let scene = project.scene_at(t);
@@ -323,7 +327,17 @@ fn render_frame(
         },
     }
     let (w, h) = out.size();
+    let mut levels: Option<AudioLevels> = None;
     for layer in &scene.layers {
+        if let Layer::Effect(e) = layer {
+            let l = if e.spec.needs_audio() {
+                *levels.get_or_insert_with(|| hk_audio::analyze(audio.0, audio.1, t.secs()))
+            } else {
+                AudioLevels::SILENT
+            };
+            comp.overlay_fx(out, &e.spec, e.time, e.alpha, e.seed, &l);
+            continue;
+        }
         let key = layers::key(layer);
         if !source.texts.contains_key(&key) {
             if source.texts.len() >= 16 {

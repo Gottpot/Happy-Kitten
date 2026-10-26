@@ -8,6 +8,7 @@ mod devscript;
 mod engine;
 mod export;
 mod export_ui;
+mod fx_ui;
 mod graphics;
 mod i18n;
 mod i18n_data;

@@ -1,4 +1,4 @@
-# 🐾 Happy-Kitten v1.2
+# 🐾 Happy-Kitten v1.3
 
 **English** · [日本語](README.ja.md) · [Deutsch](README.de.md)
 
@@ -17,6 +17,7 @@ Everything happens **offline**: no cloud, no account, no telemetry, no subscript
 |---|---|
 | ![Text and effects](docs/screenshots/text.png) | ![Transitions](docs/screenshots/transitions.png) |
 | ![Export](docs/screenshots/export.png) | ![Japanese interface](docs/screenshots/japanese.png) |
+| ![Fire frame effect](docs/screenshots/effects.png) | ![Bar equalizer reacting to a beat](docs/screenshots/equalizer.png) |
 
 ## Download and first launch
 
@@ -78,6 +79,7 @@ The translations are machine-assisted and have not been proofread by native spea
 | Undo / redo | ⌘Z / ⇧⌘Z |
 | Sound settings | Select an audio or video clip, open the **Audio** tab → “Sound”: **volume** (0 to 200 %), **fade in** and **fade out**, and one **effect**: echo, reverb, muffled or telephone, with an amount slider. Several clips can be changed together. Preview, playback and export sound the same |
 | Colour | Select a video clip or an image, open the **Colour** tab: **temperature** (cool to warm) and **tint** (green to magenta). Live in the preview and in the export; several clips can be changed together |
+| Overlay effect | **Effects** tab: drag a card onto a video track, or click it to put it at the playhead (on a free video track, or on a new one). It is a clip like any other: change its length by its edges, move, split or delete it. Select it to change width, speed, strength, colour, beat reaction, position and fade. Equalizers react to the sound on the timeline |
 | Save / open | ⌘S / ⌘O (`.kitten` files, plain JSON). After saving, a green notice shows “Saved ✓” and the file path for a few seconds |
 | Export a movie | “Export” → MP4 (H.264 or HEVC) with sound. Format like the project or 16:9, **9:16 Short**, 1:1, 4:5; resolution = short side (720 / 1080 / 2160 pixels); **frame rate** (23.976 · 24 · 25 · 29.97 · 30 · 50 · 59.94 · 60, for example 24 for Midjourney material); **bitrate** automatic or your own (1 to 150 Mbit/s); **audio** 32 / 44.1 / 48 kHz (AAC) and 128 to 320 kbit/s |
 | Still frame | “Still frame” saves the current preview picture as a PNG |
@@ -126,6 +128,21 @@ All computed by the shader as well, in five groups in the Transitions tab:
 
 `cargo run -p hk-gpu --example contact_sheet -- transitions.png` renders all transitions in five steps into one image (`… transitions.png 19 6` only six of them, starting at the 20th), `--example single` renders a single frame in any size.
 
+## Overlay effects (1.3)
+
+The **Effects** tab holds 13 effects that the GPU draws completely from maths, over the picture below them. They are clips on video tracks, so you set their length on the timeline, and several can lie over each other on different tracks.
+
+| Group | Effects |
+|---|---|
+| **Frames** | *Fire frame* (noise flames drifting inwards), *Ice frame* (Voronoi frost crystals with sparkles), *Lightning frame* (jagged bolts that flicker about ten times a second), *Neon frame* |
+| **Equalizers** | *Bar equalizer* (32 LED bars, optional reflection), *Circle equalizer* (64 bars round a centre), *Wave equalizer* (layered spectrum curves), *Beat rings* (every beat sends a ring outwards) |
+| **Glitch and cyberpunk** | *Glitch* (shifted rows, colour split, scan lines, flashing blocks), *Cyber grid* (neon perspective floor, scan bar, corner brackets), *Laser show* (a fan of sweeping beams) |
+| **Light** | *Lens flare* (core, streak, rays and ghosts along the axis), *Light leak* (drifting warm blobs of light) |
+
+Every effect has width (or height, size), speed, strength, colour (hue shift), beat reaction, position, mirror and fade in/out as far as it makes sense for it. The **equalizers and the beat reaction** use the sound of the timeline: it is analysed at the current moment (FFT, 32 bands from 40 Hz to 14 kHz, plus a beat detector on the bass). The analysis needs no history, so preview, playback and export show exactly the same.
+
+`cargo run -p hk-gpu --example fx_sheet -- effects.png` renders every effect at four moments with a made-up spectrum.
+
 ## Structure
 
 ```
@@ -134,7 +151,7 @@ crates/
   hk-gpu     wgpu compositor and the transition shaders. Renders into an Rgba8 texture (preview, export, tests).
   hk-media   Images (including graphics with transparency), demo scenes, video through AVFoundation (sequential hardware decoding, MP4 export with AVAssetWriter).
   hk-text    Text rasteriser: fonts, line wrapping, outline, shadow, background box.
-  hk-audio   Audio decoding (symphonia), waveform, mixer and playback (cpal). The audio clock leads the picture.
+  hk-audio   Audio decoding (symphonia), waveform, mixer, playback (cpal) and the spectrum/beat analysis for the equalizers. The audio clock leads the picture.
 apps/
   happy-kitten  egui interface (own pastel theme, hand-drawn icons), preview engine, export.
 ```
@@ -161,6 +178,7 @@ HK_GLOBAL=1 HK_IMPORT=folder # import into the global library (nothing is saved 
 HK_TAB=color HK_SELECT_PICTURE=1   # open the Colour tab with the first picture clip selected
 HK_FX=echo HK_VOLUME=0.5 HK_FADE=1 HK_TEMP=0.6 HK_TINT=-0.3  # set sound and colour on every clip
 HK_BANNER=1                  # show the green "saved" notice
+HK_TAB=fx HK_ADD_FX=EqBars   # open the Effects tab and put that effect on a video track (HK_DESELECT=1 shows the cards)
 HK_SCRIPT=build|text         # replays mouse actions (drag, trim, transition, text, library); with HK_DUMP=1 the timeline is printed
 ```
 

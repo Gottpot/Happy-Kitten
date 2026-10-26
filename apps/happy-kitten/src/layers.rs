@@ -39,6 +39,8 @@ pub fn animation(layer: &Layer) -> (u32, f32, [f32; 2]) {
     match layer {
         Layer::Text(t) => (t.fx.shader_id(), t.progress, t.spec.pos),
         Layer::Image(i) => (i.fx.shader_id(), i.progress, i.spec.pos),
+        // effects have their own pass, see `Compositor::overlay_fx`
+        Layer::Effect(_) => (0, 1.0, [0.5, 0.5]),
     }
 }
 
@@ -51,6 +53,7 @@ pub fn key(layer: &Layer) -> u64 {
                 ^ i.media.wrapping_mul(0x9E37_79B9_7F4A_7C15)
                 ^ 0x1F00_0000_0000_0000
         }
+        Layer::Effect(e) => e.clip ^ 0x2F00_0000_0000_0000,
     }
 }
 
@@ -73,5 +76,6 @@ pub fn raster(
             let img = images.get(project, i.media)?;
             Some(hk_media::compose_overlay(&img, &i.spec, w, h))
         }
+        Layer::Effect(_) => None,
     }
 }

@@ -188,6 +188,7 @@ impl HappyKitten {
                 .map(|m| m.name.clone())
                 .unwrap_or_default(),
             Payload::Effect(k) => tr(k.name()).to_string(),
+            Payload::Fx(k) => tr(k.name()).to_string(),
             Payload::LibMedia(id) => self
                 .lib
                 .item(id)
