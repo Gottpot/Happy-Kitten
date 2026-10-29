@@ -4,6 +4,14 @@
 
 All notable changes to Happy-Kitten are written down here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
+## [Android 1.0.1] - 2026-10-29
+
+### Fixed
+- **The language could not be changed on the phone:** the language button in the ⋯ menu closed the whole menu, so the list never appeared. All languages are now shown directly in the menu.
+- Drop-down boxes inside the phone menus did not open (picture fit, file filters). They are now rows of buttons.
+- The export, progress and about windows were wider than a phone screen, most of all in Japanese. They now fit the screen, and long entries in the export drop-downs are shortened with “…”.
+- The kitten menu closes after files have been picked.
+
 ## [Android 1.0.0] - 2026-10-29
 
 The first Android version (phone and tablet) lives in `android-port/` and has its own version line. The Mac version stays at 1.3.0.

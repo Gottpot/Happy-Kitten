@@ -100,7 +100,7 @@ impl HappyKitten {
     }
 
     pub fn canvas_bar_row(&mut self, ui: &mut Ui) {
-        ui.horizontal(|ui| {
+        ui.horizontal_wrapped(|ui| {
             ui.spacing_mut().item_spacing.x = 5.0;
             if !self.phone {
                 ui.label(
@@ -125,14 +125,24 @@ impl HappyKitten {
             }
             ui.add_space(6.0);
             let mut fit = self.doc.project.fit;
-            egui::ComboBox::from_id_salt("canvas-fit")
-                .selected_text(tr(fit.name()))
-                .width(130.0)
-                .show_ui(ui, |ui| {
-                    for f in hk_core::FitMode::ALL {
-                        ui.selectable_value(&mut fit, f, tr(f.name()));
+            if self.phone {
+                // pills instead of a drop-down: this row also sits inside the phone menu, where a
+                // drop-down (a popup inside a popup) does not open reliably on touch
+                for f in hk_core::FitMode::ALL {
+                    if kit::pill(ui, None, tr(f.name()), fit == f, true).clicked() {
+                        fit = f;
                     }
-                });
+                }
+            } else {
+                egui::ComboBox::from_id_salt("canvas-fit")
+                    .selected_text(tr(fit.name()))
+                    .width(130.0)
+                    .show_ui(ui, |ui| {
+                        for f in hk_core::FitMode::ALL {
+                            ui.selectable_value(&mut fit, f, tr(f.name()));
+                        }
+                    });
+            }
             if fit != self.doc.project.fit {
                 self.doc.edit(|p| p.fit = fit);
             }

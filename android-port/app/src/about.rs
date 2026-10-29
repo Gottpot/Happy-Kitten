@@ -18,7 +18,8 @@ impl HappyKitten {
             .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
             .frame(kit::card_frame(CREAM).inner_margin(egui::Margin::same(22)))
             .show(ctx, |ui| {
-                ui.set_width(380.0);
+                // never wider than a phone screen
+                ui.set_width((ctx.content_rect().width() - 60.0).clamp(240.0, 380.0));
                 ui.vertical_centered(|ui| {
                     ui.add(
                         egui::Image::new(&self.logo)

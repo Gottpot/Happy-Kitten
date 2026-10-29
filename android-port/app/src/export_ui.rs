@@ -198,6 +198,11 @@ impl HappyKitten {
             let film_fps = opts.film_fps(self.doc.project.fps);
             let video_bits = opts.bitrate(size, film_fps);
             let est_mb = (video_bits + opts.audio_bits()) as f64 / 8.0 * secs / 1_000_000.0;
+            // Narrow screens: the window and its drop-downs shrink to fit (long Japanese labels
+            // used to push the window beyond the screen edges).
+            let screen_w = ctx.content_rect().width();
+            let win_w = (screen_w - 60.0).clamp(240.0, 380.0);
+            let combo_w = if win_w < 380.0 { 150.0 } else { 220.0 };
             egui::Window::new(tr("Film exportieren"))
                 .title_bar(false)
                 .collapsible(false)
@@ -205,7 +210,7 @@ impl HappyKitten {
                 .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
                 .frame(kit::card_frame(CREAM).inner_margin(egui::Margin::same(20)))
                 .show(ctx, |ui| {
-                    ui.set_width(380.0);
+                    ui.set_width(win_w);
                     ui.horizontal(|ui| {
                         let (r, _) =
                             ui.allocate_exact_size(egui::vec2(34.0, 34.0), egui::Sense::hover());
@@ -220,7 +225,8 @@ impl HappyKitten {
                             ui.label(tr("Format"));
                             egui::ComboBox::from_id_salt("exp-shape")
                                 .selected_text(tr(FORMATS[opts.format].0))
-                                .width(220.0)
+                                .width(combo_w)
+                                .truncate()
                                 .show_ui(ui, |ui| {
                                     for (i, (name, _, _)) in FORMATS.iter().enumerate() {
                                         ui.selectable_value(&mut opts.format, i, tr(name));
@@ -230,7 +236,8 @@ impl HappyKitten {
                             ui.label(tr("Bild anpassen"));
                             egui::ComboBox::from_id_salt("exp-fit")
                                 .selected_text(tr(fit.name()))
-                                .width(220.0)
+                                .width(combo_w)
+                                .truncate()
                                 .show_ui(ui, |ui| {
                                     for f in hk_core::FitMode::ALL {
                                         ui.selectable_value(&mut fit, f, tr(f.name()));
@@ -240,7 +247,8 @@ impl HappyKitten {
                             ui.label(tr("Auflösung"));
                             egui::ComboBox::from_id_salt("exp-res")
                                 .selected_text(tr(RESOLUTIONS[opts.res].0))
-                                .width(220.0)
+                                .width(combo_w)
+                                .truncate()
                                 .show_ui(ui, |ui| {
                                     for (i, (name, _)) in RESOLUTIONS.iter().enumerate() {
                                         ui.selectable_value(&mut opts.res, i, tr(name));
@@ -257,7 +265,8 @@ impl HappyKitten {
                                 } else {
                                     tr(FPS_CHOICES[opts.fps].0).to_string()
                                 })
-                                .width(220.0)
+                                .width(combo_w)
+                                .truncate()
                                 .show_ui(ui, |ui| {
                                     for (i, (name, _, _)) in FPS_CHOICES.iter().enumerate() {
                                         ui.selectable_value(&mut opts.fps, i, tr(name));
@@ -267,7 +276,8 @@ impl HappyKitten {
                             ui.label(tr("Qualität"));
                             egui::ComboBox::from_id_salt("exp-q")
                                 .selected_text(tr(QUALITIES[opts.quality].0))
-                                .width(220.0)
+                                .width(combo_w)
+                                .truncate()
                                 .show_ui(ui, |ui| {
                                     for (i, (name, _)) in QUALITIES.iter().enumerate() {
                                         ui.selectable_value(&mut opts.quality, i, tr(name));
@@ -307,7 +317,8 @@ impl HappyKitten {
                             ui.label(tr("Audio"));
                             egui::ComboBox::from_id_salt("exp-arate")
                                 .selected_text(tr(AUDIO_RATES[opts.audio_rate].0))
-                                .width(220.0)
+                                .width(combo_w)
+                                .truncate()
                                 .show_ui(ui, |ui| {
                                     for (i, (name, _)) in AUDIO_RATES.iter().enumerate() {
                                         ui.selectable_value(&mut opts.audio_rate, i, tr(name));
@@ -317,7 +328,8 @@ impl HappyKitten {
                             ui.label(tr("Audio-Bitrate"));
                             egui::ComboBox::from_id_salt("exp-akbps")
                                 .selected_text(format!("{} kbit/s", AUDIO_KBPS[opts.audio_kbps]))
-                                .width(220.0)
+                                .width(combo_w)
+                                .truncate()
                                 .show_ui(ui, |ui| {
                                     for (i, k) in AUDIO_KBPS.iter().enumerate() {
                                         ui.selectable_value(
@@ -335,7 +347,8 @@ impl HappyKitten {
                                 } else {
                                     tr("MP4 · H.264 (läuft überall)")
                                 })
-                                .width(220.0)
+                                .width(combo_w)
+                                .truncate()
                                 .show_ui(ui, |ui| {
                                     ui.selectable_value(
                                         &mut opts.hevc,
@@ -417,7 +430,7 @@ impl HappyKitten {
                 .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
                 .frame(kit::card_frame(CREAM).inner_margin(egui::Margin::same(20)))
                 .show(ctx, |ui| {
-                    ui.set_width(380.0);
+                    ui.set_width((ctx.content_rect().width() - 60.0).clamp(240.0, 380.0));
                     ui.label(egui::RichText::new(tr("Das Kätzchen rendert …")).size(22.0));
                     ui.add_space(8.0);
                     ui.add(

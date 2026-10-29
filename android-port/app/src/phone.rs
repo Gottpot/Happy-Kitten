@@ -288,8 +288,14 @@ impl HappyKitten {
         for dy in [-7.0, 0.0, 7.0] {
             p.circle_filled(rect.center() + vec2(0.0, dy), 2.4, BROWN);
         }
-        egui::Popup::menu(&resp).show(|ui| {
-            ui.set_min_width(190.0);
+        // Stays open until a tap outside or a chosen action: a menu that closed on every tap would
+        // take everything opened inside it (the fit box, the language list) down with it.
+        egui::Popup::menu(&resp)
+            .close_behavior(PopupCloseBehavior::CloseOnClickOutside)
+            .width(340.0)
+            .show(|ui| {
+            ui.set_min_width(320.0);
+            ui.set_max_width(340.0);
             if ui.button(tr("Neu")).clicked() {
                 self.new_project();
                 ui.close();
@@ -310,7 +316,19 @@ impl HappyKitten {
             ui.label(egui::RichText::new(tr("Bildformat")).size(13.0).color(BROWN_SOFT));
             self.canvas_bar_row(ui);
             ui.separator();
-            self.language_button(ui);
+            ui.label(egui::RichText::new(tr("Sprache")).size(13.0).color(BROWN_SOFT));
+            // all languages at once: a list that opens from a button would be a second popup
+            // inside this one
+            let current = crate::i18n::lang();
+            ui.horizontal_wrapped(|ui| {
+                for l in crate::i18n::Lang::ALL {
+                    if kit::pill(ui, None, l.native_name(), l == current, true).clicked() {
+                        crate::i18n::set_lang(l);
+                        crate::i18n::save(l);
+                    }
+                }
+            });
+            ui.separator();
             if ui.button(tr("Über Happy-Kitten")).clicked() {
                 self.about = true;
                 ui.close();

@@ -253,6 +253,12 @@ impl HappyKitten {
                 }
             }
         });
+        if self.phone {
+            // This bar sits in the kitten menu (a popup). A drop-down inside a popup closes the
+            // popup on touch screens, so the choices are pills here.
+            self.phone_filter_pills(ui, audio);
+            return;
+        }
         ui.horizontal(|ui| {
             ui.spacing_mut().item_spacing.x = 5.0;
             if !audio {
@@ -308,6 +314,57 @@ impl HappyKitten {
                     }
                 });
             if kit::round_button(ui, Icon::Redo, 28.0, self.pool.desc, true)
+                .on_hover_text(if self.pool.desc {
+                    tr("Absteigend")
+                } else {
+                    tr("Aufsteigend")
+                })
+                .clicked()
+            {
+                self.pool.desc = !self.pool.desc;
+            }
+        });
+    }
+
+    /// Kind, usage and sort order as rows of pills (phone menu).
+    fn phone_filter_pills(&mut self, ui: &mut Ui, audio: bool) {
+        ui.spacing_mut().item_spacing = vec2(5.0, 5.0);
+        if !audio {
+            ui.horizontal_wrapped(|ui| {
+                for (k, label) in [
+                    (KindFilter::All, tr("Alle Arten")),
+                    (KindFilter::Video, tr("Videos")),
+                    (KindFilter::Image, tr("Bilder")),
+                ] {
+                    if kit::pill(ui, None, label, self.pool.kind == k, true).clicked() {
+                        self.pool.kind = k;
+                    }
+                }
+            });
+        }
+        ui.horizontal_wrapped(|ui| {
+            for (u, label) in [
+                (UsageFilter::All, tr("Alles")),
+                (UsageFilter::Used, tr("Verwendet")),
+                (UsageFilter::Unused, tr("Noch frei")),
+            ] {
+                if kit::pill(ui, None, label, self.pool.usage == u, true).clicked() {
+                    self.pool.usage = u;
+                }
+            }
+        });
+        ui.horizontal_wrapped(|ui| {
+            for (k, label) in [
+                (SortKey::Added, tr("Reihenfolge")),
+                (SortKey::Name, tr("Name")),
+                (SortKey::Duration, tr("Dauer")),
+                (SortKey::Kind, tr("Art")),
+            ] {
+                if kit::pill(ui, None, label, self.pool.sort == k, true).clicked() {
+                    self.pool.sort = k;
+                }
+            }
+            if kit::round_button(ui, Icon::Redo, 30.0, self.pool.desc, true)
                 .on_hover_text(if self.pool.desc {
                     tr("Absteigend")
                 } else {
