@@ -140,27 +140,19 @@ fn type_badge(p: &egui::Painter, kind: MediaKind, rect: Rect) {
 
 impl HappyKitten {
     pub fn pool_files(&mut self, ui: &mut Ui, audio: bool) {
-        ui.horizontal_wrapped(|ui| {
-            ui.spacing_mut().item_spacing = vec2(5.0, 5.0);
-            self.scope_switch_inline(ui);
-            ui.add_space(4.0);
-            if kit::pill(ui, Some(Icon::Plus), tr("Dateien"), false, true)
-                .on_hover_text(tr("Mehrere Dateien auf einmal wählen (⌘I)"))
-                .clicked()
-            {
-                self.import_dialog();
-            }
-        });
+        // On the phone scope, import and filters live in the kitten menu (`phone.rs`).
         if !self.phone {
+            self.scope_import_row(ui);
             self.filter_bar(ui, audio);
         }
 
         let (rows, total) = self.build_rows(audio);
-        ui.label(
-            egui::RichText::new(trf!("{n} von {total}", n = rows.len(), total = total))
-                .size(12.0)
-                .color(BROWN_SOFT),
-        );
+        let count = trf!("{n} von {total}", n = rows.len(), total = total);
+        if self.phone {
+            self.phone_bar(ui, Some(count), true);
+        } else {
+            ui.label(egui::RichText::new(count).size(12.0).color(BROWN_SOFT));
+        }
         if rows.is_empty() {
             self.empty_hint(ui, total > 0);
             return;
@@ -199,6 +191,21 @@ impl HappyKitten {
         }
     }
 
+    /// "This project / Global" and the import button.
+    pub fn scope_import_row(&mut self, ui: &mut Ui) {
+        ui.horizontal_wrapped(|ui| {
+            ui.spacing_mut().item_spacing = vec2(5.0, 5.0);
+            self.scope_switch_inline(ui);
+            ui.add_space(4.0);
+            if kit::pill(ui, Some(Icon::Plus), tr("Dateien"), false, true)
+                .on_hover_text(tr("Mehrere Dateien auf einmal wählen (⌘I)"))
+                .clicked()
+            {
+                self.import_dialog();
+            }
+        });
+    }
+
     /// Two kinds of imports: "Projekt" (only this project) and "Global" (every project).
     fn scope_switch_inline(&mut self, ui: &mut Ui) {
         {
@@ -214,7 +221,7 @@ impl HappyKitten {
         }
     }
 
-    fn filter_bar(&mut self, ui: &mut Ui, audio: bool) {
+    pub fn filter_bar(&mut self, ui: &mut Ui, audio: bool) {
         ui.horizontal(|ui| {
             ui.spacing_mut().item_spacing.x = 6.0;
             ui.add(
@@ -660,7 +667,7 @@ impl HappyKitten {
     fn table(&mut self, ui: &mut Ui, rows: &[Row]) {
         let width = ui.available_width().max(640.0);
         // column left edges
-        let name_w = (width - 86.0 - 56.0 - 64.0 - 92.0 - 140.0).max(170.0);
+        let name_w = (width - 86.0 - 56.0 - 64.0 - 92.0 - 140.0).max(if self.phone { 110.0 } else { 170.0 });
         let cols = [
             34.0,
             86.0,
@@ -724,7 +731,8 @@ impl HappyKitten {
         ui.spacing_mut().item_spacing.y = 3.0;
         for row in rows {
             let (rect, resp) = ui.allocate_exact_size(vec2(total_w, 32.0), Sense::click_and_drag());
-            hk_touch::zone(ui, rect, hk_touch::Axes::Vertical);
+            // the table is wider than the phone: it scrolls sideways as well
+            hk_touch::zone(ui, rect, hk_touch::Axes::Both);
             let hovered = resp.hovered();
             {
                 let p = ui.painter();

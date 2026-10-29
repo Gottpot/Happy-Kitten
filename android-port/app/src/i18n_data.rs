@@ -3,6 +3,24 @@
 
 pub const ENTRIES: &[(&str, [&str; 4])] = &[
     (
+        "Tippe aufs Kätzchen oben links und wähle Dateien",
+        [
+            "Tap the kitten at the top left and choose Files",
+            "左上の子猫をタップして「ファイル」を選びましょう",
+            "왼쪽 위 고양이를 눌러 파일을 선택하세요",
+            "Toca el gatito de arriba a la izquierda y elige Archivos",
+        ],
+    ),
+    (
+        "Werkzeuge",
+        [
+            "Tools",
+            "ツール",
+            "도구",
+            "Herramientas",
+        ],
+    ),
+    (
         "Tippe unten auf Dateien und importiere etwas",
         [
             "Tap Files below and import something",

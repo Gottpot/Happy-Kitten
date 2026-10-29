@@ -102,15 +102,15 @@ impl HappyKitten {
             top: 4,
             bottom: if phone { 4 } else { 12 },
         });
-        let (default, range) = if phone {
-            (screen_h * 0.26, 150.0..=screen_h * 0.6)
+        let panel = egui::Panel::bottom("timeline");
+        let panel = if phone {
+            // its height comes from the drag handles (see `phone.rs`)
+            let (_, height) = self.phone_heights(screen_h);
+            panel.exact_size(height)
         } else {
-            (350.0, 240.0..=640.0)
+            panel.resizable(true).default_size(350.0).size_range(240.0..=640.0)
         };
-        egui::Panel::bottom("timeline")
-            .resizable(true)
-            .default_size(default)
-            .size_range(range)
+        panel
             .show_separator_line(false)
             .frame(frame)
             .show(ui, |ui| {

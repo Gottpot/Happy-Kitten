@@ -63,7 +63,7 @@ impl HappyKitten {
                             pos2(rect.center().x, rect.bottom() - 22.0),
                             Align2::CENTER_CENTER,
                             if phone {
-                                tr("Tippe unten auf Dateien und importiere etwas")
+                                tr("Tippe aufs Kätzchen oben links und wähle Dateien")
                             } else {
                                 tr("Zieh ein Medium auf die Timeline")
                             },

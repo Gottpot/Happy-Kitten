@@ -57,6 +57,9 @@ impl HappyKitten {
     }
 
     pub fn pool_content(&mut self, ui: &mut Ui) {
+        if self.phone && !matches!(self.tab, PoolTab::Files | PoolTab::Audio) {
+            self.phone_bar(ui, None, false);
+        }
         match self.tab {
             PoolTab::Files => self.pool_files(ui, false),
             PoolTab::Audio => self.pool_audio(ui),
@@ -81,71 +84,80 @@ impl HappyKitten {
         }
     }
 
+    /// The tool tabs with their icon and label.
+    pub fn tab_defs() -> [(PoolTab, Icon, &'static str); 7] {
+        [
+            (PoolTab::Files, Icon::Film, tr("Dateien")),
+            (PoolTab::Text, Icon::Text, tr("Text")),
+            (PoolTab::Graphics, Icon::Image, tr("Grafik")),
+            (PoolTab::Effects, Icon::Sparkle, tr("Blenden")),
+            (PoolTab::Fx, Icon::Bolt, tr("Effekte")),
+            (PoolTab::Color, Icon::Sun, tr("Farbe")),
+            (PoolTab::Audio, Icon::Note, tr("Audio")),
+        ]
+    }
+
     fn pool_tab_row(&mut self, ui: &mut Ui, phone: bool) {
         ui.horizontal(|ui| {
             ui.spacing_mut().item_spacing.x = 6.0;
             let w = if phone { 66.0 } else { (ui.available_width() - 36.0) / 7.0 };
-            for (tab, icon, label) in [
-                (PoolTab::Files, Icon::Film, tr("Dateien")),
-                (PoolTab::Text, Icon::Text, tr("Text")),
-                (PoolTab::Graphics, Icon::Image, tr("Grafik")),
-                (PoolTab::Effects, Icon::Sparkle, tr("Blenden")),
-                (PoolTab::Fx, Icon::Bolt, tr("Effekte")),
-                (PoolTab::Color, Icon::Sun, tr("Farbe")),
-                (PoolTab::Audio, Icon::Note, tr("Audio")),
-            ] {
-                let (rect, resp) = ui.allocate_exact_size(vec2(w, 58.0), Sense::click());
-                let selected = self.tab == tab;
-                let fill = if selected {
-                    PINK
-                } else if resp.hovered() {
-                    PINK_SOFT
-                } else {
-                    CREAM
-                };
-                let p = ui.painter();
-                p.rect_filled(rect, round(16), fill);
-                p.rect_stroke(
-                    rect,
-                    round(16),
-                    Stroke::new(if selected { 2.2 } else { 1.5 }, BROWN),
-                    StrokeKind::Inside,
-                );
-                kit::draw_icon(
-                    p,
-                    icon,
-                    Rect::from_center_size(
-                        pos2(rect.center().x, rect.top() + 21.0),
-                        vec2(26.0, 26.0),
-                    ),
-                    BROWN,
-                );
-                // longer words in other languages shrink to fit the card
-                let mut size = 12.5;
-                let width = |size: f32| {
-                    p.layout_no_wrap(label.to_string(), egui::FontId::proportional(size), BROWN)
-                        .size()
-                        .x
-                };
-                let natural = width(size);
-                if natural > rect.width() - 8.0 {
-                    size = (size * (rect.width() - 8.0) / natural).max(9.0);
-                }
-                p.text(
-                    pos2(rect.center().x, rect.bottom() - 11.0),
-                    Align2::CENTER_CENTER,
-                    label,
-                    egui::FontId::proportional(size),
-                    BROWN,
-                );
-                if resp.clicked() {
-                    self.tab = tab;
-                    if tab == PoolTab::Audio && !self.selected_sound_clips().is_empty() {
-                        self.audio_settings = true;
-                    }
-                }
+            for (tab, icon, label) in Self::tab_defs() {
+                self.tab_button(ui, tab, icon, label, w);
             }
         });
+    }
+
+    /// One tab card; true when it was clicked (the tab is then selected).
+    pub fn tab_button(&mut self, ui: &mut Ui, tab: PoolTab, icon: Icon, label: &str, w: f32) -> bool {
+        let (rect, resp) = ui.allocate_exact_size(vec2(w, 58.0), Sense::click());
+        let selected = self.tab == tab;
+        let fill = if selected {
+            PINK
+        } else if resp.hovered() {
+            PINK_SOFT
+        } else {
+            CREAM
+        };
+        let p = ui.painter();
+        p.rect_filled(rect, round(16), fill);
+        p.rect_stroke(
+            rect,
+            round(16),
+            Stroke::new(if selected { 2.2 } else { 1.5 }, BROWN),
+            StrokeKind::Inside,
+        );
+        kit::draw_icon(
+            p,
+            icon,
+            Rect::from_center_size(pos2(rect.center().x, rect.top() + 21.0), vec2(26.0, 26.0)),
+            BROWN,
+        );
+        // longer words in other languages shrink to fit the card
+        let mut size = 12.5;
+        let width = |size: f32| {
+            p.layout_no_wrap(label.to_string(), egui::FontId::proportional(size), BROWN)
+                .size()
+                .x
+        };
+        let natural = width(size);
+        if natural > rect.width() - 8.0 {
+            size = (size * (rect.width() - 8.0) / natural).max(9.0);
+        }
+        p.text(
+            pos2(rect.center().x, rect.bottom() - 11.0),
+            Align2::CENTER_CENTER,
+            label,
+            egui::FontId::proportional(size),
+            BROWN,
+        );
+        let clicked = resp.clicked();
+        if clicked {
+            self.tab = tab;
+            if tab == PoolTab::Audio && !self.selected_sound_clips().is_empty() {
+                self.audio_settings = true;
+            }
+        }
+        clicked
     }
 
     // ----- blends -------------------------------------------------------

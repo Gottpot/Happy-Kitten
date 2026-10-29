@@ -26,7 +26,7 @@ Auf dem Gerät: Entwickleroptionen → USB-Debugging, dann `adb devices` muss da
 ## Layout
 
 * **Tablet** (kürzere Seite ≥ 720 pt): wie am Mac (Pool links, Player rechts oben, Timeline unten).
-* **Handy**: Kopfzeile mit Export und Menü (⋯: Neu, Öffnen, Speichern, Standbild, Bildformat, Sprache), darunter der Player, die Timeline (Spuren scrollen, Leiste seitlich wischbar) und ganz unten die Werkzeug-Tabs. Ein Tippen auf eine Dateikarte hängt das Medium an die Timeline an.
+* **Handy**: Kopfzeile mit Export und Menü (⋯: Neu, Öffnen, Speichern, Standbild, Bildformat, Sprache, Über), darunter der Player, die Timeline und ganz unten der Asset-Bereich. Die Werkzeug-Tabs (Dateien, Text, Grafik, Blenden, Effekte, Farbe, Audio) und die Datei-Optionen (Dieses Projekt/Global, Dateien importieren, Suche, Filter) liegen hinter dem Kätzchen oben links. Im Asset-Bereich bleibt nur eine schmale Leiste mit dem Werkzeugnamen, der Dateizahl und dem Ansichtswechsel (Kacheln, Liste, Tabelle). Die Trennlinien zwischen Player, Timeline und Assets lassen sich ziehen; die Höhen werden in `layout.txt` im App-Ordner gemerkt (`phone.rs`). Ein Tippen auf eine Dateikarte hängt das Medium an die Timeline an.
 
 **Gesten (Handy und Tablet):** Auf den Spuren der Timeline und auf den Dateikarten scrollt ein Wischen die Liste, auch wenn der Finger auf einem Clip oder einer Karte beginnt (mit Auslaufen nach dem Loslassen). Erst nach etwa 0,4 s Halten (kurzes Rütteln und ein Ring) greift der Clip oder die Karte: dann lässt er sich verschieben, trimmen oder auf die Timeline ziehen; hält man noch länger still, erscheint das Menü (Teilen, Löschen). Lineal, Zeiger, Regler und Tasten reagieren sofort wie bisher. Die Zonen meldet die UI mit `hk_touch::zone(...)` an.
 

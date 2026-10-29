@@ -138,6 +138,10 @@ pub struct HappyKitten {
     pub phone: bool,
     /// Swipe-to-scroll / long-press-to-grab on touch screens.
     pub touch: hk_touch::Touch,
+    /// Heights of the tool area and the timeline on the phone (draggable).
+    pub phone_layout: crate::phone::PhoneLayout,
+    /// Status bar and gesture bar heights, for the phone layout.
+    pub safe_insets: (f32, f32),
 }
 
 /// What to do once the user has decided about unsaved changes.
@@ -201,6 +205,8 @@ impl HappyKitten {
             ask_discard: None,
             phone: false,
             touch: Default::default(),
+            phone_layout: crate::phone::PhoneLayout::load(),
+            safe_insets: (0.0, 0.0),
         };
         if !app.is_dev_run()
             && let Some(dir) = crate::autosave::dir()
@@ -1316,10 +1322,7 @@ impl eframe::App for HappyKitten {
         let [top, bottom, ..] = crate::platform::safe_insets(ctx.pixels_per_point());
         self.safe_area(ui, top, bottom);
         if self.phone {
-            // from the bottom up: tools, timeline, then the player takes what is left
-            self.pool_panel(ui);
-            self.timeline_panel(ui);
-            self.header_phone(ui);
+            self.phone_layout_ui(ui);
         } else {
             self.header(ui);
             self.timeline_panel(ui);
