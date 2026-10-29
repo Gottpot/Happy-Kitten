@@ -4,6 +4,14 @@
 
 Alle wichtigen Änderungen an Happy-Kitten stehen hier. Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [Android 1.0.1] - 2026-10-29
+
+### Behoben
+- **Die Sprache ließ sich auf dem Handy nicht ändern:** Der Sprachknopf im ⋯-Menü schloss das ganze Menü, die Liste erschien nie. Alle Sprachen stehen jetzt direkt im Menü.
+- Auswahlfelder in den Handy-Menüs öffneten sich nicht (Bild anpassen, Datei-Filter). Sie sind jetzt Reihen aus Knöpfen.
+- Die Fenster für Export, Fortschritt und „Über“ waren breiter als ein Handy-Bildschirm, am stärksten auf Japanisch. Sie passen jetzt auf den Bildschirm, lange Einträge in den Export-Auswahlfeldern werden mit „…“ gekürzt.
+- Das Kätzchen-Menü schließt sich, nachdem Dateien gewählt wurden.
+
 ## [Android 1.0.0] - 2026-10-29
 
 Die erste Android-Version (Handy und Tablet) liegt in `android-port/` und hat eine eigene Versionslinie. Die Mac-Version bleibt bei 1.3.0.

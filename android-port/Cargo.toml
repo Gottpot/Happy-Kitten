@@ -6,7 +6,7 @@ members = ["app", "hk-media", "hk-text", "hk-touch"]
 
 [workspace.package]
 # Android hat eine eigene Versionslinie (Mac: siehe Hauptordner).
-version = "1.0.0"
+version = "1.0.1"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 rust-version = "1.95"
