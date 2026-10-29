@@ -23,6 +23,17 @@ android-port/scripts/build.sh release           # APK nach android-port/build/ha
 
 Auf dem Gerät: Entwickleroptionen → USB-Debugging, dann `adb devices` muss das Gerät zeigen.
 
+## Release
+
+```bash
+android-port/scripts/build.sh release     # → android-port/build/Happy-Kitten-<Version>-Android-arm64.apk
+```
+
+* Das APK wird mit dem Release-Schlüssel aus `~/.happy-kitten-signing/` signiert (`release.keystore` und `keystore.pass`, **nie ins Repo**). Beides **sichern**: Ohne diesen Schlüssel lässt sich kein Update mehr über eine installierte Version legen, Nutzer müssten deinstallieren. SHA-256 des Zertifikats: `D0:39:B0:21:BE:F5:AC:F8:FC:D8:11:8C:1D:60:F2:46:21:26:D4:1B:D8:E8:42:5B:3F:FC:60:5C:0E:CF:E7:C6`.
+* Die Version steht in `android-port/Cargo.toml` (`[workspace.package]`, eigene Linie, derzeit 1.0.0). Der Versionscode wird daraus berechnet (1.2.3 → 10203) und muss bei jedem Release steigen.
+* Ablauf: Version erhöhen, `CHANGELOG*.md` ergänzen, bauen, das APK auf dem Gerät prüfen, Tag (z. B. `android-v1.0.0`) und GitHub-Release anlegen, das APK anhängen.
+* Wurde vorher ein Debug-APK installiert, muss es zuerst deinstalliert werden (`adb uninstall de.gottpot.happykitten`), weil der Schlüssel ein anderer ist.
+
 ## Layout
 
 * **Tablet** (kürzere Seite ≥ 720 pt): wie am Mac (Pool links, Player rechts oben, Timeline unten).

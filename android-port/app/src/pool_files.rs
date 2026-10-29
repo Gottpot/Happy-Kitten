@@ -142,7 +142,7 @@ impl HappyKitten {
     pub fn pool_files(&mut self, ui: &mut Ui, audio: bool) {
         // On the phone scope, import and filters live in the kitten menu (`phone.rs`).
         if !self.phone {
-            self.scope_import_row(ui);
+            let _ = self.scope_import_row(ui);
             self.filter_bar(ui, audio);
         }
 
@@ -192,18 +192,21 @@ impl HappyKitten {
     }
 
     /// "This project / Global" and the import button.
-    pub fn scope_import_row(&mut self, ui: &mut Ui) {
+    /// True when the import button was pressed.
+    pub fn scope_import_row(&mut self, ui: &mut Ui) -> bool {
         ui.horizontal_wrapped(|ui| {
             ui.spacing_mut().item_spacing = vec2(5.0, 5.0);
             self.scope_switch_inline(ui);
             ui.add_space(4.0);
-            if kit::pill(ui, Some(Icon::Plus), tr("Dateien"), false, true)
+            let import = kit::pill(ui, Some(Icon::Plus), tr("Dateien"), false, true)
                 .on_hover_text(tr("Mehrere Dateien auf einmal wählen (⌘I)"))
-                .clicked()
-            {
+                .clicked();
+            if import {
                 self.import_dialog();
             }
-        });
+            import
+        })
+        .inner
     }
 
     /// Two kinds of imports: "Projekt" (only this project) and "Global" (every project).

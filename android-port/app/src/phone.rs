@@ -236,7 +236,10 @@ impl HappyKitten {
                 if let Some(audio) = files {
                     ui.separator();
                     ui.label(egui::RichText::new(tr("Dateien")).size(13.0).color(BROWN_SOFT));
-                    self.scope_import_row(ui);
+                    if self.scope_import_row(ui) {
+                        // the file picker takes over; the menu would still be there afterwards
+                        ui.close();
+                    }
                     self.filter_bar(ui, audio);
                 }
             });

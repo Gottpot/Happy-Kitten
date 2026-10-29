@@ -55,21 +55,30 @@ impl HappyKitten {
                             .paint_at(
                                 ui,
                                 Rect::from_center_size(
-                                    rect.center() - vec2(0.0, 12.0),
-                                    egui::Vec2::splat(rect.height() * 0.62),
+                                    // phone: room for a two-line hint below the logo
+                                    rect.center() - vec2(0.0, if phone { 26.0 } else { 12.0 }),
+                                    egui::Vec2::splat(
+                                        rect.height() * if phone { 0.5 } else { 0.62 },
+                                    ),
                                 ),
                             );
-                        ui.painter().text(
-                            pos2(rect.center().x, rect.bottom() - 22.0),
-                            Align2::CENTER_CENTER,
-                            if phone {
-                                tr("Tippe aufs Kätzchen oben links und wähle Dateien")
-                            } else {
-                                tr("Zieh ein Medium auf die Timeline")
-                            },
+                        // wrapped and centred, so a long translation stays inside the frame
+                        let hint = if phone {
+                            tr("Tippe aufs Kätzchen oben links und wähle Dateien")
+                        } else {
+                            tr("Zieh ein Medium auf die Timeline")
+                        };
+                        let mut job = egui::text::LayoutJob::simple(
+                            hint.to_string(),
                             egui::FontId::proportional(15.0),
                             BROWN,
+                            rect.width() - 24.0,
                         );
+                        job.halign = egui::Align::Center;
+                        let galley = ui.painter().layout_job(job);
+                        let y = rect.bottom() - 10.0 - galley.size().y;
+                        ui.painter()
+                            .galley(pos2(rect.center().x, y), galley, BROWN);
                     }
                     ui.add_space(8.0);
                     self.player_controls(ui);

@@ -4,6 +4,22 @@
 
 Alle wichtigen Änderungen an Happy-Kitten stehen hier. Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen folgen [Semantic Versioning](https://semver.org/lang/de/).
 
+## [Android 1.0.0] - 2026-10-29
+
+Die erste Android-Version (Handy und Tablet) liegt in `android-port/` und hat eine eigene Versionslinie. Die Mac-Version bleibt bei 1.3.0.
+
+### Neu
+- **Happy-Kitten für Android** (ab Android 10, 64-Bit-ARM): derselbe Editor mit allen Blenden, Effekten, Texten, Grafiken, Farbe und Ton, komplett offline und ohne Berechtigungen.
+- **Handy-Layout:** oben der Player, darunter die Timeline, ganz unten die Assets. Die Werkzeug-Tabs und die Datei-Optionen (dieses Projekt / global, Import, Suche, Filter) liegen hinter dem Kätzchen oben links. Die Assets lassen sich als Kacheln, Liste oder Tabelle zeigen, die Trennlinien zwischen den Blöcken sind ziehbar, die Höhen werden gemerkt. Ein Tablet nutzt das Layout der Mac-Version.
+- **Touch-Bedienung:** Wischen scrollt die Timeline und die Dateikarten, auch über einem Clip; erst langes Drücken (mit kurzem Rütteln) greift einen Clip oder eine Karte zum Verschieben, Trimmen oder Ziehen. Lineal, Zeiger, Regler und Tasten reagieren sofort. Ein Tippen auf eine Dateikarte legt sie auf die Timeline.
+- **Video über die eigenen Codecs von Android** (MediaCodec): Import, Vorschau und MP4-Export mit H.264 (HEVC, wo das Gerät einen Encoder hat) und AAC-Ton. Exporte landen in der Galerie (*Movies/Happy-Kitten*).
+- Dateien kommen über die Android-Dateiauswahl; Projekte, Autosave und Einstellungen liegen im eigenen Ordner der App.
+- Bau ohne Gradle: `android-port/scripts/build.sh release` erzeugt das signierte APK.
+
+### Hinweise
+- Ordner lassen sich auf Android nicht importieren, wähle stattdessen die Dateien. Die Bildschirmtastatur bietet in Textfeldern nur einfache Tasten (keine japanische Eingabe).
+- Das Release ist mit einem eigenen Schlüssel signiert (SHA-256 `D0:39:B0:21:BE:F5:AC:F8:FC:D8:11:8C:1D:60:F2:46:21:26:D4:1B:D8:E8:42:5B:3F:FC:60:5C:0E:CF:E7:C6`), spätere Versionen lassen sich also darüber installieren.
+
 ## [1.3.0] - 2026-10-26
 
 ### Neu
