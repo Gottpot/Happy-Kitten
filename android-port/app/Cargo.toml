@@ -1,0 +1,27 @@
+[package]
+name = "happy-kitten-android"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[lib]
+name = "happy_kitten"
+crate-type = ["cdylib"]
+
+[dependencies]
+hk-core = { workspace = true }
+hk-gpu = { workspace = true }
+hk-media = { workspace = true }
+hk-audio = { workspace = true }
+hk-text = { workspace = true }
+hk-touch = { workspace = true }
+egui = { workspace = true }
+eframe = { workspace = true }
+image = { workspace = true }
+serde_json = { workspace = true }
+log = { workspace = true }
+android-activity = { version = "0.6", features = ["native-activity"] }
+android_logger = "0.15"
+jni = "0.21"

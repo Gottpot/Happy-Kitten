@@ -34,6 +34,12 @@ xattr -dr com.apple.quarantine /Applications/Happy-Kitten.app
 
 Wer die App selbst baut (siehe unten), bekommt die Warnung nie. Der Quelltext ist offen und enthält keinen Netzwerkcode.
 
+### Android (Handy und Tablet)
+
+Unter [Releases](../../releases) liegt `Happy-Kitten-….apk` (Android 10 oder neuer, 64-Bit-ARM). Datei öffnen; Android fragt einmal, ob Apps aus dieser Quelle installiert werden dürfen, und Google Play Protect kann warnen, weil die App nicht aus dem Play Store kommt. Wie die Mac-Version arbeitet sie komplett offline und verlangt keine Berechtigungen: Dateien kommen über die Android-Dateiauswahl herein, fertige Filme landen in der Galerie (*Movies/Happy-Kitten*).
+
+Auf dem Handy sitzt oben der Player, darunter die Timeline und ganz unten die Assets; die Werkzeuge liegen hinter dem Kätzchen oben links. Wischen scrollt, langes Drücken greift einen Clip. Auf dem Tablet sieht es aus wie am Mac. Das Release ist mit meinem eigenen Schlüssel signiert, der SHA-256-Fingerabdruck lautet `D0:39:B0:21:BE:F5:AC:F8:FC:D8:11:8C:1D:60:F2:46:21:26:D4:1B:D8:E8:42:5B:3F:FC:60:5C:0E:CF:E7:C6`. Quelltext und Bauanleitung: [`android-port/`](android-port/README.md).
+
 ## Starten
 
 ```bash

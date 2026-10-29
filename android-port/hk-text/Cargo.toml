@@ -1,0 +1,11 @@
+[package]
+name = "hk-text"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[dependencies]
+hk-core = { workspace = true }
+fontdue = "0.9"

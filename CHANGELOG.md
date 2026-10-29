@@ -4,6 +4,22 @@
 
 All notable changes to Happy-Kitten are written down here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
+## [Android 1.0.0] - 2026-10-29
+
+The first Android version (phone and tablet) lives in `android-port/` and has its own version line. The Mac version stays at 1.3.0.
+
+### Added
+- **Happy-Kitten for Android** (Android 10 or newer, 64-bit ARM): the same editor with all transitions, effects, text, graphics, colour and sound, working completely offline and without permissions.
+- **Phone layout:** player on top, timeline below it, assets at the bottom. The tool tabs and the file options (this project / global, import, search, filters) are behind the kitten at the top left. The assets can be shown as tiles, a list or a table, and the handles between the blocks can be dragged; the heights are remembered. A tablet uses the layout of the Mac version.
+- **Touch control:** swiping scrolls the timeline and the file cards, also over a clip; only a long press (with a short buzz) grabs a clip or a card to move, trim or drag it. Ruler, playhead, sliders and buttons react immediately. Tapping a file card puts it on the timeline.
+- **Video through Android's own codecs** (MediaCodec): import, preview and MP4 export with H.264 (HEVC where the device has an encoder) and AAC sound. Exports are saved to the gallery (*Movies/Happy-Kitten*).
+- Files come in through Android's file picker; projects, autosave and settings live in the app's own folder.
+- Build without Gradle: `android-port/scripts/build.sh release` makes the signed APK.
+
+### Notes
+- Folders cannot be imported on Android; choose the files instead. The on-screen keyboard offers only simple keys in text fields (no Japanese input).
+- The release is signed with its own key (SHA-256 `D0:39:B0:21:BE:F5:AC:F8:FC:D8:11:8C:1D:60:F2:46:21:26:D4:1B:D8:E8:42:5B:3F:FC:60:5C:0E:CF:E7:C6`), so later versions can be installed over it.
+
 ## [1.3.0] - 2026-10-26
 
 ### Added

@@ -1,0 +1,11 @@
+[package]
+name = "hk-touch"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[dependencies]
+egui = { workspace = true }
+log = { workspace = true }
